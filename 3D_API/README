@@ -1,0 +1,27 @@
+//
+// Totoki (totoki@am.ics.keio.ac.jp) 2017.8.8 (tiny update by koibuchi@nii.ac.jp)
+//
+1. Prepare ``test.data'' file for target layout of 3-D chip stacking
+
+File format (each line):
+chipname, Z-axis(1,2,...), X-axis, Y-axis, Frequency(MHz), chip rotation(not supported yet)
+TULSA 1 0.00 0.00 1380 0  
+TULSA 1 0.03 0.00 541 0
+TULSA 1 0.00 0.03 3400 0
+TULSA 1 0.03 0.03 185 0
+TULSA 2 0.04 0.04 541 0 
+TULSA 2 0.01 0.01 3400 0
+
+# Currently, Only Intel Tulsa processor chip is supported.
+# Intel Tulsa chip:0.02184 x 0.02184 (m).
+
+2. Execution for test.data
+make
+python hotspot.py [water | air | oil ]
+
+results
+./tmp.results -> a highest temperature of modules on all chips
+./figure/*.pdf -> Temperature distribution of all chips.
+
+# Notice that temperature_grid.c is updated on HotSpot-6.0 distribution.
+
