@@ -545,8 +545,9 @@ int main(int argc, char **argv)
   /* print steady state results	*/
   //BU_3D: Only print steady state results to stdout when DEBUG3D flag is not set
 #if DEBUG3D < 1
-  fprintf(stdout, "Unit\tSteady(Kelvin)\n");
-  dump_temp(model, steady_temp, "stdout");
+  /*toto changed comment out the following two lines*/	
+  //fprintf(stdout, "Unit\tSteady(Kelvin)\n");
+  //dump_temp(model, steady_temp, "stdout");
 #endif //end->BU_3D
 
   /* dump steady state temperatures on to file if needed	*/
