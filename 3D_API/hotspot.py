@@ -53,4 +53,6 @@ for i in xrange(0, layer_num):
 	os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 	os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
 	os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
-	os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
+
+#pick up the max temperature form max temperature of each layers
+os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
