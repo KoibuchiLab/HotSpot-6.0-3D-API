@@ -5,7 +5,12 @@
 #define MAX_LAYER_NUM 10 ///supporting up to 10 chip stacking
 #define GRID_SIZE 512
 #define MAX_CHAR_SIZE 100 // input file format
-#define MAX_GROUP_NUM 50 
+#define MAX_GROUP_NUM 50
+
+#define TULSA_X 0.02184
+#define TULSA_Y 0.02184
+#define PHI7250_X 0.0315
+#define PHI7250_Y 0.0205     
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
 //gird_group_label shows, what group the grid belong.
 //if this label is 1, the grid belong chips.
@@ -33,15 +38,16 @@ int main(void){
 	char *fname = "test.data"; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
-	//char *chip_name;  
+	char *chip_name;  
 	int i, j, w;
 	int x, y;
 	float chip_x, chip_y;
+	float chip_xlen, chip_ylen;
 	int layer;
 	//int rotate, freq; 
 
 	float system_size = 0; // system X or Y length of 3D-chip stacking.
-	float h = 0.02184; //default Xeon Tulsa chip length (m)
+	//float h = 0.02184; //default Xeon Tulsa chip length (m)
 	float cell = -1; // length of each grid size (m)
 
 	for(w = 0; w < MAX_LAYER_NUM; w++)
@@ -58,18 +64,28 @@ int main(void){
 	//Find longest (X or Y-) lenggh of 3-D chip-stacking (including null block). 
 	while(fgets(s1,MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++) s2[i] = s1[i];
-		strtok(s2, " ");
-		//chip_name = strtok(s2, " ");
+		chip_name = strtok(s2, " ");
+		if(!strcmp(chip_name, "tulsa")){
+			chip_xlen = TULSA_X;
+			chip_ylen = TULSA_Y;
+		}else if(!strcmp(chip_name, "phi7250")){
+			chip_xlen = PHI7250_X;
+			chip_ylen = PHI7250_Y;
+		}else{
+			fprintf(stderr, "invalid chip name in test.data");
+			exit(1);
+		}
 		layer = atoi(strtok(NULL, " "));
 		chip_x = atof(strtok(NULL, " "));
 		chip_y = atof(strtok(NULL, " "));
 		//freq = atoi(strtok(NULL, " "));
 		//rotate = atoi(strtok(NULL, " "));
 
-		if(chip_x+h > system_size)
-			system_size = chip_x+h;
-		if(chip_y+h > system_size)
-			system_size = chip_y+h; 		
+		//create the SQUARE that include all chips, the length would be system_size 
+		if(chip_x+chip_xlen > system_size)
+			system_size = chip_x+chip_xlen;
+		if(chip_y+chip_ylen > system_size)
+			system_size = chip_y+chip_ylen; 		
 	}	
 	cell = system_size /(float)GRID_SIZE;
 
@@ -85,8 +101,17 @@ int main(void){
 	while(fgets(s1, MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++)
 			s2[i] = s1[i];
-		//chip_name = strtok(s2, " ");
-		strtok(s2, " ");
+		chip_name = strtok(s2, " ");
+		if(!strcmp(chip_name, "tulsa")){
+			chip_xlen = TULSA_X;
+			chip_ylen = TULSA_Y;
+		}else if(!strcmp(chip_name, "phi7250")){
+			chip_xlen = PHI7250_X;
+			chip_ylen = PHI7250_Y;
+		}else{
+			fprintf(stderr, "invalid chip name in test.data");
+			exit(1);
+		}
 		layer = atoi(strtok(NULL, " "));
 		chip_x = atof(strtok(NULL, " "));
 		chip_y = atof(strtok(NULL, " "));
@@ -94,9 +119,9 @@ int main(void){
 		//rotate = atoi(strtok(NULL, " "));
 	
 		x_left = chip_x / cell;
-		x_right = (chip_x+h) /cell;
+		x_right = (chip_x+chip_xlen) /cell;
 		y_top = chip_y / cell;
-		y_bottom = (chip_y+h) /cell;
+		y_bottom = (chip_y+chip_ylen) /cell;
 		for(i = x_left; i < x_right; i++)
 			for(j = y_top; j < y_bottom; j++)		
 				grid_group_label[layer][i][j] = 1; 		

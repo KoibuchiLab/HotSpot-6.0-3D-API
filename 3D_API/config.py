@@ -4,9 +4,15 @@ import sys
 
 args = sys.argv
 
-AIR_H = 13
-OIL_H = 160
-WATER_H = 800
+tulsa_x = 0.02184 #default tulsa chip size
+tulsa_y = 0.02184
+
+phi7250_x = 0.0315 #default phi7250 chip size 
+phi7250_y = 0.0205
+
+AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR 
+OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL
+WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER
 
 if args[1] == "water":
 	H_TRANS = WATER_H
@@ -22,7 +28,7 @@ os.system("rm -f tmp")
 os.system("cat test.data | sort -n -k2 > tmp")
 
 f = open('tmp')
-lines2 = f.readlines()
+chip_lines = f.readlines()
 f.close
 
 os.system("rm -f test.config")
@@ -33,11 +39,23 @@ layer_tmp = 0;
 count_tmp = 0;
 
 lay, count, rotate = [], [], []
+chip_x, chip_y = [], []
 x, y = [], []
-tulsa_x = 0.02184
-tulsa_y = 0.02184
-for line in lines2:
+
+for line in chip_lines:
 	data = line[:-1].split(' ')
+	chip_name = str(data[0])
+
+	if chip_name == 'tulsa':
+		chip_x += [float (tulsa_x)]
+		chip_y += [float (tulsa_y)]
+	elif chip_name == 'phi7250':
+		chip_x += [float (phi7250_x)]
+		chip_y += [float (phi7250_y)]
+	else:
+		sys.stderr('invalid chip name in test.data')
+		sys.exit()
+
 	lay += [int(data[1])]
 	rotate += [int(data[5])]
 	x += [float(data[2])]
@@ -54,17 +72,17 @@ num = len(rotate)
 max_size = -10.0 
 for i in xrange(0, num):
 	if rotate[i] == 0 or rotate[i] == 180:
-		if x[i]+tulsa_x > max_size:
-			max_size = x[i]+tulsa_x
-		if y[i]+tulsa_y > max_size:
-			max_size = y[i]+tulsa_y
+		if x[i]+chip_x[i] > max_size:
+			max_size = x[i]+chip_x[i]
+		if y[i]+chip_y[i] > max_size:
+			max_size = y[i]+chip_y[i]
 	else:
-		if x[i]+tulsa_y > max_size:
-			max_size = x[i]+tulsa_y
-		if y[i]+tulsa_x > max_size:
-			max_size = y[i]+tulsa_x
+		if x[i]+chip_y[i] > max_size:
+			max_size = x[i]+chip_y[i]
+		if y[i]+chip_x[i] > max_size:
+			max_size = y[i]+chip_x[i]
 
-heat_spread_size = 3.0*max_size 
+heat_spread_size = 3.0*max_size  ## I will fix after work
 heatsink_size = 6.0*max_size
 convec_first = 1 / (H_TRANS * (0.3024*heatsink_size/0.12) *(0.3024*heatsink_size/0.12)) 
 convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size) 
