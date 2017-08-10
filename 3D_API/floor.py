@@ -10,7 +10,7 @@ tulsa_y = 0.02184
 phi7250_x = 0.0315 #default phi7250 chip size
 phi7250_y = 0.0205 
 
-material = 2  # 0:tim 1:metal 2:air
+material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
 material_resistance = [2e-5, 0.0025, 0.25]
 
