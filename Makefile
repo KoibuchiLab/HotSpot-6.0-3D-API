@@ -17,7 +17,8 @@ ifeq ($(SUPERLU), 1)
 SuperLUroot = /usr/lib/x86_64-linux-gnu
 SUPERLULIB      = $(SuperLUroot)/libsuperlu.so.4
 BLASLIB         = -L $(SuperLUroot) -lblas
-SLU_HEADER  = /home/koibuchi/compile/SuperLU_4.3/SRC
+#SLU_HEADER  = /home/koibuchi/compile/SuperLU_4.3/SRC
+SLU_HEADER  = /usr/include/superlu/
 #SuperLUroot	= /net/if10/rz3vg/Runjie/Temp/SuperLU_4.3
 #SUPERLULIB 	= $(SuperLUroot)/lib/libsuperlu_4.3.a
 #BLASLIB    	= -L $(SuperLUroot) -lblas
