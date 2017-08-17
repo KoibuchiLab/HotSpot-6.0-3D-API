@@ -60,6 +60,13 @@ for line2 in null_data_lines:
 
 layer_num = chip_layer[len(chip_layer)-1]+1;
 
+#######
+#for debug print 
+#######
+
+#def out(s):
+#	print s
+#os.system = out
 
 ## fixing h to chip_x & chip_y hasn't finished. it doesn't affect output when using rotate:0.
 for i in xrange(1, layer_num):
@@ -69,11 +76,11 @@ for i in xrange(1, layer_num):
 			if rotate[j] == 0: 
 				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 90:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +",h-$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +","+str(h)+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 180:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,h-$4+"+str(chip_x[j]) +",h-$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,"+str(h)+"-$4-$2+"+str(chip_x[j]) +",h-$5-$3+"+str(chip_y[j])+"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 270:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,h-$5+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(h)+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 	for k in xrange(0, len(null_layer)):
 		if null_layer[k] == i:
 			os.system("echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp ")

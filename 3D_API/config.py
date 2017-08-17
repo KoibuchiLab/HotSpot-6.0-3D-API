@@ -10,6 +10,9 @@ tulsa_y = 0.02184
 phi7250_x = 0.0315 #default phi7250 chip size 
 phi7250_y = 0.0205
 
+e52667v4_x = 0.012634 #default e5-2676v4 chip size
+e52667v4_y = 0.014172 
+
 AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR 
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL
 WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER
@@ -52,6 +55,9 @@ for line in chip_lines:
 	elif chip_name == 'phi7250':
 		chip_x += [float (phi7250_x)]
 		chip_y += [float (phi7250_y)]
+	elif chip_name == 'e5-2667v4':
+		chip_x += [float (e52667v4_x)]
+		chip_y += [float (e52667v4_y)]
 	else:
 		sys.stderr('invalid chip name in test.data')
 		sys.exit()

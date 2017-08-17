@@ -7,10 +7,13 @@
 #define MAX_CHAR_SIZE 100 // input file format
 #define MAX_GROUP_NUM 50
 
-#define TULSA_X 0.02184
+#define TULSA_X 0.02184   //default chip sizes
 #define TULSA_Y 0.02184
 #define PHI7250_X 0.0315
-#define PHI7250_Y 0.0205     
+#define PHI7250_Y 0.0205
+#define E52667V4_X 0.012634
+#define E52667V4_Y 0.014172
+     
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
 //gird_group_label shows, what group the grid belong.
 //if this label is 1, the grid belong chips.
@@ -71,6 +74,9 @@ int main(void){
 		}else if(!strcmp(chip_name, "phi7250")){
 			chip_xlen = PHI7250_X;
 			chip_ylen = PHI7250_Y;
+		}else if(!strcmp(chip_name, "e5-2667v4")){
+			chip_xlen = E52667V4_X;
+			chip_ylen = E52667V4_Y;
 		}else{
 			fprintf(stderr, "invalid chip name in test.data");
 			exit(1);
@@ -108,6 +114,9 @@ int main(void){
 		}else if(!strcmp(chip_name, "phi7250")){
 			chip_xlen = PHI7250_X;
 			chip_ylen = PHI7250_Y;
+		}else if(!strcmp(chip_name, "e5-2667v4")){
+			chip_xlen = E52667V4_X;
+			chip_ylen = E52667V4_Y;
 		}else{
 			fprintf(stderr, "invalid chip name in test.data");
 			exit(1);
