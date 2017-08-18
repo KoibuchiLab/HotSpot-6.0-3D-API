@@ -24,7 +24,7 @@ for line in chip_lines:
 	data = line[:-1].split(' ')
 	chip_name += [str(data[0])]
 	chip_layer += [int(data[1])]
-	freq += [int(data[4])]
+	freq += [str(data[4])]
 	if int(data[1])== layer_tmp:
 		count_tmp +=1
 		layer_tmp = int(data[1])
