@@ -3,28 +3,33 @@ import os
 import sys
 
 args = sys.argv
-if len(args) == 1:
-	sys.stderr.write('error: you need more args \"air or water or oil\" \n')
-	sys.exit()
-elif len(args) > 2:
-	sys.stderr.write('error: you can use only args \"air or water or oil\" \n')
-	sys.exit()
-elif args[1] == "water":
+
+if len(args) != 3:
+	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> [air|water|oil]\" \n')
+	sys.exit(1)
+
+input_file = args[1]
+
+if not os.access(input_file, os.R_OK):
+	sys.stderr.write("Can't read file '"+input_file+"'\n");
+	sys.exit(1)
+
+if args[2] == "water":
 	material = "water"
-elif args[1] == "oil":
+elif args[2] == "oil":
 	material = "oil"
-elif args[1] == "air":
+elif args[2] == "air":
 	material = "air"
 else:
-	sys.stderr.write('error: you used invalid args, you can use \"air or water or oil\" \n')
-	sys.exit()
+	sys.stderr.write('Invalid medium argument. Should be [air|water|oil]\" \n')
+	sys.exit(1)
  
 
 	 
 
 #os.system("rm -f tmp.grid.steady")
 os.system("rm -f null.data")
-os.system("cat test.data | sort -n -k2 > tmp")
+os.system("cat " + input_file + " | sort -n -k2 > tmp")
 
 f = open('tmp')
 lines2 = f.readlines()
