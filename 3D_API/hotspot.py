@@ -4,8 +4,8 @@ import sys
 
 args = sys.argv
 
-if len(args) != 3:
-	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> [air|water|oil]\" \n')
+if ((len(args) != 3) and (len(args) != 4)):
+	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil> [--no_images]\" \n')
 	sys.exit(1)
 
 input_file = args[1]
@@ -24,6 +24,14 @@ else:
 	sys.stderr.write('Invalid medium argument. Should be [air|water|oil]\" \n')
 	sys.exit(1)
  
+no_images = False
+if (len(args) == 4):
+	if (args[3] == "--no_images"):
+		no_images = True
+	else:
+	 	sys.stderr.write("Invalid argument '" + args[3] +"'\n");
+		sys.exit(1)
+
 
 	 
 
@@ -55,9 +63,10 @@ os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type gri
 for i in xrange(0, layer_num): 
 	os.system("cat tmp.grid.steady | sed -n "+ str(5+i*4098*2)+ "," +str(5+i*4098*2+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
 	os.system("cat tmp.grid.steady | sed -n "+ str(5+i*4098*2)+ "," +str(5+i*4098*2+4095) +"p > layer" + str(i+1) + ".grid.steady")
-	os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
-	os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
-	os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
+	if (not no_images):
+		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
+		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
+		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
 
 #pick up the max temperature form max temperature of each layers
 os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
