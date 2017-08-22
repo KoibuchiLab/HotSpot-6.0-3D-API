@@ -3,7 +3,7 @@
 #include<string.h> 
 
 #define MAX_LAYER_NUM 10 ///supporting up to 10 chip stacking
-#define GRID_SIZE 512
+#define GRID_SIZE 2048
 #define MAX_CHAR_SIZE 100 // input file format
 #define MAX_GROUP_NUM 50
 
