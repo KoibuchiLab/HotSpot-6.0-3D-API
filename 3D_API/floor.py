@@ -1,8 +1,19 @@
 #!/usr/bin/python
 import os
+import sys
+
+if (len(sys.argv) != 2):
+	sys.stderr.write("Usage: " + sys.argv[0] + " <input file (.dat)>\n")
+	sys.exit(1)
+
+input_file = sys.argv[1]
+if not os.access(input_file, os.R_OK):
+        sys.stderr.write("Can't read file '"+input_file+"'\n")
+        sys.exit(1)
+
 
 os.system("rm -f tmp")
-os.system("cat test.data | sort -n -k2 > tmp")
+os.system("cat " + input_file + " | sort -n -k2 > tmp")
 
 h = 0.02184 # i will use this sizes in rotating chips, but yet.  
 tulsa_x = 0.02184 #default xeon tulsa chip size 
@@ -15,7 +26,7 @@ material_capacity = [0.25, 4e6, 4e6]
 material_resistance = [2e-5, 0.0025, 0.25]
 
 f = open('tmp')
-test_data_lines = f.readlines()
+data_lines = f.readlines()
 f.close
 
 f2 = open('null.data')
@@ -31,7 +42,7 @@ count_tmp = 0;
 chip_layer, count, rotate = [], [], []
 chip_x, chip_y, chip_name = [], [], []
 
-for line in test_data_lines:
+for line in data_lines:
 	data = line[:-1].split(' ')
 	chip_name += [str(data[0])]
 	chip_layer += [int(data[1])]

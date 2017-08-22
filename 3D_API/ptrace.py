@@ -1,8 +1,21 @@
 #!/usr/bin/python
 import os
 
+import sys
+
+if (len(sys.argv) != 2):
+        sys.stderr.write("Usage: " + sys.argv[0] + " <input file (.dat)>\n")
+        sys.exit(1)
+
+input_file = sys.argv[1]
+if not os.access(input_file, os.R_OK):
+        sys.stderr.write("Can't read file '"+input_file+"'\n")
+        sys.exit(1)
+
+
+
 os.system("rm -f tmp")
-os.system("cat test.data | sort -n -k2 > tmp")
+os.system("cat " + input_file + " | sort -n -k2 > tmp")
 
 f = open('tmp')
 chip_lines = f.readlines()

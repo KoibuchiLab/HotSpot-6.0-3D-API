@@ -36,9 +36,9 @@ void graph(void){
 	}
 }
 
-int main(void){
+int main(int argc, char **argv){
 	FILE *fp;
-	char *fname = "test.data"; // input 3-D stacking layout file
+	char *fname; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
 	char *chip_name;  
@@ -48,6 +48,13 @@ int main(void){
 	float chip_xlen, chip_ylen;
 	int layer;
 	//int rotate, freq; 
+
+	if (argc != 2) {
+		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
+		exit(1);
+	}
+
+	fname = argv[1];
 
 	float system_size = 0; // system X or Y length of 3D-chip stacking.
 	//float h = 0.02184; //default Xeon Tulsa chip length (m)
@@ -78,7 +85,7 @@ int main(void){
 			chip_xlen = E52667V4_X;
 			chip_ylen = E52667V4_Y;
 		}else{
-			fprintf(stderr, "invalid chip name in test.data");
+			fprintf(stderr, "invalid chip name in input file '%s'", fname);
 			exit(1);
 		}
 		layer = atoi(strtok(NULL, " "));
@@ -118,7 +125,7 @@ int main(void){
 			chip_xlen = E52667V4_X;
 			chip_ylen = E52667V4_Y;
 		}else{
-			fprintf(stderr, "invalid chip name in test.data");
+			fprintf(stderr, "invalid chip name in input file '%s'", fname);
 			exit(1);
 		}
 		layer = atoi(strtok(NULL, " "));

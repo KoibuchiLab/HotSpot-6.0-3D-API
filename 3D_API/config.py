@@ -4,6 +4,7 @@ import sys
 
 args = sys.argv
 
+
 tulsa_x = 0.02184 #default tulsa chip size
 tulsa_y = 0.02184
 
@@ -17,18 +18,28 @@ AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL
 WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER
 
-if args[1] == "water":
+if (len(args) != 3):
+	sys.stderr.write("Usage: " + args[0] + " <input file (.dat)> <water | air | oil>\n")
+	sys.exit(1)
+	
+if args[2] == "water":
 	H_TRANS = WATER_H
-elif args[1] == "air":
+elif args[2] == "air":
 	H_TRANS = AIR_H
-elif args[1] == "oil":
+elif args[2] == "oil":
 	H_TRANS = OIL_H
 else:
-	sys.stderr('error args')
-	sys.exit()
+	sys.stderr.write("Invalid argument '" + args[2] + "'\n")
+	sys.exit(1)
+
+input_file = args[1]
+if not os.access(input_file, os.R_OK):
+	sys.stderr.write("Can't read file '"+input_file+"'\n")
+	sys.exit(1)
+
 
 os.system("rm -f tmp")
-os.system("cat test.data | sort -n -k2 > tmp")
+os.system("cat " + input_file + " | sort -n -k2 > tmp")
 
 f = open('tmp')
 chip_lines = f.readlines()
@@ -59,7 +70,7 @@ for line in chip_lines:
 		chip_x += [float (e52667v4_x)]
 		chip_y += [float (e52667v4_y)]
 	else:
-		sys.stderr('invalid chip name in test.data')
+		sys.stderr('invalid chip name in input file ' + input_file)
 		sys.exit()
 
 	lay += [int(data[1])]

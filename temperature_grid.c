@@ -301,8 +301,8 @@ void set_bgmap(grid_model_t *model, layer_t *layer)
                        * be sharing it */
                       blist_append(layer->b2gmap[i][j], u, 1.0,res,sh,1,model->config.detailed_3D_used,cw,ch,layer->thickness);
                       warning("overlap of functional blocks?\n");
-			printf("layer: %s \n",layer->flp->units[u]);			
-			printf("i:%d j:%d i1:%d i2%d j1:%d j2:%d \n\n",i,j,i1,i2,j1,j2);
+			fprintf(stderr, "layer: %s \n",layer->flp->units[u]);			
+			fprintf(stderr, "i:%d j:%d i1:%d i2%d j1:%d j2:%d \n\n",i,j,i1,i2,j1,j2);
                   }
                   /* boundary grid cells partially overlapped by this unit	*/
               } else {
