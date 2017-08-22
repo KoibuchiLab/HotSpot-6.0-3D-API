@@ -82,7 +82,7 @@ int main(int argc, char **argv){
 		strtok(NULL, " ");
 		//freq = atoi(strtok(NULL, " "));
 		rotate = atoi(strtok(NULL, " "));
-		if(!strcmp(chip_name, "tulsa")){
+		if(strstr(chip_name, "tulsa") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = TULSA_X;
 				chip_ylen = TULSA_Y;
@@ -93,7 +93,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
-		}else if(!strcmp(chip_name, "phi7250")){
+		}else if(strstr(chip_name, "phi7250") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = PHI7250_X;
 				chip_ylen = PHI7250_Y;
@@ -104,7 +104,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
-		}else if(!strcmp(chip_name, "e5-2667v4")){
+		}else if(strstr(chip_name, "e5-2667v4") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = E52667V4_X;
 				chip_ylen = E52667V4_Y;
@@ -147,7 +147,7 @@ int main(int argc, char **argv){
 		strtok(NULL, " ");
 		//freq = atoi(strtok(NULL, " "));
 		rotate = atoi(strtok(NULL, " "));
-		if(!strcmp(chip_name, "tulsa")){
+		if(strstr(chip_name, "tulsa")!= NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = TULSA_X;
 				chip_ylen = TULSA_Y;
@@ -158,7 +158,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
-		}else if(!strcmp(chip_name, "phi7250")){
+		}else if(strstr(chip_name, "phi7250")!= NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = PHI7250_X;
 				chip_ylen = PHI7250_Y;
@@ -169,7 +169,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
-		}else if(!strcmp(chip_name, "e5-2667v4")){
+		}else if(strstr(chip_name, "e5-2667v4")!= NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = E52667V4_X;
 				chip_ylen = E52667V4_Y;

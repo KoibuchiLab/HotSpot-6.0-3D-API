@@ -47,20 +47,22 @@ chip_xlen, chip_ylen = [], []
 
 for line in data_lines:
 	data = line[:-1].split(' ')
-	chip_name += [str(data[0])]
 	chip_layer += [int(data[1])]
 	rotate += [int(data[5])]
 	chip_x += [float(data[2])]
 	chip_y += [float(data[3])]
-	if str(data[0]) == 'tulsa':
+	if 'tulsa' in str(data[0]):
 		chip_xlen += [float(tulsa_x)]
 		chip_ylen += [float(tulsa_y)]
-	elif str(data[0]) == 'phi7250':
+		chip_name += ['tulsa']
+	elif 'phi7250' in str(data[0]):
 		chip_xlen += [float(phi7250_x)]
 		chip_ylen += [float(phi7250_y)]
-	elif str(data[0]) == 'e5-2667v4':
+		chip_name += ['phi7250']
+	elif 'e5-2667v4' in str(data[0]):
 		chip_xlen += [float(e52667v4_x)]
 		chip_ylen += [float(e52667v4_y)]
+		chip_name += ['e5-2667v4']
 	else:
 		sys.stderr('invalid chip name')
 		sys.exit(1)
@@ -90,9 +92,9 @@ layer_num = chip_layer[len(chip_layer)-1]+1;
 #for debug print 
 #######
 
-def out(s):
-	print s
-os.system = out
+#def out(s):
+#	print s
+#os.system = out
 
 ## fixing h to chip_x & chip_y hasn't finished. it doesn't affect output when using rotate:0.
 for i in xrange(1, layer_num):

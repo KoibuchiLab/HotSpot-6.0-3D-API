@@ -61,13 +61,13 @@ for line in chip_lines:
 	chip_name = str(data[0])
 	rotate += [int(data[5])]
 
-	if chip_name == 'tulsa':
+	if 'tulsa' in chip_name:
 		chip_x += [float (tulsa_x)]
 		chip_y += [float (tulsa_y)]
-	elif chip_name == 'phi7250':
+	elif 'phi7250' in chip_name:
 		chip_x += [float (phi7250_x)]
 		chip_y += [float (phi7250_y)]
-	elif chip_name == 'e5-2667v4':
+	elif 'e5-2667v4' in chip_name:
 		chip_x += [float (e52667v4_x)]
 		chip_y += [float (e52667v4_y)]
 	else:
