@@ -19,7 +19,9 @@ h = 0.02184 # i will use this sizes in rotating chips, but yet.
 tulsa_x = 0.02184 #default xeon tulsa chip size 
 tulsa_y = 0.02184 
 phi7250_x = 0.0315 #default phi7250 chip size
-phi7250_y = 0.0205 
+phi7250_y = 0.0205
+e52667v4_x = 0.012634 #default e5-2667-v4 chip size
+e52667v4_y = 0.014172 
 
 material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
@@ -41,6 +43,7 @@ count_tmp = 0;
 
 chip_layer, count, rotate = [], [], []
 chip_x, chip_y, chip_name = [], [], []
+chip_xlen, chip_ylen = [], []
 
 for line in data_lines:
 	data = line[:-1].split(' ')
@@ -49,6 +52,18 @@ for line in data_lines:
 	rotate += [int(data[5])]
 	chip_x += [float(data[2])]
 	chip_y += [float(data[3])]
+	if str(data[0]) == 'tulsa':
+		chip_xlen += [float(tulsa_x)]
+		chip_ylen += [float(tulsa_y)]
+	elif str(data[0]) == 'phi7250':
+		chip_xlen += [float(phi7250_x)]
+		chip_ylen += [float(phi7250_y)]
+	elif str(data[0]) == 'e5-2667v4':
+		chip_xlen += [float(e52667v4_x)]
+		chip_ylen += [float(e52667v4_y)]
+	else:
+		sys.stderr('invalid chip name')
+		sys.exit(1)
 	if int(data[1])== layer_tmp:
 		count_tmp +=1
 		layer_tmp = int(data[1])
@@ -75,9 +90,9 @@ layer_num = chip_layer[len(chip_layer)-1]+1;
 #for debug print 
 #######
 
-#def out(s):
-#	print s
-#os.system = out
+def out(s):
+	print s
+os.system = out
 
 ## fixing h to chip_x & chip_y hasn't finished. it doesn't affect output when using rotate:0.
 for i in xrange(1, layer_num):
@@ -87,11 +102,11 @@ for i in xrange(1, layer_num):
 			if rotate[j] == 0: 
 				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 90:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +","+str(h)+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +","+str(chip_xlen[j])+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 180:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,"+str(h)+"-$4-$2+"+str(chip_x[j]) +",h-$5-$3+"+str(chip_y[j])+"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,"+str(chip_xlen[j])+"-$4-$2+"+str(chip_x[j]) +","+str(chip_ylen[j])+"-$5-$3+"+str(chip_y[j])+"}' >> test" + str(i) + ".flp  ")
 			elif rotate[j] == 270:
-				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(h)+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+				os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(chip_ylen[j])+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 	for k in xrange(0, len(null_layer)):
 		if null_layer[k] == i:
 			os.system("echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp ")

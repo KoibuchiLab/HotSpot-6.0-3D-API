@@ -47,7 +47,8 @@ int main(int argc, char **argv){
 	float chip_x, chip_y;
 	float chip_xlen, chip_ylen;
 	int layer;
-	//int rotate, freq; 
+	int rotate;
+	//int freq; 
 
 	if (argc != 2) {
 		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
@@ -75,24 +76,49 @@ int main(int argc, char **argv){
 	while(fgets(s1,MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++) s2[i] = s1[i];
 		chip_name = strtok(s2, " ");
-		if(!strcmp(chip_name, "tulsa")){
-			chip_xlen = TULSA_X;
-			chip_ylen = TULSA_Y;
-		}else if(!strcmp(chip_name, "phi7250")){
-			chip_xlen = PHI7250_X;
-			chip_ylen = PHI7250_Y;
-		}else if(!strcmp(chip_name, "e5-2667v4")){
-			chip_xlen = E52667V4_X;
-			chip_ylen = E52667V4_Y;
-		}else{
-			fprintf(stderr, "invalid chip name in input file '%s'", fname);
-			exit(1);
-		}
 		layer = atoi(strtok(NULL, " "));
 		chip_x = atof(strtok(NULL, " "));
 		chip_y = atof(strtok(NULL, " "));
+		strtok(NULL, " ");
 		//freq = atoi(strtok(NULL, " "));
-		//rotate = atoi(strtok(NULL, " "));
+		rotate = atoi(strtok(NULL, " "));
+		if(!strcmp(chip_name, "tulsa")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = TULSA_X;
+				chip_ylen = TULSA_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = TULSA_Y;
+				chip_ylen = TULSA_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else if(!strcmp(chip_name, "phi7250")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = PHI7250_X;
+				chip_ylen = PHI7250_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = PHI7250_Y;
+				chip_ylen = PHI7250_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else if(!strcmp(chip_name, "e5-2667v4")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = E52667V4_X;
+				chip_ylen = E52667V4_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = E52667V4_Y;
+				chip_ylen = E52667V4_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else{
+			fprintf(stderr, "invalid rotation in input file '%s'", fname);
+			exit(1);
+		}
 
 		//create the SQUARE that include all chips, the length would be system_size 
 		if(chip_x+chip_xlen > system_size)
@@ -115,25 +141,49 @@ int main(int argc, char **argv){
 		for(i = 0; i < MAX_CHAR_SIZE; i++)
 			s2[i] = s1[i];
 		chip_name = strtok(s2, " ");
-		if(!strcmp(chip_name, "tulsa")){
-			chip_xlen = TULSA_X;
-			chip_ylen = TULSA_Y;
-		}else if(!strcmp(chip_name, "phi7250")){
-			chip_xlen = PHI7250_X;
-			chip_ylen = PHI7250_Y;
-		}else if(!strcmp(chip_name, "e5-2667v4")){
-			chip_xlen = E52667V4_X;
-			chip_ylen = E52667V4_Y;
-		}else{
-			fprintf(stderr, "invalid chip name in input file '%s'", fname);
-			exit(1);
-		}
 		layer = atoi(strtok(NULL, " "));
 		chip_x = atof(strtok(NULL, " "));
 		chip_y = atof(strtok(NULL, " "));
+		strtok(NULL, " ");
 		//freq = atoi(strtok(NULL, " "));
-		//rotate = atoi(strtok(NULL, " "));
-	
+		rotate = atoi(strtok(NULL, " "));
+		if(!strcmp(chip_name, "tulsa")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = TULSA_X;
+				chip_ylen = TULSA_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = TULSA_Y;
+				chip_ylen = TULSA_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else if(!strcmp(chip_name, "phi7250")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = PHI7250_X;
+				chip_ylen = PHI7250_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = PHI7250_Y;
+				chip_ylen = PHI7250_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else if(!strcmp(chip_name, "e5-2667v4")){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = E52667V4_X;
+				chip_ylen = E52667V4_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = E52667V4_Y;
+				chip_ylen = E52667V4_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else{
+			fprintf(stderr, "invalid rotation in input file '%s'", fname);
+			exit(1);
+		}
 		x_left = chip_x / cell;
 		x_right = (chip_x+chip_xlen) /cell;
 		y_top = chip_y / cell;

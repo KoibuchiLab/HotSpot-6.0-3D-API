@@ -59,6 +59,7 @@ x, y = [], []
 for line in chip_lines:
 	data = line[:-1].split(' ')
 	chip_name = str(data[0])
+	rotate += [int(data[5])]
 
 	if chip_name == 'tulsa':
 		chip_x += [float (tulsa_x)]
@@ -74,7 +75,6 @@ for line in chip_lines:
 		sys.exit()
 
 	lay += [int(data[1])]
-	rotate += [int(data[5])]
 	x += [float(data[2])]
 	y += [float(data[3])]
 	if int(data[1])== layer_tmp:
@@ -93,11 +93,14 @@ for i in xrange(0, num):
 			max_size = x[i]+chip_x[i]
 		if y[i]+chip_y[i] > max_size:
 			max_size = y[i]+chip_y[i]
-	else:
+	elif rotate[i] == 90 or rotate[i] == 270:
 		if x[i]+chip_y[i] > max_size:
 			max_size = x[i]+chip_y[i]
 		if y[i]+chip_x[i] > max_size:
 			max_size = y[i]+chip_x[i]
+	else:
+		sys.stderr('invalid rotation')
+		sys.exit()
 
 heat_spread_size = 3.0*max_size  ## I will fix after work
 heatsink_size = 6.0*max_size
