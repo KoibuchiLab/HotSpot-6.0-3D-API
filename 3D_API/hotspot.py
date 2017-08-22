@@ -12,7 +12,7 @@ if ((len(args) != 3) and (len(args) != 4)):
 input_file = args[1]
 
 if not os.access(input_file, os.R_OK):
-	sys.stderr.write("Can't read file '"+input_file+"'\n");
+	sys.stderr.write("Can't read file '"+input_file+"'\n")
 	sys.exit(1)
 
 if args[2] == "water":
@@ -30,7 +30,7 @@ if (len(args) == 4):
 	if (args[3] == "--no_images"):
 		no_images = True
 	else:
-	 	sys.stderr.write("Invalid argument '" + args[3] +"'\n");
+	 	sys.stderr.write("Invalid argument '" + args[3] +"'\n")
 		sys.exit(1)
 
 
