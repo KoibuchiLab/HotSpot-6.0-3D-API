@@ -1,7 +1,7 @@
 //
 // Totoki (totoki@am.ics.keio.ac.jp) 2017.8.22 (tiny update by koibuchi@nii.ac.jp)
 //
-1. Prepare ``test.data'' file for target layout of 3-D chip stacking
+1. Prepare ``input_file'' file for target layout of 3-D chip stacking
 
 File format (each line):
 chipname, Z(vertical)-axis(Layer: 1,2,...), X-axis(m), Y-axis(m) (left/side of chip coordinate), Frequency(MHz), chip rotation(0,90,180,270 degree)
@@ -19,7 +19,7 @@ Xeon E5-2667v4 power model is not completed.
 LLC(Last Level Cache) power is not included yet (will be introduced soon)
 ############### ###############
 
-Each floorplan of processor chips is stored at FLOORPLAN/{e5-2667v4.flp,phi7250.flp,tulsa.flp}
+Each floorplan of processor chips is stored at ./FLOORPLAN/{e5-2667v4.flp,phi7250.flp,tulsa.flp}
 
 2. Execution 
 make
