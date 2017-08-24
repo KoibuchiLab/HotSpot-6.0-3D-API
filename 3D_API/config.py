@@ -83,25 +83,27 @@ for line in chip_lines:
 	count += [count_tmp]
  
 num = len(rotate)
-max_size = -10.0 
+system_size = -10.0 
 for i in xrange(0, num):
 	if rotate[i] == 0 or rotate[i] == 180:
-		if x[i]+chip_x[i] > max_size:
-			max_size = x[i]+chip_x[i]
-		if y[i]+chip_y[i] > max_size:
-			max_size = y[i]+chip_y[i]
+		if x[i]+chip_x[i] > system_size:
+			system_size = x[i]+chip_x[i]
+		if y[i]+chip_y[i] > system_size:
+			system_size = y[i]+chip_y[i]
 	elif rotate[i] == 90 or rotate[i] == 270:
-		if x[i]+chip_y[i] > max_size:
-			max_size = x[i]+chip_y[i]
-		if y[i]+chip_x[i] > max_size:
-			max_size = y[i]+chip_x[i]
+		if x[i]+chip_y[i] > system_size:
+			system_size = x[i]+chip_y[i]
+		if y[i]+chip_x[i] > system_size:
+			system_size = y[i]+chip_x[i]
 	else:
 		sys.stderr('invalid rotation')
 		sys.exit()
 
-heat_spread_size = 3.0*max_size  ## I will fix after work
-heatsink_size = 6.0*max_size
-convec_first = 1 / (H_TRANS * (0.3024*heatsink_size/0.12) *(0.3024*heatsink_size/0.12)) 
+heatsink_fin_num = 20 ## 10(boards) * 2(both sides) 
+heat_spread_size = 3.0 * system_size ## I set those ratio(3.0 and 6.0) referring defalut chip ratio.
+heatsink_size = 6.0 * system_size
+heatsink_height = heatsink_size
+convec_first = 1 / (H_TRANS * (heatsink_size * heatsink_size + heatsink_size * heatsink_height * heatsink_fin_num)) ##Heat convection can be calculated by 1/(H_TRANS * area). area: bottom area + side area
 convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size) 
 
 os.system("cat default.config |\
@@ -111,8 +113,8 @@ os.system("cat default.config |\
            sed s/__CONVEC2__/"+str(convec_second)+"/ > test.config")
 
 os.system("cat TIM.flp |\
-           sed s/__TIMSIZE__/"+str(max_size)+"/ |\
-           sed s/__TIMSIZE__/"+str(max_size)+"/  > testTIM.flp")
+           sed s/__TIMSIZE__/"+str(system_size)+"/ |\
+           sed s/__TIMSIZE__/"+str(system_size)+"/  > testTIM.flp")
 
 
 	 

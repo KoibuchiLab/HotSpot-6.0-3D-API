@@ -10,7 +10,7 @@ if ((len(args) != 3) and (len(args) != 4)):
 	sys.exit(1)
 
 input_file = args[1]
-sorted_file = 'sorted_data'
+sorted_file = 'sorted.data'
 
 if not os.access(input_file, os.R_OK):
 	sys.stderr.write("Can't read file '"+input_file+"'\n")
@@ -69,5 +69,5 @@ for i in xrange(0, layer_num):
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
 
-#pick up the max temperature form max temperature of each layers
+#pick up the max temperature from max temperatures of each layers
 os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")

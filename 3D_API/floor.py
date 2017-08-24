@@ -11,9 +11,6 @@ if not os.access(input_file, os.R_OK):
         sys.stderr.write("Can't read file '"+input_file+"'\n")
         sys.exit(1)
 
-
-
-h = 0.02184 # i will use this sizes in rotating chips, but yet.  
 tulsa_x = 0.02184 #default xeon tulsa chip size 
 tulsa_y = 0.02184 
 phi7250_x = 0.0315 #default phi7250 chip size
@@ -94,7 +91,6 @@ layer_num = chip_layer[len(chip_layer)-1]+1;
 #	print s
 #os.system = out
 
-## fixing h to chip_x & chip_y hasn't finished. it doesn't affect output when using rotate:0.
 for i in xrange(1, layer_num):
 	os.system("touch test" + str(i) + ".flp")
 	for j in xrange(0, len(chip_layer)):
