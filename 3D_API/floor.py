@@ -12,8 +12,6 @@ if not os.access(input_file, os.R_OK):
         sys.exit(1)
 
 
-os.system("rm -f tmp")
-os.system("cat " + input_file + " | sort -n -k2 > tmp")
 
 h = 0.02184 # i will use this sizes in rotating chips, but yet.  
 tulsa_x = 0.02184 #default xeon tulsa chip size 
@@ -27,7 +25,7 @@ material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
 material_resistance = [2e-5, 0.0025, 0.25]
 
-f = open('tmp')
+f = open(input_file)
 data_lines = f.readlines()
 f.close
 

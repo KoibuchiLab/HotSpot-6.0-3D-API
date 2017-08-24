@@ -38,10 +38,7 @@ if not os.access(input_file, os.R_OK):
 	sys.exit(1)
 
 
-os.system("rm -f tmp")
-os.system("cat " + input_file + " | sort -n -k2 > tmp")
-
-f = open('tmp')
+f = open(input_file)
 chip_lines = f.readlines()
 f.close
 

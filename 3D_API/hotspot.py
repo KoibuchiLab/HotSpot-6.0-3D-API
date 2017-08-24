@@ -10,6 +10,7 @@ if ((len(args) != 3) and (len(args) != 4)):
 	sys.exit(1)
 
 input_file = args[1]
+sorted_file = 'sorted_data'
 
 if not os.access(input_file, os.R_OK):
 	sys.stderr.write("Can't read file '"+input_file+"'\n")
@@ -36,9 +37,10 @@ if (len(args) == 4):
 
 #os.system("rm -f tmp.grid.steady")
 os.system("rm -f null.data")
-os.system("cat " + input_file + " | sort -n -k2 > tmp")
+os.system("rm -f sorted.data")
+os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
 
-f = open('tmp')
+f = open(sorted_file)
 lines2 = f.readlines()
 f.close
 
@@ -53,11 +55,11 @@ for line in lines2:
 	data = line[:-1].split(' ')
 	layer += [int(data[1])]
 layer_num = layer[len(layer)-1]
-os.system("make -s; ./cell " + input_file + " > null.data")
-os.system("python floor.py " + input_file)
-os.system("python ptrace.py " + input_file)
-os.system("python lcf.py " + input_file)
-os.system("python config.py " + input_file + " " + str(material))
+os.system("make -s; ./cell " + sorted_file + " > null.data")
+os.system("python floor.py " + sorted_file)
+os.system("python ptrace.py " + sorted_file)
+os.system("python lcf.py " + sorted_file)
+os.system("python config.py " + sorted_file + " " + str(material))
 os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -use_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
 for i in xrange(0, layer_num): 
 	os.system("cat tmp.grid.steady | sed -n "+ str(5+i*4098*2)+ "," +str(5+i*4098*2+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
