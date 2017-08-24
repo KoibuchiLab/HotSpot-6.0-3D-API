@@ -294,7 +294,7 @@ int main(int argc, char **argv){
 			//if used, 2 values would be non-zero.   
 			if(xlen_in_group[layer][group] != 0 &&
 				 ylen_in_group[layer][group] != 0) 
-				 printf("%d NULL%d %f %f %f %f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);		
+				 printf("%d NULL%d %0.8f %0.8f %0.8f %0.8f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);		
 		}
 	}	
 	return 0;
