@@ -410,7 +410,8 @@ if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air
 
 [layout, power_distribution, temperature] = compute_best_solution()
 
-print "Layout =", layout
+print "----------- OPTIMIZATION RESULTS -----------------"
+print "Layout =", layout.chip_positions
 print "Power distribution =", power_distribution
 print "Temperature =", temperature
 
