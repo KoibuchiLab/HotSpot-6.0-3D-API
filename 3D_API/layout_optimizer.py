@@ -13,6 +13,8 @@ from math import sqrt
 
 import numpy as np
 from scipy.optimize import basinhopping
+from scipy.optimize import fmin_slsqp
+
 from bisect import bisect_left
 
 
@@ -179,7 +181,7 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 		if (argv.verbose == 0):
 			sys.stderr.write(".")
 		if (argv.verbose >= 1):
-			sys.stderr.write("  New trial for power distribution optimization - aiming for lowest temperature\n")
+			sys.stderr.write("       New trial for power distribution optimization - aiming for lowest temperature\n")
 
 		[temperature, power_distribution] = minimize_temperature(layout, total_power_budget, optimization_method, num_iterations)
 		
@@ -187,7 +189,7 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 			min_temperature = temperature
 			best_power_distribution = power_distribution
 			if (argv.verbose >= 1):
-				sys.stderr.write("    New lowest temperature: T= " + str(min_temperature) + "\n");
+				sys.stderr.write("          New lowest temperature: T= " + str(min_temperature) + "\n");
 	
 	return [min_temperature, best_power_distribution]
 
@@ -198,6 +200,8 @@ def minimize_temperature(layout, total_power_budget, optimization_method, num_it
 
 	if (optimization_method == "simulated_annealing"):
 		return minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations)
+	elif (optimization_method == "gradient"):
+		return minimize_temperature_gradient(layout, total_power_budget, num_iterations)
 	elif (optimization_method == "random"):
 		return minimize_temperature_random(layout, total_power_budget, num_iterations)
 	else:
@@ -218,13 +222,30 @@ def minimize_temperature_random(layout, total_power_budget, num_iterations):
 
 	return [temperature, random_start]
 
+def bogus(x):
+        return x[0] * x[1]
 
-"""Temperature minimizer using some simulated annealing"""
+"""Temperature minimizer using some gradient descent"""
+def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
+
+        # Generate a valid random start
+	random_start = generate_random_start(layout, total_power_budget)
+	if (argv.verbose > 1):
+		sys.stderr.write("Generated a random start: " + str(random_start) + "\n")
+
+#        ret = fmin_slsqp(bogus, random_start, [lambda x:  sum(x) - total_power_budget])
+        result = fmin_slsqp(compute_layout_temperature, random_start, args=(layout,), full_output=True, iprint=0)
+
+        return [result[1], result[0]]
+
+
+"""Temperature minimizer using some simulated annealing and gradient descent"""
 def minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
 	random_start = generate_random_start(layout, total_power_budget)
-	sys.stderr.write("Random start: " + str(random_start) + "\n")
+	if (argv.verbose > 1):
+		sys.stderr.write("Generated a random start: " + str(random_start) + "\n")
 
 	# Define constraints
 	constraints = ({'type': 'eq', 'fun': lambda x:  sum(x) - total_power_budget},)
@@ -385,11 +406,14 @@ def compute_best_solution_rectilinear(mode):
 
 	last_valid_solution = None
 
+        if (argv.verbose > 0):
+	    sys.stderr.write("New binary search for maximizing the power\n");
+
 	while (True):
 		if (argv.verbose == 0):
 			sys.stderr.write("x")
 		if (argv.verbose > 0):
-			sys.stderr.write("New binary search step (trying power = " + str(power_attempt) + " Watts\n");
+			sys.stderr.write("    New binary search step (trying power = " + str(power_attempt) + " Watts\n");
 
 		[temperature, power_distribution] = optimize_power_distribution(layout, power_attempt, argv.temp_optimization_method, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
 		# pick new direction?
@@ -482,18 +506,54 @@ def parse_arguments():
 LAYOUT SCHEMES (--layout, -L):
 
   - rectilinear_straight: 
-       chips are along the x axis in a straight line, using all
-       levels in a "bouncing ball" fashion	
+       chips are along the x axis in a straight line, using all levels
+       in a "bouncing ball" fashion
 
   - rectilinear_diagonal: 
-       chips are along the x-y axis diagonal in a straight line, using all
-       levels in a "bouncing ball" fashion	
+       chips are along the x-y axis diagonal in a straight line, using
+       all levels in a "bouncing ball" fashion
 
   - linear_random_greedy: 
-       a greedy randomized search for a linear but non-rectilinear 
-       layout, using all levels in a "bouncing ball fashion". The 
-       main difference with the rectilinear methods is that the overlap
-       between chip n and chip n+1 is arbitrarily shaped.
+       a greedy randomized search for a linear but non-rectilinear layout,
+       using all levels in a "bouncing ball fashion". The main difference
+       with the rectilinear methods is that the overlap between chip n
+       and chip n+1 is arbitrarily shaped.
+
+TEMPERATURE OPTIMIZATION METHODS ('--tempopt', '-t'):
+
+  - random: 
+	given a layout and a given power budget, just do a random
+	search. For this method there are X trials (as specified with
+	'--powerdistopt_num_trials', '-P') and for each trial there
+	are Y iterations (as specified with '--tempopt_num_iterations',
+	'-T'). For this method, this simply means there are X*Y random
+	attempts, and a typicall approach to do 1000 attempts would be
+	'-P 1 -T 1000'. In other words, the notion ot "trial" here is
+	not really needed.
+
+  - gradient: 
+	given a layout and a given power budget, just do a gradient
+	descent.  (using scipy's fmin_slsqp constrained gradient descent
+	algorithm).  For this method there are X trials (as specified
+	with '--powerdistopt_num_trials', '-P') and for each trial there
+	are Y iterations (as specified with '--tempopt_num_iterations',
+	'-T'). Therefore, there are X random starting points and for
+	each the gradient descent algorithm is invoked. Y is passed to
+	the fmin_slsqp function as its number of iterations.
+
+
+  - simulated_annealing
+	given a layout and a given power budget, just do a simulated
+	annealing search (using basinhopping from scipy, with the SLSQP
+	constrained gradient descent algorithm).  For this method there
+	are X trials (as specified with '--powerdistopt_num_trials',
+	'-P') and for each trial there are Y iterations (as specified
+	with '--tempopt_num_iterations', '-T'). Therefore, there are X
+	random starting points and for each the basinhopping algorithm
+	is invoked. Y is passed to the basinhopping algorithm as its
+	number of iterations.
+
+
 
 VISUAL PROGRESS OUTPUT:
 
@@ -559,7 +619,7 @@ VISUAL PROGRESS OUTPUT:
                             help='the power of the whole system (precludes the search for the maximum power)')
 
 	parser.add_argument('--power_binarysearch_epsilon', '-b', action='store',
-		            type=float, required=False, default=0.1,
+		            type=float, required=False, default=10,
                             dest='power_binarysearch_epsilon', metavar='threshold in Watts',
                             help='the step size, in Watts, at which the binary search for the total power budget stops (default = 0.1)')
 
