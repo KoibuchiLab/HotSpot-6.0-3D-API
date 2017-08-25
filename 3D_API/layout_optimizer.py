@@ -5,73 +5,15 @@ import random
 import os
 import sys
 import subprocess
+
 import argparse
+from argparse import RawTextHelpFormatter
+from math import sqrt
+
 
 import numpy as np
 from scipy.optimize import basinhopping
 from bisect import bisect_left
-
-def parse_arguments():
-
-	parser = argparse.ArgumentParser()
-
-	parser.add_argument('--chip', '-c', action='store', 
-                            dest='chip_name', metavar='<chip name>',
-                            required=True, help='options: "e5-2667v4", "phi7250"')
-
-	parser.add_argument('--numchips', '-n', action='store', type=int,
-                            dest='num_chips', metavar='<# of chips>',
-                            required=True, help='the number of chips')
-
-	parser.add_argument('--diameter', '-d', action='store', type=int,
-                            dest='diameter', metavar='<diameter>',
-                            required=True, help='the network diameter')
-
-	parser.add_argument('--layout', '-L', action='store', 
-                            dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "linear"')
-
-	parser.add_argument('--numlevels', '-l', action='store', type=int,
-                            dest='num_levels', metavar='<# of levels>',
-                            required=True, help='the number of vertical levels')
-
-	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 3.0,
-		            type=float, required=False,
-                            dest='overlap', metavar='fraction of overlap between chips',
-                            help='the chip overlap fraction (default = 1/3)')
-
-	parser.add_argument('--tempopt', '-t', action='store', 
-			    required=True,
-                            dest='temp_optimization_method', 
-			    metavar='<temperature optimization method>',
-                            help='"random", "basinhopping", "gradient"')
-
-	parser.add_argument('--tempopt_num_iterations', '-T', action='store', 
-			    required=True, type=int,
-                            dest='temp_optimization_num_iterations', 
-			    metavar='<# of iterations>',
-                            help='number of iterations used for temperature optimization')
-
-	parser.add_argument('--power_budget', '-p', action='store', 
-			    required=True, type=float,
-                            dest='power_budget', 
-			    metavar='<power in Watts>',
-                            help='the total power of the system in Watts')
-
-	parser.add_argument('--poweropt_num_trials', '-P', action='store', 
-			    required=True, type=int,
-                            dest='power_optimization_num_trials', 
-			    metavar='<# of trials>',
-                            help='number of trials used for power distribution optimization')
-
-	parser.add_argument('--medium', '-m', action='store', 
-			    required=True, 
-                            dest='medium', 
-			    metavar='<cooling medium>',
-                            help='"air", "oil", "water"')
-
-	return parser.parse_args()
-
 
 
 """A class that represents a chip"""
@@ -97,6 +39,50 @@ class Layout(object):
 	def get_num_chips(self):
 		return len(self.chip_positions)
 
+	def add_new_chip(self, layer, x, y):
+		if (not self.can_new_chip_fit(layer, x, y)):
+			abort("Can't add chip to layout")
+		self.chip_positions.appeng([layer, x, y])
+		
+	def can_new_chip_fit(self, layer, x, y):
+		for i in xrange(0, len(self.chip_positions)):
+			existing_chip = self.chip_positions[i]
+			if (existing_chip[0] != layer):
+				continue
+			if (are_two_rectangles_overlapping(
+					[existing_chip[1], existing_chip[2]],
+					[existing_chip[1] + self.chip.x_dimension,	
+					 existing_chip[2] + self.chip.y_dimension],	
+					[x, y],
+					[x + self.chip.x_dimension,	
+					 y + self.chip.y_dimension]
+				)):
+				return False
+		return True
+
+
+def random_element(array):
+	return array[random.randint(0, len(array) - 1)]
+
+
+def are_two_rectangles_overlapping(bottom_left_1, top_right_1,
+				   bottom_left_2, top_right_2):
+		
+	# They don't overlap in X
+	if (top_right_1[0] < bottom_left_2[0]):
+		return False;
+	if (top_right_2[0] < bottom_left_1[0]):
+		return False;
+
+	# They don't overlap in Y
+	if (top_right_1[1] < bottom_left_2[1]):
+		return False;
+	if (top_right_2[1] < bottom_left_1[1]):
+		return False;
+
+	return True
+
+
 def abort(message):
 	sys.stderr.write("Error: " + message + "\n")
 	sys.exit(1)
@@ -119,6 +105,10 @@ def generate_random_start(layout, total_power_budget):
 		random_start[victim]  -= reduction
 
 	return random_start
+
+
+
+
 
 
 def create_ptrace_file(directory, chip, suffix, power):
@@ -186,13 +176,19 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 
 	# Do the specified number of minimization trial
 	for trial in range(0, num_random_starts):
+		if (argv.verbose == 0):
+			sys.stderr.write(".")
+		if (argv.verbose >= 1):
+			sys.stderr.write("  New trial for power distribution optimization - aiming for lowest temperature\n")
+
 		[temperature, power_distribution] = minimize_temperature(layout, total_power_budget, optimization_method, num_iterations)
 		
 		if ((min_temperature == -1) or (temperature < min_temperature)):
 			min_temperature = temperature
 			best_power_distribution = power_distribution
-			sys.stderr.write("** New best result: T= " + str(min_temperature) + ", Power= " + str(sum(best_power_distribution)) + " ("+str(best_power_distribution) + ") **\n")
-
+			if (argv.verbose >= 1):
+				sys.stderr.write("    New lowest temperature: T= " + str(min_temperature) + "\n");
+	
 	return [min_temperature, best_power_distribution]
 
 
@@ -200,8 +196,8 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 """Top-level minimization function"""
 def minimize_temperature(layout, total_power_budget, optimization_method, num_iterations):
 
-	if (optimization_method == "basinhopping"):
-		return minimize_temperature_basinhopping(layout, total_power_budget, num_iterations)
+	if (optimization_method == "simulated_annealing"):
+		return minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations)
 	elif (optimization_method == "random"):
 		return minimize_temperature_random(layout, total_power_budget, num_iterations)
 	else:
@@ -214,7 +210,8 @@ def minimize_temperature_random(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
 	random_start = generate_random_start(layout, total_power_budget)
-	sys.stderr.write("Random start: " + str(random_start) + "\n")
+	if (argv.verbose > 1):
+		sys.stderr.write("Generated a random start: " + str(random_start) + "\n")
 
 	# Compute the temperature
 	temperature =  compute_layout_temperature(random_start, layout)
@@ -223,7 +220,7 @@ def minimize_temperature_random(layout, total_power_budget, num_iterations):
 
 
 """Temperature minimizer using some simulated annealing"""
-def minimize_temperature_basinhopping(layout, total_power_budget, num_iterations):
+def minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
 	random_start = generate_random_start(layout, total_power_budget)
@@ -303,14 +300,14 @@ def compute_layout_temperature(x, layout):
 	except Exception, e:	
 		sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 		
-	sys.stderr.write(str(sum(x)) + " (" + str(x) + "): " + str(temperature) + "\n")
+	if (argv.verbose > 1):
+		sys.stderr.write("Hotspot result: " + str(sum(x)) + " (" + str(x) + "): " + str(temperature) + " Celsius\n")
 
 	return temperature
 
 
-"""Function to compute a linear layout"""
-"""Right now this is really, really basic"""
-def compute_linear_layout():
+"""Function to compute a straight linear layout"""
+def compute_rectilinear_straight_layout():
 
 	positions = []
 
@@ -330,35 +327,254 @@ def compute_linear_layout():
 		current_x_position += argv.chip.x_dimension * (1 - argv.overlap);
 		
 	return Layout(argv.chip, positions, argv.medium)
-	
 
+	
+"""Function to compute a diagonal linear layout"""
+def compute_rectilinear_diagonal_layout():
+
+	positions = []
+
+	current_level = 1
+	level_direction = 1
+	current_x_position = 0.0
+	current_y_position = 0.0
+	for i in xrange(0, argv.num_chips):
+		positions.append([current_level, current_x_position, current_y_position])
+		current_level += level_direction
+		if (current_level > argv.num_levels):
+			current_level = argv.num_levels - 1
+			level_direction = -1
+		if (current_level < 1):
+			current_level = 2
+			level_direction = 1
+		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap));
+		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap));
+		
+	return Layout(argv.chip, positions, argv.medium)
+
+	
 """Linear layout optimization"""
-def compute_best_solution_linear_layout():
+def compute_best_solution_rectilinear(mode):
 
 	if (argv.diameter != argv.num_chips -1):
 		abort("A linear layout cannot have diameter " + argv.diameter)
 
-	layout = compute_linear_layout()
+	if (argv.verbose == 0):
+		sys.stderr.write("o");
+	if (argv.verbose > 0):
+		sys.stderr.write("Constructing a " + mode + " rectilinear layout\n")
 
-	[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.temp_optimization_method, argv.power_optimization_num_trials, argv.temp_optimization_num_iterations)
+	if (mode == "straight"):
+		layout = compute_rectilinear_straight_layout()
+	elif (mode == "diagonal"):
+		layout = compute_rectilinear_diagonal_layout()
+	else:
+		abort("Unknown rectilinear layout mode '" + mode + "'")
 
-	if (temperature == None):
-		abort("Temperature optimization failed")
+	# No binary search?
+	if (argv.power_budget):
+		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.temp_optimization_method, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		return [layout, power_distribution, temperature]
 
-	return [layout, power_distribution, temperature]
+	# Binary search
+	max_possible_power = argv.num_chips * argv.chip.max_power
+
+	power_attempt = max_possible_power
+	next_step_magnitude = (power_attempt - argv.num_chips * argv.chip.min_power) 
+	next_step_direction = -1
+
+	last_valid_solution = None
+
+	while (True):
+		if (argv.verbose == 0):
+			sys.stderr.write("x")
+		if (argv.verbose > 0):
+			sys.stderr.write("New binary search step (trying power = " + str(power_attempt) + " Watts\n");
+
+		[temperature, power_distribution] = optimize_power_distribution(layout, power_attempt, argv.temp_optimization_method, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		# pick new direction?
+		if (temperature < argv.max_allowed_temperature):
+			next_step_direction = +1
+		else:
+			next_step_direction = -1
+
+		# is it a valid solution? (let's record it just in case the optimization process is chaotic)
+		if (temperature < argv.max_allowed_temperature):
+			last_valid_solution = [layout, power_distribution, temperature]
+
+		# decrease step size
+		next_step_magnitude /= 2.0
+		if (next_step_magnitude < argv.power_binarysearch_epsilon):
+			break
+		if ((temperature < argv.max_allowed_temperature) and (power_attempt == max_possible_power)):
+			break
+
+		# compute the next power attempt
+		power_attempt += next_step_direction * next_step_magnitude
+		
+	return last_valid_solution
+	
+			
+
+"""Linear random greedy layout optimization"""
+def compute_best_solution_linear_random_greedy():
+
+	if (argv.diameter != argv.num_chips -1):
+		abort("A linear layout cannot have diameter " + argv.diameter)
+
+	# Create an initial layout
+	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
+	
+	max_num_random_trials = 10
+	while (layout.get_num_chips() != argv.num_chips):
+		num_random_trials = 0	
+		while (num_random_trials < max_num_random_trials):
+			last_chip_position = layout.chip_positions[-1]
+
+			# Pick a random location relative to the last chip
+
+			# level
+			possible_levels = []
+			if (last_chip_position[0] == 1):
+				possible_levels = [2]
+			elif (last_chip_position[0] == argv.num_levels):
+				possible_levels = [argv.num_levels - 1]
+			else:
+				possible_levels = [last_chip_position[0]-1, last_chip_position[0]+1]
+
+			picked_level = random_element(possible_levels)
+
+			# x/y coordinates
+			abort("linear random greedy not implemented yet")
+
+				
+	#[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.temp_optimization_method, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+#
+#	if (temperature == None):
+#		abort("Temperature optimization failed")
+#
+#	return [layout, power_distribution, temperature]
+
 
 
 """Top-level optimization function"""
 def compute_best_solution():
-	if (argv.layout_scheme == "linear"):
-		return compute_best_solution_linear_layout()
+	if (argv.layout_scheme == "rectilinear_straight"):
+		return compute_best_solution_rectilinear("straight")
+	elif (argv.layout_scheme == "rectilinear_diagonal"):
+		return compute_best_solution_rectilinear("diagonal")
+	elif (argv.layout_scheme == "linear_random_greedy"):
+		return compute_best_solution_linear_random_greedy()
 	else:
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
+
+
 
 
 ########################################################
 #####                    MAIN                     ######
 ########################################################
+
+def parse_arguments():
+
+	parser = argparse.ArgumentParser(epilog="""
+
+LAYOUT SCHEMES (--layout, -L):
+
+  - rectilinear_straight: 
+       chips are along the x axis in a straight line, using all
+       levels in a "bouncing ball" fashion	
+
+  - rectilinear_diagonal: 
+       chips are along the x-y axis diagonal in a straight line, using all
+       levels in a "bouncing ball" fashion	
+
+  - linear_random_greedy: 
+       a greedy randomized search for a linear but non-rectilinear 
+       layout, using all levels in a "bouncing ball fashion". The 
+       main difference with the rectilinear methods is that the overlap
+       between chip n and chip n+1 is arbitrarily shaped.
+
+VISUAL PROGRESS OUTPUT:
+
+  'o': a layout construction
+  'x': a binary search step (searching for highest power)
+  '.': a power distribution optimization trial (searching for lower temperature)
+
+	""", 
+	formatter_class=RawTextHelpFormatter)
+
+	parser.add_argument('--chip', '-c', action='store', 
+                            dest='chip_name', metavar='<chip name>',
+                            required=True, help='options: "e5-2667v4", "phi7250"')
+
+	parser.add_argument('--numchips', '-n', action='store', type=int,
+                            dest='num_chips', metavar='<# of chips>',
+                            required=True, help='the number of chips')
+
+	parser.add_argument('--diameter', '-d', action='store', type=int,
+                            dest='diameter', metavar='<diameter>',
+                            required=True, help='the network diameter')
+
+	parser.add_argument('--layout', '-L', action='store', 
+                            dest='layout_scheme', metavar='<layout scheme>',
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal", "linear_random_greedy"')
+
+	parser.add_argument('--numlevels', '-l', action='store', type=int,
+                            dest='num_levels', metavar='<# of levels>',
+                            required=True, help='the number of vertical levels')
+
+	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
+		            type=float, required=False,
+                            dest='overlap', metavar='fraction of overlap area between chips',
+                            help='the chip area overlap fraction (default = 1/9)')
+
+	parser.add_argument('--tempopt', '-t', action='store', 
+			    required=True,
+                            dest='temp_optimization_method', 
+			    metavar='<temperature optimization method>',
+                            help='"random", "gradient", "simulated_annealing"')
+
+	parser.add_argument('--tempopt_num_iterations', '-T', action='store', 
+			    required=True, type=int,
+                            dest='temp_optimization_num_iterations', 
+			    metavar='<# of iterations>',
+                            help='number of iterations used for temperature optimization')
+
+	parser.add_argument('--powerdistopt_num_trials', '-P', action='store', 
+			    required=True, type=int,
+                            dest='power_distribution_optimization_num_trials', 
+			    metavar='<# of trials>',
+                            help='number of trials used for power distribution optimization')
+
+	parser.add_argument('--medium', '-m', action='store', 
+			    required=True, 
+                            dest='medium', 
+			    metavar='<cooling medium>',
+                            help='"air", "oil", "water"')
+
+	parser.add_argument('--powerbudget', '-p', action='store',
+		            type=float, required=False,
+                            dest='power_budget', metavar='power of the whole system',
+                            help='the power of the whole system (precludes the search for the maximum power)')
+
+	parser.add_argument('--power_binarysearch_epsilon', '-b', action='store',
+		            type=float, required=False, default=0.1,
+                            dest='power_binarysearch_epsilon', metavar='threshold in Watts',
+                            help='the step size, in Watts, at which the binary search for the total power budget stops (default = 0.1)')
+
+	parser.add_argument('--max_allowed_temperature', '-a', action='store',
+		            type=float, required=False, default=80,
+                            dest='max_allowed_temperature', metavar='temperature in Celsius',
+                            help='the maximum allowed temperature for the layout')
+
+	parser.add_argument('--verbose', '-v', action='store', type=int,
+		            required=False, default=0,
+                            dest='verbose', 
+                            help='verbosity level for debugging/curiosity')
+
+	return parser.parse_args()
+
 
 # Parse command-line arguments
 argv = parse_arguments()
@@ -366,7 +582,7 @@ argv = parse_arguments()
 if (argv.chip_name == "e5-2667v4"):
 	# TODO: 10 and 100???
 	#argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 10.0, 100.0)
-	argv.chip = Chip("e5-2667v4", 1, 1, 10.0, 100.0)
+	argv.chip = Chip("e5-2667v4", 1, 1, 10.0, 10000.0)
 elif (argv.chip_name == "phi7250"):
 	# TODO: 10 and 100???
 	argv.chip = Chip("phi7250",   0.0315,   0.0205,   10,   100.0)
@@ -391,27 +607,18 @@ if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
 if (argv.temp_optimization_num_iterations < 0):
 	abort("The number of iterations for temperature optimization (--tempopt_num_iterations, -T) should be between > 0")
 
-if (argv.power_optimization_num_trials < 0):
+if (argv.power_distribution_optimization_num_trials < 0):
 	abort("The number of trials for power distribution optimization (--poweropt_num_trials, -P) should be between > 0")
-
-if (argv.power_budget < 0):
-	abort("The power budget (--power_budget, -p) should be between > 0")
-
-if (argv.power_budget < argv.num_chips  * argv.chip.min_power):
-	abort("The power budget (--power_budget, -p) is not large enough")
-
-if (argv.power_budget > argv.num_chips  * argv.chip.max_power):
-	abort("The power budget (--power_budget, -p) is too large")
 
 if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 	abort("Unsupported cooling medium '" + argv.medium + "'")
-
 
 
 [layout, power_distribution, temperature] = compute_best_solution()
 
 print "----------- OPTIMIZATION RESULTS -----------------"
 print "Layout =", layout.chip_positions
+print "Power budget = ", sum(power_distribution)
 print "Power distribution =", power_distribution
 print "Temperature =", temperature
 
@@ -419,5 +626,7 @@ sys.exit(0)
 
 
 
+#############################################################################################
+#############################################################################################
 
 
