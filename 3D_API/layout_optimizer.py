@@ -5,10 +5,74 @@ import random
 import os
 import sys
 import subprocess
+import argparse
 
 import numpy as np
 from scipy.optimize import basinhopping
 from bisect import bisect_left
+
+def parse_arguments():
+
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument('--chip', '-c', action='store', 
+                            dest='chip_name', metavar='<chip name>',
+                            required=True, help='options: "e5-2667v4", "phi7250"')
+
+	parser.add_argument('--numchips', '-n', action='store', type=int,
+                            dest='num_chips', metavar='<# of chips>',
+                            required=True, help='the number of chips')
+
+	parser.add_argument('--diameter', '-d', action='store', type=int,
+                            dest='diameter', metavar='<diameter>',
+                            required=True, help='the network diameter')
+
+	parser.add_argument('--layout', '-L', action='store', 
+                            dest='layout_scheme', metavar='<layout scheme>',
+                            required=True, help='options: "linear"')
+
+	parser.add_argument('--numlevels', '-l', action='store', type=int,
+                            dest='num_levels', metavar='<# of levels>',
+                            required=True, help='the number of vertical levels')
+
+	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 3.0,
+		            type=float, required=False,
+                            dest='overlap', metavar='fraction of overlap between chips',
+                            help='the chip overlap fraction (default = 1/3)')
+
+	parser.add_argument('--tempopt', '-t', action='store', 
+			    required=True,
+                            dest='temp_optimization_method', 
+			    metavar='<temperature optimization method>',
+                            help='"random", "basinhopping", "gradient"')
+
+	parser.add_argument('--tempopt_num_iterations', '-T', action='store', 
+			    required=True, type=int,
+                            dest='temp_optimization_num_iterations', 
+			    metavar='<# of iterations>',
+                            help='number of iterations used for temperature optimization')
+
+	parser.add_argument('--power_budget', '-p', action='store', 
+			    required=True, type=float,
+                            dest='power_budget', 
+			    metavar='<power in Watts>',
+                            help='the total power of the system in Watts')
+
+	parser.add_argument('--poweropt_num_trials', '-P', action='store', 
+			    required=True, type=int,
+                            dest='power_optimization_num_trials', 
+			    metavar='<# of trials>',
+                            help='number of trials used for power distribution optimization')
+
+	parser.add_argument('--medium', '-m', action='store', 
+			    required=True, 
+                            dest='medium', 
+			    metavar='<cooling medium>',
+                            help='"air", "oil", "water"')
+
+	return parser.parse_args()
+
+
 
 """A class that represents a chip"""
 class Chip(object):
@@ -33,15 +97,9 @@ class Layout(object):
 	def get_num_chips(self):
 		return len(self.chip_positions)
 
-
-def chip_is_supported(chip):
-
-	if (chip.name == "phi7250"):
-		return True
-	elif (chip.name == "e5-2667v4"):
-		return True
-	else:
-		return False
+def abort(message):
+	sys.stderr.write("Error: " + message + "\n")
+	sys.exit(1)
 
 
 def generate_random_start(layout, total_power_budget):
@@ -126,18 +184,6 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 	min_temperature = -1
 	best_power_distribution = []
 
-	# Validate arguments
-	if (total_power_budget < layout.get_num_chips() * layout.chip.min_power):
-		sys.stderr.write("Error: Power budget is too low\n")
-		return [None, None]
-	if (total_power_budget > layout.get_num_chips() * layout.chip.max_power):
-		sys.stderr.write("Error: Power budget is too high\n")
-		return [None, None]
-
-	if (not chip_is_supported(layout.chip)):
-		sys.stderr.write("Error: Chip '" + layout.chip.name + "' is not supported!\n")
-		return [None, None]
-	
 	# Do the specified number of minimization trial
 	for trial in range(0, num_random_starts):
 		[temperature, power_distribution] = minimize_temperature(layout, total_power_budget, optimization_method, num_iterations)
@@ -262,35 +308,115 @@ def compute_layout_temperature(x, layout):
 	return temperature
 
 
+"""Function to compute a linear layout"""
+"""Right now this is really, really basic"""
+def compute_linear_layout():
 
-###############################################################################
-##### SAMPLE MAIN
+	positions = []
 
-# TODO: What are the min_power and max_power below?
-Xeon5 = Chip("e5-2667v4", 0.012634, 0.014172, 10.0, 100.0)
-Phi   = Chip("phi7250",   0.0315,   0.0205,   10,   100.0)
+	current_level = 1
+	level_direction = 1
+	current_x_position = 0.0
+	current_y_position = 0.0
+	for i in xrange(0, argv.num_chips):
+		positions.append([current_level, current_x_position, current_y_position])
+		current_level += level_direction
+		if (current_level > argv.num_levels):
+			current_level = argv.num_levels - 1
+			level_direction = -1
+		if (current_level < 1):
+			current_level = 2
+			level_direction = 1
+		current_x_position += argv.chip.x_dimension * (1 - argv.overlap);
+		
+	return Layout(argv.chip, positions, argv.medium)
+	
+
+"""Linear layout optimization"""
+def compute_best_solution_linear_layout():
+
+	if (argv.diameter != argv.num_chips -1):
+		abort("A linear layout cannot have diameter " + argv.diameter)
+
+	layout = compute_linear_layout()
+
+	[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.temp_optimization_method, argv.power_optimization_num_trials, argv.temp_optimization_num_iterations)
+
+	if (temperature == None):
+		abort("Temperature optimization failed")
+
+	return [layout, power_distribution, temperature]
 
 
-# These should come from command-line arguments
-num_random_starts = 1
-num_iterations = 1
-
-#optimization_method = "random"
-optimization_method = "basinhopping"
-
-
-layout = Layout(Xeon5, [[1, 0.0, 0.0], [2, 1.00, 0.00], [3, 0.5, 0.5]], "oil")
-
-total_power_budget = 50
+"""Top-level optimization function"""
+def compute_best_solution():
+	if (argv.layout_scheme == "linear"):
+		return compute_best_solution_linear_layout()
+	else:
+		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
 
 
-[temperature, power_distribution] = optimize_power_distribution(layout, total_power_budget, optimization_method, num_random_starts, num_iterations)
+########################################################
+#####                    MAIN                     ######
+########################################################
 
-if (temperature == None):
-	sys.stderr.write("Couldn't optimize\n")
-	sys.exit(0)
+# Parse command-line arguments
+argv = parse_arguments()
 
-print "Temperature=", temperature
-print "Power distribution=", power_distribution
+if (argv.chip_name == "e5-2667v4"):
+	# TODO: 10 and 100???
+	#argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 10.0, 100.0)
+	argv.chip = Chip("e5-2667v4", 1, 1, 10.0, 100.0)
+elif (argv.chip_name == "phi7250"):
+	# TODO: 10 and 100???
+	argv.chip = Chip("phi7250",   0.0315,   0.0205,   10,   100.0)
+else:
+	abort("Chip '" + argv.chip_name + "' not supported")
+
+if (argv.num_chips < 1):
+	abort("The number of chips (--numchips, -n) should be >0")
+
+if (argv.diameter < 1):
+	abort("The diameter (--diameter, -d) should be >0")
+
+if (argv.diameter > argv.num_chips):
+	abort("The diameter (--diameter, -d) should <= the number of chips")
+
+if (argv.num_levels < 2):
+	abort("The number of levels (--numlevels, -d) should be >1")
+
+if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
+	abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
+
+if (argv.temp_optimization_num_iterations < 0):
+	abort("The number of iterations for temperature optimization (--tempopt_num_iterations, -T) should be between > 0")
+
+if (argv.power_optimization_num_trials < 0):
+	abort("The number of trials for power distribution optimization (--poweropt_num_trials, -P) should be between > 0")
+
+if (argv.power_budget < 0):
+	abort("The power budget (--power_budget, -p) should be between > 0")
+
+if (argv.power_budget < argv.num_chips  * argv.chip.min_power):
+	abort("The power budget (--power_budget, -p) is not large enough")
+
+if (argv.power_budget > argv.num_chips  * argv.chip.max_power):
+	abort("The power budget (--power_budget, -p) is too large")
+
+if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
+	abort("Unsupported cooling medium '" + argv.medium + "'")
+
+
+
+[layout, power_distribution, temperature] = compute_best_solution()
+
+print "Layout =", layout
+print "Power distribution =", power_distribution
+print "Temperature =", temperature
+
+sys.exit(0)
+
+
+
 
 
