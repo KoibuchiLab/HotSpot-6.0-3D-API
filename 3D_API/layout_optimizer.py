@@ -6,6 +6,8 @@ import os
 import sys
 import subprocess
 
+from glob import glob
+
 import argparse
 from argparse import RawTextHelpFormatter
 from math import sqrt
@@ -14,8 +16,6 @@ from math import sqrt
 import numpy as np
 from scipy.optimize import basinhopping
 from scipy.optimize import fmin_slsqp
-
-from bisect import bisect_left
 
 ##############################################################################################
 ### CLASSES
@@ -147,7 +147,7 @@ def create_ptrace_file(directory, chip, suffix, power):
 		ptrace_file.write("NULL0 NULL1 NULL2 NULL3 0_CORE 1_CORE 2_CORE 3_CORE 4_CORE 5_CORE 6_CORE 7_CORE 0_LL 1_LL 2_LL 3_LL 4_LL 5_LL 6_LL 7_LL\n")
 		ptrace_file.write("0 " * 4)
 		ptrace_file.write((str(power_per_core) + " ") * 8)
-		ptrace_file.write("0 " * 8)	# TODO
+		ptrace_file.write("0 " * 8)	# TODO TODO TODO
 		ptrace_file.write("\n")
 
 	elif (chip.name == "phi7250"):
@@ -530,7 +530,6 @@ def compute_best_solution_linear_random_greedy():
  
  
                         # Symmetries 
-                        # TODO: four_sided_coin = random_element([0,1,2,3])
                         four_sided_coin = random_element([0])
 
                         if (four_sided_coin == 0):   # North-East
@@ -598,19 +597,89 @@ def compute_best_solution_linear_random_greedy():
 	return [layout, power_distribution, temperature]
 
 
+def find_available_power_levels(chip_name, benchmark_name):
+        
+        power_levels = []
+
+        filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark_name + "*.ptrace")
+
+        for filename in filenames:
+                f = open(filename, "r")
+                lines = f.readlines()
+                f.close()
+                power_levels.append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
+
+        power_levels.sort()
+        return power_levels
+        
+
+def make_power_distribution_feasible(layout, power_distribution, initial_temperature):
+
+        new_temperature = initial_temperature
+
+        print "CONTINUOUS POWER LEVELS: ", power_levels
+
+        power_levels = find_available_power_levels(argv.chip.name, "stress")
+        print "AVAILABLE POWER LEVELS: ", power_levels
+
+
+        lower_bound = []
+        for x in power_distribution:
+            for i in xrange(len(power_levels)-1, -1, -1):
+                if (power_levels[i] <= x):
+                    lower_bound.append(i)
+                    break
+
+#        print "LOW SOLUTION (indices): ", lower_bound
+        print "LOWERED POWER LEVELS: ", [power_levels[i] for i in lower_bound]
+
+        # exhaustively increase while possible (TODO: do a better heuristic? unclear)
+        while (True):
+            was_able_to_increase = False
+            for i in xrange(0, len(lower_bound)):
+                tentative_new_bound = lower_bound
+                if (tentative_new_bound[i] < len(power_levels)-1):
+                    tentative_new_bound[i] += 1
+                    # Evaluate the temperate
+                    tentative_power_distribution = [power_levels[x] for x in tentative_new_bound]
+                    temperature = compute_layout_temperature(tentative_power_distribution, layout)
+                    if (temperature <= argv.max_allowed_temperature):
+                        lower_bound = tentative_new_bound
+                        new_temperature = temperature
+                        was_able_to_increase = True
+                        @print "IMPROVED SOLUTION (indices): ", lower_bound
+                        print "FEASIBLE IMPROVEMENT: ", [power_levels[i] for i in lower_bound]
+                        break
+            if (not was_able_to_increase):
+                break
+
+
+        return ([power_levels[x] for x in lower_bound], new_temperature)
+
+
+
 
 """Top-level optimization function"""
 def compute_best_solution():
+
+
+        # Compute continuous solution
 	if (argv.layout_scheme == "rectilinear_straight"):
-		return compute_best_solution_rectilinear("straight")
+                continuous_solution = compute_best_solution_rectilinear("straight")
 	elif (argv.layout_scheme == "rectilinear_diagonal"):
-		return compute_best_solution_rectilinear("diagonal")
+		continuous_solution =  compute_best_solution_rectilinear("diagonal")
 	elif (argv.layout_scheme == "linear_random_greedy"):
-		return compute_best_solution_linear_random_greedy()
+		continuous_solution =  compute_best_solution_linear_random_greedy()
 	else:
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
 
+        # Find the lower bound feasible solution that matches available frequencies 
+        # (and will have lower overall power, sadly)
+	[layout, power_distribution, temperature] = continuous_solution
 
+        [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
+
+        return [layout, power_distribution, temperature]
 
 
 ########################################################
@@ -767,9 +836,9 @@ def abort(message):
 argv = parse_arguments()
 
 if (argv.chip_name == "e5-2667v4"):
-	# TODO: 10 and 100???
-	#argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 10.0, 100.0)
-	argv.chip = Chip("e5-2667v4", 1, 1, 10.0, 10000.0)
+	# TODO: REad values from files?  and specify benchmark name?
+	#argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 59.47, 162.9)
+        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 59.47, 162.9)
 elif (argv.chip_name == "phi7250"):
 	# TODO: 10 and 100???
 	argv.chip = Chip("phi7250",   0.0315,   0.0205,   10,   100.0)
