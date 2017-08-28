@@ -132,7 +132,7 @@ def compute_layout_temperature(x, layout):
 		sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 		
 	if (argv.verbose > 1):
-		sys.stderr.write("Hotspot result: " + str(sum(x)) + " (" + str(x) + "): " + str(temperature) + " Celsius\n")
+		sys.stderr.write("          Hotspot result: " + str(sum(x)) + " (" + str(x) + "): " + str(temperature) + " Celsius\n")
 
 	return temperature
 
@@ -232,13 +232,13 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 			sys.stderr.write("       New trial for power distribution optimization - aiming for lowest temperature\n")
 
 		[temperature, power_distribution] = minimize_temperature(layout, total_power_budget, optimization_method, num_iterations)
-		
 		if ((min_temperature == -1) or (temperature < min_temperature)):
 			min_temperature = temperature
 			best_power_distribution = power_distribution
 			if (argv.verbose >= 1):
 				sys.stderr.write("          New lowest temperature: T= " + str(min_temperature) + "\n");
 	
+        
 	return [min_temperature, best_power_distribution]
 
 
@@ -341,10 +341,22 @@ def basinhopping_objective_layout_temperature(x, layout):
 """Binary search to optimize power"""
 def find_maximum_power_budget(layout):
 
-	# No binary search?
+	# No binary search because the user specied a fixed power budget?
 	if (argv.power_budget):
 		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
 		return [layout, power_distribution, temperature]
+
+	# No binary search because the minimum power possible is already above temperature?
+        temperature = compute_layout_temperature([layout.chip.min_power] * layout.get_num_chips(), layout)
+        if (temperature > argv.max_allowed_temperature):
+                sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
+                return None
+
+
+	if (argv.power_budget):
+		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		return [layout, power_distribution, temperature]
+
 
 	# Binary search
 	max_possible_power = argv.num_chips * argv.chip.max_power
@@ -377,13 +389,16 @@ def find_maximum_power_budget(layout):
 
 		# decrease step size
 		next_step_magnitude /= 2.0
+
 		if (next_step_magnitude < argv.power_binarysearch_epsilon):
 			break
+
 		if ((temperature < argv.max_allowed_temperature) and (power_attempt == max_possible_power)):
 			break
 
 		# compute the next power attempt
 		power_attempt += next_step_direction * next_step_magnitude
+
 		
 	return last_valid_solution
 	
@@ -395,6 +410,21 @@ def find_maximum_power_budget(layout):
 """Tool function to pick a random element from an array"""
 def random_element(array):
 	return array[random.randint(0, len(array) - 1)]
+
+"""Function to compute a stacked layout"""
+def compute_stacked_layout():
+
+	positions = []
+
+        if (argv.num_levels < argv.num_chips):
+		abort("Not enough levels to build a stacked layout with " + \
+                         str(argv.num_chips) + "chips");
+            
+        for level in xrange(1, argv.num_chips+1):
+            positions.append([level, 0.0, 0.0])
+
+	return Layout(argv.chip, positions, argv.medium)
+
 
 """Function to compute a straight linear layout"""
 def compute_rectilinear_straight_layout():
@@ -442,7 +472,29 @@ def compute_rectilinear_diagonal_layout():
 		
 	return Layout(argv.chip, positions, argv.medium)
 
-	
+
+"""Stacked layout optimization"""
+def compute_best_solution_stacked():
+
+	if (argv.diameter != argv.num_chips -1):
+		abort("A stacked layout cannot have diameter " + argv.diameter)
+
+	if (argv.verbose == 0):
+		sys.stderr.write("o");
+	if (argv.verbose > 0):
+		sys.stderr.write("Constructing a stacked layout\n")
+
+	layout = compute_stacked_layout()
+
+	result = find_maximum_power_budget(layout)
+
+        if result == None:
+            return None
+
+	[power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+		
 """Linear layout optimization"""
 def compute_best_solution_rectilinear(mode):
 
@@ -461,7 +513,11 @@ def compute_best_solution_rectilinear(mode):
 	else:
 		abort("Unknown rectilinear layout mode '" + mode + "'")
 
-	[power_distribution, temperature] = find_maximum_power_budget(layout)
+	result = find_maximum_power_budget(layout)
+        if (result == None):
+            return None
+
+	[power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
 	
@@ -580,9 +636,11 @@ def compute_best_solution_linear_random_greedy():
                         layout.chip_positions.append(candidate) 
                         if (argv.verbose > 0):
                                 sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
-                        [power_distribution, temperature] = find_maximum_power_budget(layout) 
-                        if (sum(power_distribution) > max_power):
-                            picked_candidate = candidate
+                        result = find_maximum_power_budget(layout) 
+                        if (result != None):
+                            [power_distribution, temperature] = result
+                            if (sum(power_distribution) > max_power):
+                                picked_candidate = candidate
                         layout.chip_positions = layout.chip_positions[:-1]
                         
                 # Add the candidate 
@@ -591,8 +649,12 @@ def compute_best_solution_linear_random_greedy():
                 layout.chip_positions.append(picked_candidate) 
                         
 
-        # DO the final evaluation (which was already be done, but whatever)
-        [power_distribution, temperature] = find_maximum_power_budget(layout) 
+        # Do the final evaluation (which was already be done, but whatever)
+        result = find_maximum_power_budget(layout) 
+        if (result == None):
+            return None
+
+        [power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
 
@@ -617,10 +679,10 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
 
         new_temperature = initial_temperature
 
-        print "CONTINUOUS POWER LEVELS: ", power_levels
+        if (argv.verbose > 0):
+            sys.stderr.write("Continuous solution power distribution: " + str(power_distribution) + "\n")
 
         power_levels = find_available_power_levels(argv.chip.name, "stress")
-        print "AVAILABLE POWER LEVELS: ", power_levels
 
 
         lower_bound = []
@@ -630,25 +692,25 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
                     lower_bound.append(i)
                     break
 
-#        print "LOW SOLUTION (indices): ", lower_bound
-        print "LOWERED POWER LEVELS: ", [power_levels[i] for i in lower_bound]
+        if (argv.verbose > 0):
+            sys.stderr.write("Conservative feasible power distribution: " + str([power_levels[i] for i in lower_bound]) + "\n")
 
         # exhaustively increase while possible (TODO: do a better heuristic? unclear)
         while (True):
             was_able_to_increase = False
             for i in xrange(0, len(lower_bound)):
-                tentative_new_bound = lower_bound
+                tentative_new_bound = lower_bound[:]
                 if (tentative_new_bound[i] < len(power_levels)-1):
                     tentative_new_bound[i] += 1
                     # Evaluate the temperate
                     tentative_power_distribution = [power_levels[x] for x in tentative_new_bound]
                     temperature = compute_layout_temperature(tentative_power_distribution, layout)
                     if (temperature <= argv.max_allowed_temperature):
-                        lower_bound = tentative_new_bound
+                        lower_bound = tentative_new_bound[:]
                         new_temperature = temperature
                         was_able_to_increase = True
-                        @print "IMPROVED SOLUTION (indices): ", lower_bound
-                        print "FEASIBLE IMPROVEMENT: ", [power_levels[i] for i in lower_bound]
+                        if (argv.verbose > 0):
+                            sys.stderr.write("Improved feasible power distribution: " + str([power_levels[i] for i in lower_bound]) + "\n")
                         break
             if (not was_able_to_increase):
                 break
@@ -664,7 +726,9 @@ def compute_best_solution():
 
 
         # Compute continuous solution
-	if (argv.layout_scheme == "rectilinear_straight"):
+	if (argv.layout_scheme == "stacked"):
+                continuous_solution = compute_best_solution_stacked()
+	elif (argv.layout_scheme == "rectilinear_straight"):
                 continuous_solution = compute_best_solution_rectilinear("straight")
 	elif (argv.layout_scheme == "rectilinear_diagonal"):
 		continuous_solution =  compute_best_solution_rectilinear("diagonal")
@@ -672,6 +736,9 @@ def compute_best_solution():
 		continuous_solution =  compute_best_solution_linear_random_greedy()
 	else:
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
+
+        if (continuous_solution == None):
+            return None
 
         # Find the lower bound feasible solution that matches available frequencies 
         # (and will have lower overall power, sadly)
@@ -692,13 +759,16 @@ def parse_arguments():
 
 LAYOUT SCHEMES (--layout, -L):
 
+  - stacked:
+       chips are stacked vertically.
+
   - rectilinear_straight: 
        chips are along the x axis in a straight line, using all levels
-       in a "bouncing ball" fashion
+       in a "bouncing ball" fashion.
 
   - rectilinear_diagonal: 
        chips are along the x-y axis diagonal in a straight line, using
-       all levels in a "bouncing ball" fashion
+       all levels in a "bouncing ball" fashion.
 
   - linear_random_greedy: 
        a greedy randomized search for a linear but non-rectilinear layout,
@@ -775,7 +845,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store', 
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal", "linear_random_greedy"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal", "linear_random_greedy", "stacked"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',
@@ -870,13 +940,19 @@ if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air
 	abort("Unsupported cooling medium '" + argv.medium + "'")
 
 
-[layout, power_distribution, temperature] = compute_best_solution()
+solution = compute_best_solution()
 
-print "----------- OPTIMIZATION RESULTS -----------------"
-print "Layout =", layout.chip_positions
-print "Power budget = ", sum(power_distribution)
-print "Power distribution =", power_distribution
-print "Temperature =", temperature
+if (solution == None):
+    print "************* OPTIMIZATION FAILED ***********"
+else:
+
+    [layout, power_distribution, temperature] = solution
+    
+    print "----------- OPTIMIZATION RESULTS -----------------"
+    print "Layout =", layout.chip_positions
+    print "Power budget = ", sum(power_distribution)
+    print "Power distribution =", power_distribution
+    print "Temperature =", temperature
 
 sys.exit(0)
 
