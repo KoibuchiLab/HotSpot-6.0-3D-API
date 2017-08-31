@@ -25,13 +25,11 @@ from scipy.optimize import fmin_slsqp
 """A class that represents a chip"""
 class Chip(object):
 
-	def __init__(self, name, x_dimension, y_dimension, min_power, max_power):
+        def __init__(self, name, x_dimension, y_dimension, power_levels):
 		self.name = name
 		self.x_dimension = x_dimension
 		self.y_dimension = y_dimension
-		self.min_power = min_power
-		self.max_power = max_power
-
+		self.power_levels = power_levels
 
 """A class that represents a layout of chips"""
 class Layout(object):
@@ -90,7 +88,7 @@ def compute_layout_temperature(x, layout):
 	# This is a hack because it seems the scipy library ignores the bounds and will go into
         # unallowed values, so instead we return a very high temperature (lame)
 	for i in range(0, layout.get_num_chips()):
-		if ((x[i] < layout.chip.min_power) or (x[i] > layout.chip.max_power)):
+		if ((x[i] < layout.chip.power_levels[0]) or (x[i] > layout.chip.power_levels[-1])):
 			return 100000
 
 
@@ -202,7 +200,7 @@ def generate_random_start(layout, total_power_budget):
 	# Generate a valid random start
 	random_start = []
 	for i in range(0, layout.get_num_chips()):
-		random_start.append(layout.chip.max_power)
+		random_start.append(layout.chip.power_levels[-1])
 
 	while (True):
 		extra = sum(random_start) - total_power_budget
@@ -211,7 +209,7 @@ def generate_random_start(layout, total_power_budget):
 		# pick a victim
 		victim = random.randint(0, layout.get_num_chips() - 1)
 		# decrease the victim by something that makes sense
-		reduction = random.uniform(0, min(extra, random_start[victim] - layout.chip.min_power))
+		reduction = random.uniform(0, min(extra, random_start[victim] - layout.chip.power_levels[0]))
 		random_start[victim]  -= reduction
 
 	return random_start
@@ -312,7 +310,7 @@ def minimize_temperature_simulated_annealing(layout, total_power_budget, num_ite
 	# Define bounds (these seem to be ignored by the local minimizer - to investigate TODO)
 	bounds = ()
 	for i in range(0, layout.get_num_chips()):
-		bounds = bounds + ((layout.chip.min_power, layout.chip.max_power),)
+		bounds = bounds + ((layout.chip.power_levels[0], layout.chip.power_levels[-1]),)
 
 	# Call the basinhoping algorithm with a local minimizer that handles constraints and bounds: SLSQP
 	minimizer_kwargs = {
@@ -347,7 +345,7 @@ def find_maximum_power_budget(layout):
 		return [layout, power_distribution, temperature]
 
 	# No binary search because the minimum power possible is already above temperature?
-        temperature = compute_layout_temperature([layout.chip.min_power] * layout.get_num_chips(), layout)
+        temperature = compute_layout_temperature([layout.chip.power_levels[0]] * layout.get_num_chips(), layout)
         if (temperature > argv.max_allowed_temperature):
                 sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
                 return None
@@ -359,10 +357,10 @@ def find_maximum_power_budget(layout):
 
 
 	# Binary search
-	max_possible_power = argv.num_chips * argv.chip.max_power
+	max_possible_power = argv.num_chips * argv.chip.power_levels[-1]
 
 	power_attempt = max_possible_power
-	next_step_magnitude = (power_attempt - argv.num_chips * argv.chip.min_power) 
+	next_step_magnitude = (power_attempt - argv.num_chips * argv.chip.power_levels[0]) 
 	next_step_direction = -1
 
 	last_valid_solution = None
@@ -569,20 +567,20 @@ def compute_best_solution_linear_random_greedy():
 
                         #print "OVERLAP = ", (last_chip_position[1] + layout.chip.x_dimension  - picked_x) * (last_chip_position[2] + layout.chip.y_dimension - picked_y)
 
-#                         file = open("base.m","w") 
-#                         file.write("figure\n")
-#                         file.write("hold on\n")
-# 
-#                         file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2]) + "])\n") 
-#                         file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2] + layout.chip.y_dimension) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-#                         file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1]) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-#                         file.write("plot([" + str(last_chip_position[1] + layout.chip.x_dimension) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-# 
-#  
-#                         file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
-#                         file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                         file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                         file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
+                        #file = open("base.m","w") 
+                        #file.write("figure\n")
+                        #file.write("hold on\n")
+ #
+                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2]) + "])\n") 
+                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2] + layout.chip.y_dimension) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
+                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1]) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
+                        #file.write("plot([" + str(last_chip_position[1] + layout.chip.x_dimension) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
+ #
+  #
+                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
+                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
+                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
+                        #file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
  
  
                         # Symmetries 
@@ -618,7 +616,7 @@ def compute_best_solution_linear_random_greedy():
 #                        file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
 #
 #                        file.write("axis([-1 2 -1 2])\n")
-#                        file.write("print base.pdf\n")
+#                        file.write("print base_" + str(len(candidate_random_trials)) + ".pdf\n")
 #                        file.close()
 
 
@@ -661,18 +659,42 @@ def compute_best_solution_linear_random_greedy():
 
 def find_available_power_levels(chip_name, benchmark_name):
         
-        power_levels = []
+        power_levels = {}
 
-        filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark_name + "*.ptrace")
+        benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
 
-        for filename in filenames:
-                f = open(filename, "r")
-                lines = f.readlines()
-                f.close()
-                power_levels.append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
+        # Get all the power levels
+        for benchmark in benchmarks:
 
-        power_levels.sort()
-        return power_levels
+            power_levels[benchmark] = []
+
+            filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
+
+            for filename in filenames:
+                    f = open(filename, "r")
+                    lines = f.readlines()
+                    f.close()
+                    power_levels[benchmark].append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
+
+            power_levels[benchmark].sort()
+
+        if (benchmark_name in power_levels):
+            return power_levels[benchmark_name]
+
+        elif (benchmark_name == "overall_max"):
+                lengths = [len(power_levels[x]) for x in power_levels]
+                if (max(lengths) != min(lengths)):
+                        sys.stderr.write("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
+                        sys.exit(1)
+                maxima = []
+                for i in xrange(0, min(lengths)):
+                    maxima.append(max([power_levels[x][i] for x in power_levels]))
+
+                return maxima
+
+        else:
+                sys.stderr.write("Unknon benchmark " + benchmark_name + " for computing power levels");
+                sys.exit(1)
         
 
 def make_power_distribution_feasible(layout, power_distribution, initial_temperature):
@@ -682,7 +704,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
         if (argv.verbose > 0):
             sys.stderr.write("Continuous solution power distribution: " + str(power_distribution) + "\n")
 
-        power_levels = find_available_power_levels(argv.chip.name, "stress")
+        power_levels = find_available_power_levels(argv.chip.name, argv.power_benchmark)
 
 
         lower_bound = []
@@ -869,6 +891,12 @@ VISUAL PROGRESS OUTPUT:
 			    metavar='<# of trials>',
                             help='number of trials used for power distribution optimization')
 
+	parser.add_argument('--power_benchmark', '-B', action='store', default = "overall_max",
+		            required=False,
+                            dest='power_benchmark', metavar='<power benchmark>',
+                            help='benchmark used to determine available chip power levels (default: overall_max)')
+
+
 	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
 		            type=float, required=False,
                             dest='overlap', metavar='<chip area overlap>',
@@ -887,7 +915,7 @@ VISUAL PROGRESS OUTPUT:
 	parser.add_argument('--max_allowed_temperature', '-a', action='store',
 		            type=float, required=False, default=80,
                             dest='max_allowed_temperature', metavar='<temperature in Celsius>',
-                            help='the maximum allowed temperature for the layout')
+                            help='the maximum allowed temperature for the layout (default: 80)')
 
 	parser.add_argument('--verbose', '-v', action='store', type=int,
 		            required=False, default=0,
@@ -906,12 +934,11 @@ def abort(message):
 argv = parse_arguments()
 
 if (argv.chip_name == "e5-2667v4"):
-	# TODO: REad values from files?  and specify benchmark name?
-	#argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 59.47, 162.9)
-        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, 59.47, 162.9)
+        power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
+        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, power_levels)
 elif (argv.chip_name == "phi7250"):
-	# TODO: 10 and 100???
-	argv.chip = Chip("phi7250",   0.0315,   0.0205,   10,   100.0)
+        power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
+	argv.chip = Chip("phi7250",   0.0315,   0.0205,   power_levels)
 else:
 	abort("Chip '" + argv.chip_name + "' not supported")
 
