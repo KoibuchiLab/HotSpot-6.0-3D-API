@@ -34,11 +34,13 @@ class Chip(object):
 """A class that represents a layout of chips"""
 class Layout(object):
 
-	def __init__(self, chip, chip_positions,  medium):
+	def __init__(self, chip, chip_positions,  medium, topology):
 		self.chip = chip
 		self.medium = medium
 		#  [[layer, x, y], ..., [layer, x, y]]
 		self.chip_positions = chip_positions
+                #  [[edge src, edge dst], ..., [edge src, edge dst]]
+                self.topology = topology
 		
 	def get_num_chips(self):
 		return len(self.chip_positions)
@@ -413,6 +415,7 @@ def random_element(array):
 def compute_stacked_layout():
 
 	positions = []
+        topology = []
 
         if (argv.num_levels < argv.num_chips):
 		abort("Not enough levels to build a stacked layout with " + \
@@ -420,14 +423,17 @@ def compute_stacked_layout():
             
         for level in xrange(1, argv.num_chips+1):
             positions.append([level, 0.0, 0.0])
+            if (level > 1):
+                topology.append([level-2, level-1])
 
-	return Layout(argv.chip, positions, argv.medium)
+	return Layout(argv.chip, positions, argv.medium, topology)
 
 
 """Function to compute a straight linear layout"""
 def compute_rectilinear_straight_layout():
 
 	positions = []
+        topology = []
 
 	current_level = 1
 	level_direction = 1
@@ -435,6 +441,8 @@ def compute_rectilinear_straight_layout():
 	current_y_position = 0.0
 	for i in xrange(0, argv.num_chips):
 		positions.append([current_level, current_x_position, current_y_position])
+                if (i > 1):
+                    topology.append([i-2, i-1])
 		current_level += level_direction
 		if (current_level > argv.num_levels):
 			current_level = argv.num_levels - 1
@@ -444,13 +452,15 @@ def compute_rectilinear_straight_layout():
 			level_direction = 1
 		current_x_position += argv.chip.x_dimension * (1 - argv.overlap);
 		
-	return Layout(argv.chip, positions, argv.medium)
+        print "POSITIONS = ", positions
+	return Layout(argv.chip, positions, argv.medium, topology)
 
 	
 """Function to compute a diagonal linear layout"""
 def compute_rectilinear_diagonal_layout():
 
 	positions = []
+        topology = []
 
 	current_level = 1
 	level_direction = 1
@@ -458,6 +468,8 @@ def compute_rectilinear_diagonal_layout():
 	current_y_position = 0.0
 	for i in xrange(0, argv.num_chips):
 		positions.append([current_level, current_x_position, current_y_position])
+                if (i > 1):
+                    topology.append([i-2, i-1])
 		current_level += level_direction
 		if (current_level > argv.num_levels):
 			current_level = argv.num_levels - 1
@@ -468,14 +480,12 @@ def compute_rectilinear_diagonal_layout():
 		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap));
 		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap));
 		
-	return Layout(argv.chip, positions, argv.medium)
+        print "POSITIONS = ", positions
+	return Layout(argv.chip, positions, argv.medium, topology)
 
 
 """Stacked layout optimization"""
 def compute_best_solution_stacked():
-
-	if (argv.diameter != argv.num_chips -1):
-		abort("A stacked layout cannot have diameter " + argv.diameter)
 
 	if (argv.verbose == 0):
 		sys.stderr.write("o");
@@ -495,9 +505,6 @@ def compute_best_solution_stacked():
 		
 """Linear layout optimization"""
 def compute_best_solution_rectilinear(mode):
-
-	if (argv.diameter != argv.num_chips -1):
-		abort("A linear layout cannot have diameter " + argv.diameter)
 
 	if (argv.verbose == 0):
 		sys.stderr.write("o");
@@ -524,11 +531,8 @@ def compute_best_solution_rectilinear(mode):
 """Linear random greedy layout optimization"""
 def compute_best_solution_linear_random_greedy():
 
-	if (argv.diameter != argv.num_chips -1):
-		abort("A linear layout cannot have diameter " + argv.diameter)
-
 	# Create an initial layout
-	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
+	layout = Layout(argv.chip, [[1, 500.0, 500.0]], argv.medium, [])
 
 	
 	max_num_random_trials = 5
@@ -645,6 +649,8 @@ def compute_best_solution_linear_random_greedy():
                 if (argv.verbose > 0):
                         sys.stderr.write("Picked candidate: " + str(candidate) + "\n")
                 layout.chip_positions.append(picked_candidate) 
+                if (len(layout.chip_positions) > 1):
+                    topology.append([len(layout.chip_positions)-2, len(layout.chip_positions)-1])
                         
 
         # Do the final evaluation (which was already be done, but whatever)
@@ -863,7 +869,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--diameter', '-d', action='store', type=int,
                             dest='diameter', metavar='<diameter>',
-                            required=True, help='the network diameter')
+                            required=True, help='the network diameter (ignored for layouts with known/fixed diameter)')
 
 	parser.add_argument('--layout_scheme', '-L', action='store', 
                             dest='layout_scheme', metavar='<layout scheme>',
@@ -948,7 +954,7 @@ if (argv.num_chips < 1):
 if (argv.diameter < 1):
 	abort("The diameter (--diameter, -d) should be >0")
 
-if (argv.diameter > argv.num_chips):
+if ((argv.diameter > argv.num_chips) and (argv.layout_scheme != "stacked") and (argv.layout_scheme != "rectilinear_straight") and (argv.layout_scheme != "rectilinear_diagonal") and (argv.layout_scheme != "linear_random_greedy")):
 	abort("The diameter (--diameter, -d) should <= the number of chips")
 
 if (argv.num_levels < 2):
@@ -977,6 +983,7 @@ else:
     
     print "----------- OPTIMIZATION RESULTS -----------------"
     print "Layout =", layout.chip_positions
+    print "Topology = ", layout.topology
     print "Power budget = ", sum(power_distribution)
     print "Power distribution =", power_distribution
     print "Temperature =", temperature
