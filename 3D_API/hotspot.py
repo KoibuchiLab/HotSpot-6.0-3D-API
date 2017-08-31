@@ -35,7 +35,6 @@ if (len(args) == 4):
 		sys.exit(1)
 
 
-#os.system("rm -f tmp.grid.steady")
 os.system("rm -f null.data")
 os.system("rm -f sorted.data")
 os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
@@ -44,6 +43,7 @@ f = open(sorted_file)
 lines2 = f.readlines()
 f.close
 
+os.system("rm -f tmp.grid.steady")
 os.system("rm -f tmp.results")
 os.system("touch tmp.results") 
 os.system("rm -f figure/layer*.svg")
@@ -70,4 +70,9 @@ for i in xrange(0, layer_num):
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
 
 #pick up the max temperature from max temperatures of each layers
-os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
+temp = open('tmp.results').readline()
+if '-273.15\n' == temp:
+	sys.stderr.write("error occurred\n")
+	sys.exit(1)
+else:
+	os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
