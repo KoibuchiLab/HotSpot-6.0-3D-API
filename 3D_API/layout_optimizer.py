@@ -532,7 +532,7 @@ def compute_best_solution_rectilinear(mode):
 def compute_best_solution_linear_random_greedy():
 
 	# Create an initial layout
-	layout = Layout(argv.chip, [[1, 500.0, 500.0]], argv.medium, [])
+	layout = Layout(argv.chip, [[5, 500.0, 500.0]], argv.medium, [])
 
 	
 	max_num_random_trials = 5
@@ -636,6 +636,7 @@ def compute_best_solution_linear_random_greedy():
                 picked_candidate = None
                 for candidate in candidate_random_trials:
                         layout.chip_positions.append(candidate) 
+                        print layout.chip_positions
                         if (argv.verbose > 0):
                                 sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
                         result = find_maximum_power_budget(layout) 
