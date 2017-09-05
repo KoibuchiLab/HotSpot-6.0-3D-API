@@ -3,7 +3,7 @@
 #include<string.h> 
 
 #define MAX_LAYER_NUM 20 ///supporting up to 20 chip stacking
-#define GRID_SIZE 2048
+#define GRID_SIZE 8192
 #define MAX_CHAR_SIZE 100 // input file format
 #define MAX_GROUP_NUM 50
 
@@ -13,6 +13,9 @@
 #define PHI7250_Y 0.0205
 #define E52667V4_X 0.012634
 #define E52667V4_Y 0.014172
+#define BASE1_X 0.016
+#define BASE1_Y 0.016
+
      
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
 //gird_group_label shows, what group the grid belong.
@@ -115,6 +118,20 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
+		}else if(strstr(chip_name, "base1") != NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = BASE1_X;
+				chip_ylen = BASE1_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = BASE1_Y;
+				chip_ylen = BASE1_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}			
+		}else if(strstr(chip_name, "null") != NULL){
+			chip_xlen = 0.00001;
+			chip_ylen = 0.00001;
 		}else{
 			fprintf(stderr, "invalid rotation in input file '%s'", fname);
 			exit(1);
@@ -180,6 +197,20 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
+		}else if(strstr(chip_name, "base1") != NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = BASE1_X;
+				chip_ylen = BASE1_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = BASE1_Y;
+				chip_ylen = BASE1_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}			
+		}else if(strstr(chip_name, "null") != NULL){
+			chip_xlen = 0.00001;
+			chip_ylen = 0.00001;
 		}else{
 			fprintf(stderr, "invalid rotation in input file '%s'", fname);
 			exit(1);

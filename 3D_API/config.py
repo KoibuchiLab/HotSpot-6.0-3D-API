@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import os
 import sys
 
@@ -13,6 +14,9 @@ phi7250_y = 0.0205
 
 e52667v4_x = 0.012634 #default e5-2676v4 chip size
 e52667v4_y = 0.014172 
+
+base1_x = 0.016
+base1_y = 0.016
 
 AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR 
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL
@@ -67,6 +71,12 @@ for line in chip_lines:
 	elif 'e5-2667v4' in chip_name:
 		chip_x += [float (e52667v4_x)]
 		chip_y += [float (e52667v4_y)]
+	elif 'base1' in chip_name:
+		chip_x += [float (base1_x)]
+		chip_y += [float (base1_y)]
+	elif 'null' == chip_name:
+		chip_x += [0.00001]
+		chip_y += [0.00001]
 	else:
 		sys.stderr('invalid chip name in input file ' + input_file)
 		sys.exit()
@@ -98,7 +108,6 @@ for i in xrange(0, num):
 	else:
 		sys.stderr('invalid rotation')
 		sys.exit()
-
 heatsink_fin_num = 20 ## 10(boards) * 2(both sides) 
 heat_spread_size = 3.0 * system_size ## I set those ratio(3.0 and 6.0) referring defalut chip ratio.
 heatsink_size = 6.0 * system_size
