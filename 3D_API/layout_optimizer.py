@@ -80,6 +80,25 @@ class Layout(object):
 				return False
 		return True
 
+        def draw_in_octave(self, filename_without_extension):
+            file = open(filename + ".m","w") 
+            file.write("figure\n")
+            file.write("hold on\n")
+    
+            for rect in self.positions:
+                [l,x,y] = rect
+                w = argv.chip.x_dimension
+                h = argv.chip.y_dimension
+                colors = ["b", "r", "g", "c", "k", "m"]
+                color = colors[l % len(colors)]
+
+                file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
+            file.write("print " + filename + ".pdf\n")
+            file.close()
+            sys.stderr.write("File '" + filename + ".m" + "' created");
+            return
+
+
 ##############################################################################################
 ### HOTSPOT INTERFACE
 ##############################################################################################
@@ -535,23 +554,6 @@ def compute_checkerboard_layout():
 
             positions.remove([victim_l, victim_x, victim_y])
 
-        # DEBUG
-        #file = open("checkerboard.m","w") 
-        #file.write("figure\n")
-        #file.write("hold on\n")
-#
-        #for rect in positions:
-            #[l,x,y] = rect
-            #w = argv.chip.x_dimension
-            #h = argv.chip.y_dimension
-            #if (l == 2):
-                #color="'r-'"
-            #else:
-                #color="'b-'"
-            #file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + color + ")\n") 
-        #file.write("print checkerboard.pdf\n")
-        #file.close()
-
         # Create topology
         node1 = -1
         for p1 in positions:
@@ -652,24 +654,6 @@ def compute_best_solution_linear_random_greedy():
                         picked_y = -argv.overlap / (last_chip_position[1] + layout.chip.x_dimension \
                                 - picked_x) + (last_chip_position[2] + layout.chip.y_dimension)
 
-                        #print "OVERLAP = ", (last_chip_position[1] + layout.chip.x_dimension  - picked_x) * (last_chip_position[2] + layout.chip.y_dimension - picked_y)
-
-                        #file = open("base.m","w") 
-                        #file.write("figure\n")
-                        #file.write("hold on\n")
- #
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2]) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2] + layout.chip.y_dimension) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1]) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1] + layout.chip.x_dimension) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
- #
-  #
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
- 
- 
                         # Symmetries 
                         four_sided_coin = random_element([0])
 
@@ -695,16 +679,6 @@ def compute_best_solution_linear_random_greedy():
                                         picked_x - layout.chip.x_dimension
                             picked_y = (last_chip_position[2] + layout.chip.y_dimension) - \
                                            picked_y - layout.chip.y_dimension
-
- 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                        file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#
-#                        file.write("axis([-1 2 -1 2])\n")
-#                        file.write("print base_" + str(len(candidate_random_trials)) + ".pdf\n")
-#                        file.close()
 
                         # Check that coordinates are positive
                         if (picked_x < 0) or (picked_y < 0):
