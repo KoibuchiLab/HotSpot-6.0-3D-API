@@ -532,7 +532,7 @@ def compute_best_solution_rectilinear(mode):
 def compute_best_solution_linear_random_greedy():
 
 	# Create an initial layout
-	layout = Layout(argv.chip, [[5, 500.0, 500.0]], argv.medium, [])
+	layout = Layout(argv.chip, [[1, 500.0, 500.0]], argv.medium, [])
 
 	
 	max_num_random_trials = 5
@@ -623,10 +623,12 @@ def compute_best_solution_linear_random_greedy():
 #                        file.write("print base_" + str(len(candidate_random_trials)) + ".pdf\n")
 #                        file.close()
 
+                        # Check that coordinates are positive
+                        if (picked_x < 0) or (picked_y < 0):
+                            continue
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit(picked_level, picked_x, picked_y)):
-                            print "Can't fit!"
                             continue
 
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
