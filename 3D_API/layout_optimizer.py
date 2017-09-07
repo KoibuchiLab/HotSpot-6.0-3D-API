@@ -21,6 +21,22 @@ from scipy.optimize import fmin_slsqp
 ### CLASSES
 ##############################################################################################
 
+def are_two_rectangles_overlapping(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
+		        
+        # They don't overlap in X
+        if (top_right_1[0] < bottom_left_2[0]):
+	        return False;
+        if (top_right_2[0] < bottom_left_1[0]):
+	        return False;
+       
+        # They don't overlap in Y
+        if (top_right_1[1] < bottom_left_2[1]):
+	        return False;
+        if (top_right_2[1] < bottom_left_1[1]):
+	        return False;
+       
+        return True
+
 
 """A class that represents a chip"""
 class Chip(object):
@@ -55,7 +71,7 @@ class Layout(object):
 			existing_chip = self.chip_positions[i]
 			if (existing_chip[0] != layer):
 				continue
-			if (self.are_two_rectangles_overlapping(
+			if (are_two_rectangles_overlapping(
 					[existing_chip[1], existing_chip[2]],
 					[existing_chip[1] + self.chip.x_dimension, existing_chip[2] + self.chip.y_dimension],	
 					[x, y],
@@ -64,22 +80,24 @@ class Layout(object):
 				return False
 		return True
 
-        def are_two_rectangles_overlapping(self, bottom_left_1, top_right_1,
-				        bottom_left_2, top_right_2):
-		        
-	        # They don't overlap in X
-	        if (top_right_1[0] < bottom_left_2[0]):
-		        return False;
-	        if (top_right_2[0] < bottom_left_1[0]):
-		        return False;
-        
-	        # They don't overlap in Y
-	        if (top_right_1[1] < bottom_left_2[1]):
-		        return False;
-	        if (top_right_2[1] < bottom_left_1[1]):
-		        return False;
-        
-	        return True
+        def draw_in_octave(self, filename_without_extension):
+            file = open(filename + ".m","w") 
+            file.write("figure\n")
+            file.write("hold on\n")
+    
+            for rect in self.positions:
+                [l,x,y] = rect
+                w = argv.chip.x_dimension
+                h = argv.chip.y_dimension
+                colors = ["b", "r", "g", "c", "k", "m"]
+                color = colors[l % len(colors)]
+
+                file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
+            file.write("print " + filename + ".pdf\n")
+            file.close()
+            sys.stderr.write("File '" + filename + ".m" + "' created");
+            return
+
 
 ##############################################################################################
 ### HOTSPOT INTERFACE
@@ -452,7 +470,6 @@ def compute_rectilinear_straight_layout():
 			level_direction = 1
 		current_x_position += argv.chip.x_dimension * (1 - argv.overlap);
 		
-        print "POSITIONS = ", positions
 	return Layout(argv.chip, positions, argv.medium, topology)
 
 	
@@ -480,7 +497,75 @@ def compute_rectilinear_diagonal_layout():
 		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap));
 		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap));
 		
-        print "POSITIONS = ", positions
+	return Layout(argv.chip, positions, argv.medium, topology)
+
+
+"""Function to compute a checkerboard layout"""
+def compute_checkerboard_layout():
+
+	positions = []
+        topology = []
+
+        if (argv.num_levels != 2):
+		abort("A checkerboard layout can only be built for 2 levels");
+            
+        # Rather than do annoying discrete math to compute the layout in an
+        # incremental fashion, we compute a large layout and then remove
+        # non-needed chips
+
+        # Compute x and y overlap assuming a square overlap area
+        x_overlap = sqrt(argv.overlap * (argv.chip.x_dimension * argv.chip.y_dimension))
+        y_overlap = x_overlap
+
+        # Create level 1
+        for x in xrange(0,argv.num_chips):
+            for y in xrange(0,argv.num_chips):
+                positions.append([1, x * (2 * argv.chip.x_dimension - 2 * x_overlap), y * (2 * argv.chip.y_dimension - 2 * y_overlap)])
+
+        # Create level 2
+        for x in xrange(0,argv.num_chips):
+            for y in xrange(0,argv.num_chips):
+                positions.append([2, argv.chip.x_dimension - x_overlap + x * (2 * argv.chip.x_dimension - 2 * x_overlap), argv.chip.y_dimension - y_overlap + y * (2 * argv.chip.y_dimension - 2 * y_overlap)])
+
+        while(len(positions) > argv.num_chips):
+            max_x = max([x for [l,x,y] in positions])
+            max_y = max([y for [l,x,y] in positions])
+            if (max_x > max_y):
+                # remove chip with x = max_x and largest y
+                victim_x = max_x
+                candidate_y = []
+                for position in positions:
+                    if (position[1] == victim_x):
+                        candidate_y.append(position[2])
+                victim_y = max(candidate_y)
+            elif (max_y >= max_x):
+                # remove a chip with y = max_y and largest x
+                victim_y = max_y
+                candidate_x = []
+                for position in positions:
+                    if (position[2] == victim_y):
+                        candidate_x.append(position[1])
+                victim_x = max(candidate_x)
+
+            for position in positions:
+                if (position[1] == victim_x) and (position[2] == victim_y):
+                    victim_l = position[0]
+                    break
+
+            positions.remove([victim_l, victim_x, victim_y])
+
+        # Create topology
+        node1 = -1
+        for p1 in positions:
+            node1 += 1
+            node2 = -1
+            for p2 in positions:
+                node2 += 1
+                if (node2 <= node1):
+                    continue
+                if (are_two_rectangles_overlapping([p1[1], p1[2]], [p1[1] + argv.chip.x_dimension, p1[2] + argv.chip.y_dimension], [p2[1], p2[2]], [p2[1] + argv.chip.x_dimension, p2[2] + argv.chip.y_dimension])):
+                    topology.append([node1, node2])
+
 	return Layout(argv.chip, positions, argv.medium, topology)
 
 
@@ -569,24 +654,6 @@ def compute_best_solution_linear_random_greedy():
                         picked_y = -argv.overlap / (last_chip_position[1] + layout.chip.x_dimension \
                                 - picked_x) + (last_chip_position[2] + layout.chip.y_dimension)
 
-                        #print "OVERLAP = ", (last_chip_position[1] + layout.chip.x_dimension  - picked_x) * (last_chip_position[2] + layout.chip.y_dimension - picked_y)
-
-                        #file = open("base.m","w") 
-                        #file.write("figure\n")
-                        #file.write("hold on\n")
- #
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2]) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2] + layout.chip.y_dimension) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1]) + ", " + str(last_chip_position[1]) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(last_chip_position[1] + layout.chip.x_dimension) + ", " + str(last_chip_position[1] + layout.chip.x_dimension) + "]" +  ", [" + str(last_chip_position[2]) + ", " + str(last_chip_position[2] + layout.chip.y_dimension) + "])\n") 
- #
-  #
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-                        #file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
- 
- 
                         # Symmetries 
                         four_sided_coin = random_element([0])
 
@@ -613,20 +680,12 @@ def compute_best_solution_linear_random_greedy():
                             picked_y = (last_chip_position[2] + layout.chip.y_dimension) - \
                                            picked_y - layout.chip.y_dimension
 
- 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y) + "])\n") 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y + layout.chip.y_dimension) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                        file.write("plot([" + str(picked_x) + ", " + str(picked_x) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#                        file.write("plot([" + str(picked_x + layout.chip.x_dimension) + ", " + str(picked_x + layout.chip.x_dimension) + "]" +  ", [" + str(picked_y) + ", " + str(picked_y + layout.chip.y_dimension) + "])\n") 
-#
-#                        file.write("axis([-1 2 -1 2])\n")
-#                        file.write("print base_" + str(len(candidate_random_trials)) + ".pdf\n")
-#                        file.close()
-
+                        # Check that coordinates are positive
+                        if (picked_x < 0) or (picked_y < 0):
+                            continue
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit(picked_level, picked_x, picked_y)):
-                            print "Can't fit!"
                             continue
 
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
@@ -636,6 +695,7 @@ def compute_best_solution_linear_random_greedy():
                 picked_candidate = None
                 for candidate in candidate_random_trials:
                         layout.chip_positions.append(candidate) 
+                        print layout.chip_positions
                         if (argv.verbose > 0):
                                 sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
                         result = find_maximum_power_budget(layout) 
@@ -662,7 +722,27 @@ def compute_best_solution_linear_random_greedy():
 
 	return [layout, power_distribution, temperature]
 
+"""Checkboard layout optimization"""
+def compute_best_solution_checkerboard():
 
+	if (argv.verbose == 0):
+		sys.stderr.write("o");
+	if (argv.verbose > 0):
+		sys.stderr.write("Constructing a checkerboard layout\n")
+
+	layout = compute_checkerboard_layout()
+
+	result = find_maximum_power_budget(layout)
+
+        if result == None:
+            return None
+
+	[power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+
+
+	
 def find_available_power_levels(chip_name, benchmark_name):
         
         power_levels = {}
@@ -762,6 +842,8 @@ def compute_best_solution():
 		continuous_solution =  compute_best_solution_rectilinear("diagonal")
 	elif (argv.layout_scheme == "linear_random_greedy"):
 		continuous_solution =  compute_best_solution_linear_random_greedy()
+	elif (argv.layout_scheme == "checkerboard"):
+		continuous_solution =  compute_best_solution_checkerboard()
 	else:
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
 
@@ -788,21 +870,24 @@ def parse_arguments():
 LAYOUT SCHEMES (--layout, -L):
 
   - stacked:
-       chips are stacked vertically.
+       chips are stacked vertically. (-d flag ignored)
 
   - rectilinear_straight: 
        chips are along the x axis in a straight line, using all levels
-       in a "bouncing ball" fashion.
+       in a "bouncing ball" fashion. (-d flag ignored)
 
   - rectilinear_diagonal: 
        chips are along the x-y axis diagonal in a straight line, using
-       all levels in a "bouncing ball" fashion.
+       all levels in a "bouncing ball" fashion. (-d flag ignored)
 
   - linear_random_greedy: 
        a greedy randomized search for a linear but non-rectilinear layout,
        using all levels in a "bouncing ball fashion". The main difference
        with the rectilinear methods is that the overlap between chip n
-       and chip n+1 is arbitrarily shaped.
+       and chip n+1 is arbitrarily shaped. (-d flag ignored)
+
+  - checkboard:
+       a 2-level checkboard layout, that's built to minimize diameter. (-d flag ignored)
 
 TEMPERATURE OPTIMIZATION METHODS ('--tempopt', '-t'):
 
@@ -873,7 +958,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store', 
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal", "linear_random_greedy", "stacked"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal", "checkerboard", "linear_random_greedy", "stacked"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',
@@ -941,7 +1026,8 @@ argv = parse_arguments()
 
 if (argv.chip_name == "e5-2667v4"):
         power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
-        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, power_levels)
+#        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, power_levels)
+        argv.chip = Chip("e5-2667v4", 10, 10, power_levels)
 elif (argv.chip_name == "phi7250"):
         power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
 	argv.chip = Chip("phi7250",   0.0315,   0.0205,   power_levels)
@@ -954,9 +1040,10 @@ if (argv.num_chips < 1):
 if (argv.diameter < 1):
 	abort("The diameter (--diameter, -d) should be >0")
 
-if ((argv.diameter > argv.num_chips) and (argv.layout_scheme != "stacked") and (argv.layout_scheme != "rectilinear_straight") and (argv.layout_scheme != "rectilinear_diagonal") and (argv.layout_scheme != "linear_random_greedy")):
-	abort("The diameter (--diameter, -d) should <= the number of chips")
-
+if (argv.layout_scheme != "stacked") and (argv.layout_scheme != "rectilinear_straight") and (argv.layout_scheme != "rectilinear_diagonal") and (argv.layout_scheme != "linear_random_greedy") and (argv.layout_scheme != "checkerboard"):
+    if (argv.diameter > argv.num_chips):
+	    abort("The diameter (--diameter, -d) should <= the number of chips")
+        
 if (argv.num_levels < 2):
 	abort("The number of levels (--numlevels, -d) should be >1")
 
