@@ -24,8 +24,8 @@ AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL (using natural convection)
 WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER (using natural convection)
 FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natural convection)
-NOVEC_H = ?? # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
-WATER_PILLOW_H = ?? # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection)
+NOVEC_H = 180##caution! this value is not correct.  # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
+WATER_PILLOW_H = 4000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
 
 if (len(args) != 3):
 	sys.stderr.write("Usage: " + args[0] + " <input file (.dat)> <water | air | oil>\n")
@@ -120,15 +120,22 @@ for i in xrange(0, num):
 		sys.stderr('invalid rotation')
 		sys.exit()
 heatsink_fin_num = 20 ## 10(boards) * 2(both sides) 
+heatsink_thickness = 0.0069  ##default heatsink thickness size
 heat_spread_size = 3.0 * system_size ## I set those ratio(3.0 and 6.0) referring defalut chip ratio.
 heatsink_size = 6.0 * system_size
 heatsink_height = heatsink_size
 convec_first = 1 / (H_TRANS * (heatsink_size * heatsink_size + heatsink_size * heatsink_height * heatsink_fin_num)) ##Heat convection can be calculated by 1/(H_TRANS * area). area: bottom area + side area
-convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size) 
+convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size)
+
+##when water pillow, removing heat sink.
+if args[2] == "water_pillow":
+	convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size) ## ignoring side area 
+	heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink   
 
 os.system("cat default.config |\
            sed s/__SPREAD__/"+str(heat_spread_size)+"/ |\
            sed s/__SINK__/"+str(heatsink_size)+"/ |\
+           sed s/__THICKNESS__/"+str(heatsink_thickness)+"/ |\
            sed s/__CONVEC1__/"+str(convec_first)+"/ |\
            sed s/__CONVEC2__/"+str(convec_second)+"/ > test.config")
 
