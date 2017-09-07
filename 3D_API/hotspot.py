@@ -6,7 +6,7 @@ import sys
 args = sys.argv
 
 if ((len(args) != 3) and (len(args) != 4)):
-	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil> [--no_images]\" \n')
+	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images]\" \n')
 	sys.exit(1)
 
 input_file = args[1]
@@ -22,8 +22,14 @@ elif args[2] == "oil":
 	material = "oil"
 elif args[2] == "air":
 	material = "air"
+elif args[2] == "fluori":
+	material = "fluori"
+elif args[2] == "novec":
+	material = "novec"
+elif args[2] == "water_pillow":
+	material = "water_pillow"
 else:
-	sys.stderr.write('Invalid medium argument. Should be [air|water|oil]\" \n')
+	sys.stderr.write('Invalid medium argument. Should be [air|water|oil|fluori|novec]\" \n')
 	sys.exit(1)
  
 no_images = False
@@ -60,10 +66,10 @@ os.system("python floor.py " + sorted_file)
 os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
 os.system("python config.py " + sorted_file + " " + str(material))
-os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -use_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
+os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
 for i in xrange(0, layer_num): 
-	os.system("cat tmp.grid.steady | sed -n "+ str(5+i*4098*2)+ "," +str(5+i*4098*2+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
-	os.system("cat tmp.grid.steady | sed -n "+ str(5+i*4098*2)+ "," +str(5+i*4098*2+4095) +"p > layer" + str(i+1) + ".grid.steady")
+	os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*4098)+ "," +str(5+(3+i*2)*4098+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
+	os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*4098)+ "," +str(5+(3+i*2)*4098+4095) +"p > layer" + str(i+1) + ".grid.steady")
 	if (not no_images):
 		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")

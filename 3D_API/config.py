@@ -18,9 +18,14 @@ e52667v4_y = 0.014172
 base1_x = 0.016
 base1_y = 0.016
 
-AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR 
-OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL
-WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER
+## I'm not sure what value is the best estimation
+## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
+AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
+OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL (using natural convection)
+WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER (using natural convection)
+FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natural convection)
+NOVEC_H = ?? # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
+WATER_PILLOW_H = ?? # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection)
 
 if (len(args) != 3):
 	sys.stderr.write("Usage: " + args[0] + " <input file (.dat)> <water | air | oil>\n")
@@ -32,6 +37,12 @@ elif args[2] == "air":
 	H_TRANS = AIR_H
 elif args[2] == "oil":
 	H_TRANS = OIL_H
+elif args[2] == "fluori":
+	H_TRANS = FLUORI_H
+elif args[2] == "novec":
+	H_TRANS = NOVEC_H
+elif args[2] == "water_pillow":
+	H_TRANS = WATER_PILLOW_H
 else:
 	sys.stderr.write("Invalid argument '" + args[2] + "'\n")
 	sys.exit(1)
