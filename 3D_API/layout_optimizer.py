@@ -1008,6 +1008,11 @@ VISUAL PROGRESS OUTPUT:
                             dest='max_allowed_temperature', metavar='<temperature in Celsius>',
                             help='the maximum allowed temperature for the layout (default: 80)')
 
+	parser.add_argument('--grid_size', '-g', action='store',
+		            type=int, required=False, default=2048,
+                            dest='grid_size', metavar='<Hotspot temperature map size>',
+                            help='the grid size used by Hotspot (larger means more RAM and more CPU; default: 2048)')
+
 	parser.add_argument('--verbose', '-v', action='store', type=int,
 		            required=False, default=0,
                             dest='verbose', metavar='<verbosity level>',
@@ -1059,6 +1064,8 @@ if (argv.power_distribution_optimization_num_trials < 0):
 if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 	abort("Unsupported cooling medium '" + argv.medium + "'")
 
+# Recompile cell.c with specified grid size
+os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size));
 
 solution = compute_best_solution()
 
