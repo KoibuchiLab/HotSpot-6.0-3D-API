@@ -5,6 +5,7 @@ import random
 import os
 import sys
 import subprocess
+import itertools
 
 from glob import glob
 
@@ -25,15 +26,15 @@ def are_two_rectangles_overlapping(bottom_left_1, top_right_1, bottom_left_2, to
 		        
         # They don't overlap in X
         if (top_right_1[0] < bottom_left_2[0]):
-	        return False;
+	        return False
         if (top_right_2[0] < bottom_left_1[0]):
-	        return False;
+	        return False
        
         # They don't overlap in Y
         if (top_right_1[1] < bottom_left_2[1]):
-	        return False;
+	        return False
         if (top_right_2[1] < bottom_left_1[1]):
-	        return False;
+	        return False
        
         return True
 
@@ -95,7 +96,7 @@ class Layout(object):
                 file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
             file.write("print " + filename + ".pdf\n")
             file.close()
-            sys.stderr.write("File '" + filename + ".m" + "' created");
+            sys.stderr.write("File '" + filename + ".m" + "' created")
             return
 
 
@@ -149,7 +150,7 @@ def compute_layout_temperature(x, layout):
 	except Exception, e:	
 		sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 		
-	if (argv.verbose > 1):
+	if (argv.verbose > 2):
 		sys.stderr.write("          Hotspot result: " + str(sum(x)) + " (" + str(x) + "): " + str(temperature) + " Celsius\n")
 
 	return temperature
@@ -242,6 +243,7 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 	min_temperature = -1
 	best_power_distribution = []
 
+
 	# Do the specified number of minimization trial
 	for trial in range(0, num_random_starts):
 		if (argv.verbose == 0):
@@ -254,7 +256,7 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 			min_temperature = temperature
 			best_power_distribution = power_distribution
 			if (argv.verbose >= 1):
-				sys.stderr.write("          New lowest temperature: T= " + str(min_temperature) + "\n");
+				sys.stderr.write("          New lowest temperature: T= " + str(min_temperature) + "\n")
 	
         
 	return [min_temperature, best_power_distribution]
@@ -264,8 +266,12 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 """Top-level minimization function"""
 def minimize_temperature(layout, total_power_budget, optimization_method, num_iterations):
 
-	if (optimization_method == "simulated_annealing"):
-		return minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations)
+	if (optimization_method == "simulated_annealing_gradient"):
+		return minimize_temperature_simulated_annealing_gradient(layout, total_power_budget, num_iterations)
+	elif (optimization_method == "exhaustive"):
+		return minimize_temperature_exhaustive(layout, total_power_budget, num_iterations)
+	elif (optimization_method == "neighbor"):
+		return minimize_temperature_neighbor(layout, total_power_budget, num_iterations)
 	elif (optimization_method == "gradient"):
 		return minimize_temperature_gradient(layout, total_power_budget, num_iterations)
 	elif (optimization_method == "random"):
@@ -303,7 +309,7 @@ def minimize_temperature_random(layout, total_power_budget, num_iterations):
 	return [temperature, random_start]
 
 
-"""Temperature minimizer using some gradient descent"""
+"""Temperature minimizer using gradient descent"""
 def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 
         # Generate a valid random start
@@ -311,13 +317,60 @@ def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 	if (argv.verbose > 1):
 		sys.stderr.write("Generated a random start: " + str(random_start) + "\n")
 
-        result = fmin_slsqp(compute_layout_temperature, random_start, args=(layout,), full_output=True, iprint=0)
+        result = fmin_slsqp(compute_layout_temperature, random_start, args=(layout,), full_output=True, iter=num_iterations, iprint=0)
 
         return [result[1], result[0]]
 
+"""Temperature minimizer using neighbor search"""
+def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
+
+        # Generate a valid random start
+	random_start = generate_random_start(layout, total_power_budget)
+	if (argv.verbose > 1):
+		sys.stderr.write("Generated a random start: " + str(random_start) + "\n")
+
+        best_distribution = random_start
+        best_temperature = compute_layout_temperature(random_start, layout)
+        epsilon = 1
+        for iteration in xrange(0, num_iterations):
+            sys.stderr.write("Iteration " + str(iteration) + " / " + str(num_iterations) + "\n")
+            for pair in list(itertools.product(xrange(0, layout.get_num_chips()), xrange(0, layout.get_num_chips()))):
+                if (pair[0] == pair[1]):
+                    continue
+                candidate = list(best_distribution)
+                candidate[pair[0]] += epsilon
+                candidate[pair[1]] -= epsilon
+                if (max(candidate) > max(layout.chip.power_levels)) or (min(best_distribution) < min(layout.chip.power_levels)):
+                    continue
+	        temperature =  compute_layout_temperature(candidate, layout)
+                if (argv.verbose > 1):
+                    sys.stderr.write("\tNeighbor " + str(candidate) + " has temperature " + str(temperature) + "\n")
+                if (temperature < best_temperature):
+                    best_temperature = temperature
+                    best_distribution = candidate
+                    break  # We do a greedy search, which goes toward any improvement
+
+        return [best_temperature, best_distribution]
+
+
+"""Temperature minimizer using exhaustive search"""
+def minimize_temperature_exhaustive(layout, total_power_budget, num_iterations):
+
+    power_levels = layout.chip.power_levels
+
+    best_distribution = None
+    best_temperature = None
+    for distribution in itertools.permutations(power_levels,layout.get_num_chips()):
+	        temperature =  compute_layout_temperature(distribution, layout)
+                if (best_distribution == None) or (temperature < best_temperature):
+                    best_distribution = distribution
+                    best_temperature = temperature
+
+    return [best_temperature, best_distribution]
+
 
 """Temperature minimizer using some simulated annealing and gradient descent"""
-def minimize_temperature_simulated_annealing(layout, total_power_budget, num_iterations):
+def minimize_temperature_simulated_annealing_gradient(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
 	random_start = generate_random_start(layout, total_power_budget)
@@ -361,7 +414,7 @@ def find_maximum_power_budget(layout):
 
 	# No binary search because the user specied a fixed power budget?
 	if (argv.power_budget):
-		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
 		return [layout, power_distribution, temperature]
 
 	# No binary search because the minimum power possible is already above temperature?
@@ -372,7 +425,7 @@ def find_maximum_power_budget(layout):
 
 
 	if (argv.power_budget):
-		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
 		return [layout, power_distribution, temperature]
 
 
@@ -386,15 +439,15 @@ def find_maximum_power_budget(layout):
 	last_valid_solution = None
 
         if (argv.verbose > 0):
-	    sys.stderr.write("New binary search for maximizing the power\n");
+	    sys.stderr.write("New binary search for maximizing the power\n")
 
 	while (True):
 		if (argv.verbose == 0):
 			sys.stderr.write("x")
 		if (argv.verbose > 0):
-			sys.stderr.write("    New binary search step (trying power = " + str(power_attempt) + " Watts)\n");
+			sys.stderr.write("    New binary search step (trying power = " + str(power_attempt) + " Watts)\n")
 
-		[temperature, power_distribution] = optimize_power_distribution(layout, power_attempt, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.temp_optimization_num_iterations)
+		[temperature, power_distribution] = optimize_power_distribution(layout, power_attempt, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
 		# pick new direction?
 		if (temperature < argv.max_allowed_temperature):
 			next_step_direction = +1
@@ -437,7 +490,7 @@ def compute_stacked_layout():
 
         if (argv.num_levels < argv.num_chips):
 		abort("Not enough levels to build a stacked layout with " + \
-                         str(argv.num_chips) + "chips");
+                         str(argv.num_chips) + " chips")
             
         for level in xrange(1, argv.num_chips+1):
             positions.append([level, 0.0, 0.0])
@@ -468,7 +521,7 @@ def compute_rectilinear_straight_layout():
 		if (current_level < 1):
 			current_level = 2
 			level_direction = 1
-		current_x_position += argv.chip.x_dimension * (1 - argv.overlap);
+		current_x_position += argv.chip.x_dimension * (1 - argv.overlap)
 		
 	return Layout(argv.chip, positions, argv.medium, topology)
 
@@ -494,8 +547,8 @@ def compute_rectilinear_diagonal_layout():
 		if (current_level < 1):
 			current_level = 2
 			level_direction = 1
-		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap));
-		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap));
+		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap))
+		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap))
 		
 	return Layout(argv.chip, positions, argv.medium, topology)
 
@@ -507,7 +560,7 @@ def compute_checkerboard_layout():
         topology = []
 
         if (argv.num_levels != 2):
-		abort("A checkerboard layout can only be built for 2 levels");
+		abort("A checkerboard layout can only be built for 2 levels")
             
         # Rather than do annoying discrete math to compute the layout in an
         # incremental fashion, we compute a large layout and then remove
@@ -573,7 +626,7 @@ def compute_checkerboard_layout():
 def compute_best_solution_stacked():
 
 	if (argv.verbose == 0):
-		sys.stderr.write("o");
+		sys.stderr.write("o")
 	if (argv.verbose > 0):
 		sys.stderr.write("Constructing a stacked layout\n")
 
@@ -592,7 +645,7 @@ def compute_best_solution_stacked():
 def compute_best_solution_rectilinear(mode):
 
 	if (argv.verbose == 0):
-		sys.stderr.write("o");
+		sys.stderr.write("o")
 	if (argv.verbose > 0):
 		sys.stderr.write("Constructing a " + mode + " rectilinear layout\n")
 
@@ -726,7 +779,7 @@ def compute_best_solution_linear_random_greedy():
 def compute_best_solution_checkerboard():
 
 	if (argv.verbose == 0):
-		sys.stderr.write("o");
+		sys.stderr.write("o")
 	if (argv.verbose > 0):
 		sys.stderr.write("Constructing a checkerboard layout\n")
 
@@ -779,7 +832,7 @@ def find_available_power_levels(chip_name, benchmark_name):
                 return maxima
 
         else:
-                sys.stderr.write("Unknon benchmark " + benchmark_name + " for computing power levels");
+                sys.stderr.write("Unknon benchmark " + benchmark_name + " for computing power levels")
                 sys.exit(1)
         
 
@@ -788,7 +841,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
         new_temperature = initial_temperature
 
         if (argv.verbose > 0):
-            sys.stderr.write("Continuous solution power distribution: " + str(power_distribution) + "\n")
+            sys.stderr.write("Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution) + "\n")
 
         power_levels = find_available_power_levels(argv.chip.name, argv.power_benchmark)
 
@@ -893,7 +946,12 @@ TEMPERATURE OPTIMIZATION METHODS ('--tempopt', '-t'):
 
   - uniform:
         baseline approach that simply assigns the same power to all chips. 
-        Completely ignored the '--powerdistopt_num_trials', '-P' and the
+        Completely ignores the '--powerdistopt_num_trials', '-P' and the
+        '--tempopt_num_iterations', '-T' options.
+
+  - exhaustive: 
+	exhaustive search that evaluates all options.  
+        Completely ignores the '--powerdistopt_num_trials', '-P' and the
         '--tempopt_num_iterations', '-T' options.
 
   - random: 
@@ -916,8 +974,15 @@ TEMPERATURE OPTIMIZATION METHODS ('--tempopt', '-t'):
 	each the gradient descent algorithm is invoked. Y is passed to
 	the fmin_slsqp function as its number of iterations.
 
+  - neighbor: 
+	given a layout and a given power budget, just do a neighbor search.
+	For this method there are X trials (as specified
+	with '--powerdistopt_num_trials', '-P') and for each trial there
+	are Y iterations (as specified with '--tempopt_num_iterations',
+	'-T'). Therefore, there are X random starting points and for
+        each the neighbor search algorithm is invoked with Y iterations.
 
-  - simulated_annealing
+  - simulated_annealing_gradient
 	given a layout and a given power budget, just do a simulated
 	annealing search (using basinhopping from scipy, with the SLSQP
 	constrained gradient descent algorithm).  For this method there
@@ -968,15 +1033,15 @@ VISUAL PROGRESS OUTPUT:
 			    required=True,
                             dest='powerdistopt', 
 			    metavar='<power distribution optimization method>',
-                            help='"uniform", "random", "gradient", "simulated_annealing"')
+                            help='"exhaustive", "uniform", "random", "gradient", "neighbor", "simulated_annealing_gradient"')
 
-	parser.add_argument('--tempopt_num_iterations', '-T', action='store', 
+	parser.add_argument('--powerdistopt_num_iterations', '-I', action='store', 
 			    required=True, type=int,
-                            dest='temp_optimization_num_iterations', 
+                            dest='power_distribution_num_iterations', 
 			    metavar='<# of iterations>',
-                            help='number of iterations used for temperature optimization')
+                            help='number of iterations used for each power distribution optimization trial')
 
-	parser.add_argument('--powerdistopt_num_trials', '-P', action='store', 
+	parser.add_argument('--powerdistopt_num_trials', '-T', action='store', 
 			    required=True, type=int,
                             dest='power_distribution_optimization_num_trials', 
 			    metavar='<# of trials>',
@@ -1042,12 +1107,14 @@ else:
 if (argv.num_chips < 1):
 	abort("The number of chips (--numchips, -n) should be >0")
 
+if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme != "checkerboard"):
+    argv.diameter = argv.num_chips
+
 if (argv.diameter < 1):
 	abort("The diameter (--diameter, -d) should be >0")
 
-if (argv.layout_scheme != "stacked") and (argv.layout_scheme != "rectilinear_straight") and (argv.layout_scheme != "rectilinear_diagonal") and (argv.layout_scheme != "linear_random_greedy") and (argv.layout_scheme != "checkerboard"):
-    if (argv.diameter > argv.num_chips):
-	    abort("The diameter (--diameter, -d) should <= the number of chips")
+if (argv.diameter > argv.num_chips):
+    abort("The diameter (--diameter, -d) should <= the number of chips")
         
 if (argv.num_levels < 2):
 	abort("The number of levels (--numlevels, -d) should be >1")
@@ -1055,17 +1122,21 @@ if (argv.num_levels < 2):
 if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
 	abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
 
-if (argv.temp_optimization_num_iterations < 0):
-	abort("The number of iterations for temperature optimization (--tempopt_num_iterations, -T) should be between > 0")
+if (argv.power_distribution_num_iterations < 0):
+	abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
 
 if (argv.power_distribution_optimization_num_trials < 0):
-	abort("The number of trials for power distribution optimization (--poweropt_num_trials, -P) should be between > 0")
+	abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
 
 if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 	abort("Unsupported cooling medium '" + argv.medium + "'")
 
+if (argv.powerdistopt == "exhaustive") or (argv.powerdistopt == "uniform"):
+        argv.power_distribution_optimization_num_trials = 1 
+        argv.power_distribution_optimization_num_iterations = 1
+
 # Recompile cell.c with specified grid size
-os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size));
+os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
 
 solution = compute_best_solution()
 
