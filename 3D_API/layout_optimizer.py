@@ -393,26 +393,13 @@ def basinhopping_objective_layout_temperature(x, layout):
 ### POWER OPTIMIZATION (FOR A GIVEN LAYOUT)
 ##############################################################################################
 
-"""Search for the maximum power"""
-def find_maximum_power_budget(layout):
+def is_power_optimization_method_discrete(method_name):
+    if method_name in ["exhaustive_discrete", "random_discrete", "greedy_random_discrete"]:
+        return True
+    else: 
+        return False
 
-	# No search because the user specified a fixed power budget?
-	if (argv.power_budget):
-		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
-		return [layout, power_distribution, temperature]
-
-	# No search because the minimum power possible is already above temperature?
-        temperature = compute_layout_temperature([layout.chip.power_levels[0]] * layout.get_num_chips(), layout)
-        if (temperature > argv.max_allowed_temperature):
-                sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
-                return None
-
-	# No search because the maimum power possible is already below temperature?
-        temperature = compute_layout_temperature([layout.chip.power_levels[-1]] * layout.get_num_chips(), layout)
-        if (temperature <= argv.max_allowed_temperature):
-                return [layout, [layout.chip.power_levels[-1]] * layout.get_num_chips(), temperature]
-
-        ### DISCRETE METHODS ###
+def find_maximum_power_budget_discrete(layout):
 
         # Simple exhaustive search
         if (argv.powerdistopt == "exhaustive_discrete"):
@@ -421,7 +408,7 @@ def find_maximum_power_budget(layout):
             best_distribution = None
             best_distribution_temperature = None
             for distribution in itertools.permutations(power_levels,layout.get_num_chips()):
-	        temperature =  compute_layout_temperature(distribution, layout)
+                temperature =  compute_layout_temperature(distribution, layout)
                 if (temperature <= argv.max_allowed_temperature):
                     if (best_distribution == None) or (sum(best_distribution) < sum(distribution)):
                         best_distribution = distribution
@@ -498,9 +485,9 @@ def find_maximum_power_budget(layout):
 
             return [best_distribution, best_distribution_temperature]
 
-        ### CONTINUOUS METHODS ###
 
-	# Continuous Binary search
+def find_maximum_power_budget_continuous(layout):
+
 	max_possible_power = argv.num_chips * argv.chip.power_levels[-1]
 
 	power_attempt = max_possible_power
@@ -544,6 +531,31 @@ def find_maximum_power_budget(layout):
 		
 	return last_valid_solution
 	
+
+"""Search for the maximum power"""
+def find_maximum_power_budget(layout):
+
+	# No search because the user specified a fixed power budget?
+	if (argv.power_budget):
+		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
+		return [layout, power_distribution, temperature]
+
+	# No search because the minimum power possible is already above temperature?
+        temperature = compute_layout_temperature([layout.chip.power_levels[0]] * layout.get_num_chips(), layout)
+        if (temperature > argv.max_allowed_temperature):
+                sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
+                return None
+
+	# No search because the maimum power possible is already below temperature?
+        temperature = compute_layout_temperature([layout.chip.power_levels[-1]] * layout.get_num_chips(), layout)
+        if (temperature <= argv.max_allowed_temperature):
+                return [layout, [layout.chip.power_levels[-1]] * layout.get_num_chips(), temperature]
+
+        if is_power_optimization_method_discrete(argv.powerdistopt): 
+                return find_maximum_power_budget_discrete(layout)
+        else:
+                return find_maximum_power_budget_continuous(layout)
+
 
 ##############################################################################################
 ### LAYOUT OPTIMIZATION
@@ -1015,7 +1027,7 @@ LAYOUT SCHEMES (--layout, -L):
        a 2-level checkboard layout, that's built to minimize diameter.
        (-d flag ignored)
 
-TEMPERATURE OPTIMIZATION METHODS ('--tempopt', '-t'):
+POWER DISTRIBUTION OPTIMIZATION METHODS ('--tempopt', '-t'):
 
   - exhaustive_discrete: 
 	given a layout, do and exhaustive search that evaluates all
