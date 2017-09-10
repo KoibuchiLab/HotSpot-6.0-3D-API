@@ -289,7 +289,6 @@ def minimize_temperature_uniform(layout, total_power_budget, num_iterations):
 	return [temperature, uniform_distribution]
 
 
-
 """Temperature minimizer using a simple random CONTINUOUS search"""
 def minimize_temperature_random_continuous(layout, total_power_budget, num_iterations):
 	
@@ -538,6 +537,7 @@ def find_maximum_power_budget(layout):
 	# No search because the user specified a fixed power budget?
 	if (argv.power_budget):
 		[temperature, power_distribution] = optimize_power_distribution(layout, argv.power_budget, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
+                [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
 		return [layout, power_distribution, temperature]
 
 	# No search because the minimum power possible is already above temperature?
@@ -546,15 +546,18 @@ def find_maximum_power_budget(layout):
                 sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
                 return None
 
-	# No search because the maimum power possible is already below temperature?
+	# No search because the maximum power possible is already below temperature?
         temperature = compute_layout_temperature([layout.chip.power_levels[-1]] * layout.get_num_chips(), layout)
         if (temperature <= argv.max_allowed_temperature):
                 return [layout, [layout.chip.power_levels[-1]] * layout.get_num_chips(), temperature]
 
         if is_power_optimization_method_discrete(argv.powerdistopt): 
-                return find_maximum_power_budget_discrete(layout)
+                [power_distribution, temperature] = find_maximum_power_budget_discrete(layout)
+                return [layout, power_distribution, temperature]
         else:
-                return find_maximum_power_budget_continuous(layout)
+                [power_distribution, temperature] = find_maximum_power_budget_continuous(layout)
+                [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
+                return [layout, power_distribution, temperature]
 
 
 ##############################################################################################
@@ -987,7 +990,7 @@ def optimize_layout():
         # (and will have lower overall power, sadly)
 	[layout, power_distribution, temperature] = continuous_solution
 
-        [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
+#        [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
 
         return [layout, power_distribution, temperature]
 
