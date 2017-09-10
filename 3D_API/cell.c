@@ -6,6 +6,7 @@
 #ifndef GRID_SIZE
 #define GRID_SIZE 8192
 #endif
+#define OUTPUT_GRID_SIZE 64
 #define MAX_CHAR_SIZE 100 // input file format
 #define MAX_GROUP_NUM 50
 
@@ -42,7 +43,7 @@ void graph(void){
 }
 
 int main(int argc, char **argv){
-	FILE *fp;
+	FILE *fp, *file;
 	char *fname; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
@@ -71,11 +72,20 @@ int main(int argc, char **argv){
 			for(j = 0; j < GRID_SIZE; j++)
 				grid_group_label[w][i][j] = 0;			
 
+	//for just reading input file 
 	fp = fopen(fname, "r");
 	if(fp == NULL){
 		printf("%s cannot read\n", fname);
 		return -1;
 	}
+
+	//for holding chip coodinate 
+	file = fopen("detailed.tmp", "w");
+	if(file == NULL){
+		fprintf(stderr, "error: cannot open file 'for_detailed.tmp'");
+		exit(1);
+	}
+	
 
 	//Find longest (X or Y-) lenggh of 3-D chip-stacking (including null block). 
 	while(fgets(s1,MAX_CHAR_SIZE, fp) != NULL){
@@ -223,7 +233,15 @@ int main(int argc, char **argv){
 		y_bottom = (chip_y+chip_ylen) /cell;
 		for(i = x_left; i < x_right; i++)
 			for(j = y_top; j < y_bottom; j++)		
-				grid_group_label[layer][i][j] = 1; 		
+				grid_group_label[layer][i][j] = 1;
+
+		//for holding chip coordinates at 64 * 64(OUTPUT_GRID_SIZE)
+		x_left = (float) x_left * OUTPUT_GRID_SIZE / GRID_SIZE;
+		x_right = (float) x_right * OUTPUT_GRID_SIZE / GRID_SIZE;
+		y_top = (float) y_top * OUTPUT_GRID_SIZE / GRID_SIZE;
+		y_bottom = (float) y_bottom * OUTPUT_GRID_SIZE / GRID_SIZE;
+		fprintf(file,"%s %d %d %d %d %d %f %f\n", chip_name, layer, x_left, x_right, y_top, y_bottom, chip_x, chip_y);
+		 		
 	}
 	fclose(fp);
 	
@@ -254,7 +272,6 @@ int main(int argc, char **argv){
 //if this label is 1, the grid belong chips.
 //if this label is 0, the grid belong null and this hasn't be detected
 //we will find null square, and divided into some groups, then those label would be 2, 3, ...
-
 //if label, grid_group_label(layer,x,y)==0, then serach the null square from the point.     
 	for(layer = 1; layer <= layer_num; layer++){ 
 		for(y = 0; y < GRID_SIZE; y++){

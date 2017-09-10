@@ -5,8 +5,8 @@ import sys
 
 args = sys.argv
 
-if ((len(args) != 3) and (len(args) != 4)):
-	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images]\" \n')
+if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
+	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
 
 input_file = args[1]
@@ -33,13 +33,23 @@ else:
 	sys.exit(1)
  
 no_images = False
+detailed = False
 if (len(args) == 4):
 	if (args[3] == "--no_images"):
 		no_images = True
+	elif (args[3] == "--detailed"):
+		detailed = True
 	else:
 	 	sys.stderr.write("Invalid argument '" + args[3] +"'\n")
 		sys.exit(1)
 
+if (len(args) == 5):
+	if ((args[3] == "--no_images" and args[4] == "--detailed") or (args[3] == "--detailed" and args[4] == "--no_images")):
+		no_images = True
+		detailed = True
+	else:
+	 	sys.stderr.write("Invalid argument '" + args[3] + args[4]+"'\n")
+		sys.exit(1)
 
 os.system("rm -f null.data")
 os.system("rm -f sorted.data")
@@ -81,11 +91,14 @@ for i in xrange(0, layer_num):
 		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
+	if (detailed):
+		os.system("python detailed.py detailed.tmp layer" +str(i+1)+ ".grid.steady "+ str(i+1))
+		
 
 #pick up the max temperature from max temperatures of each layers
 temp = open('tmp.results').readline()
 if '-273.15\n' == temp:
 	sys.stderr.write("error occurred\n")
 	sys.exit(1)
-else:
+elif (not detailed):
 	os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
