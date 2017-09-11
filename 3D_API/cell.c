@@ -54,7 +54,7 @@ int main(int argc, char **argv){
 	float chip_xlen, chip_ylen;
 	int layer;
 	int rotate;
-	//int freq; 
+	char *freq; 
 
 	if (argc != 2) {
 		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
@@ -165,6 +165,7 @@ int main(int argc, char **argv){
 	}
 
 	int x_left, x_right, y_top, y_bottom;
+	int rank = 0; 
 	x_left = x_right = y_top = y_bottom = -1;
 	while(fgets(s1, MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++)
@@ -173,9 +174,10 @@ int main(int argc, char **argv){
 		layer = atoi(strtok(NULL, " "));
 		chip_x = atof(strtok(NULL, " "));
 		chip_y = atof(strtok(NULL, " "));
-		strtok(NULL, " ");
-		//freq = atoi(strtok(NULL, " "));
+		freq = strtok(NULL, " ");
 		rotate = atoi(strtok(NULL, " "));
+		rank = atoi(strtok(NULL, " "));
+		
 		if(strstr(chip_name, "tulsa")!= NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = TULSA_X;
@@ -240,7 +242,7 @@ int main(int argc, char **argv){
 		x_right = (float) x_right * OUTPUT_GRID_SIZE / GRID_SIZE;
 		y_top = (float) y_top * OUTPUT_GRID_SIZE / GRID_SIZE;
 		y_bottom = (float) y_bottom * OUTPUT_GRID_SIZE / GRID_SIZE;
-		fprintf(file,"%s %d %d %d %d %d %f %f\n", chip_name, layer, x_left, x_right, y_top, y_bottom, chip_x, chip_y);
+		fprintf(file,"%s %d %d %d %d %d %f %f %s %d %d\n", chip_name, layer, x_left, x_right, y_top, y_bottom, chip_x, chip_y, freq, rotate, rank);
 		 		
 	}
 	fclose(fp);

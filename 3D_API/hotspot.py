@@ -53,7 +53,8 @@ if (len(args) == 5):
 
 os.system("rm -f null.data")
 os.system("rm -f sorted.data")
-os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
+#os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
+os.system("cat " + input_file + " | nl | awk '{print $2,$3,$4,$5,$6,$7,$1}' | sort -n -k2 > " +sorted_file)
 
 f = open(sorted_file)
 lines2 = f.readlines()
@@ -67,9 +68,11 @@ os.system("rm -f figure/layer*.pdf")
 os.system("rm -f figure/layer*.png")
 layer = []
 
+count = 0
 for line in lines2:
 	data = line[:-1].split(' ')
 	layer += [int(data[1])]
+	count += 1
 layer_num = layer[len(layer)-1]
 os.system("make -s; ./cell " + sorted_file + " > null.data")
 os.system("python floor.py " + sorted_file)
@@ -91,8 +94,10 @@ for i in xrange(0, layer_num):
 		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
-	if (detailed):
-		os.system("python detailed.py detailed.tmp layer" +str(i+1)+ ".grid.steady "+ str(i+1))
+if(detailed):
+	os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
+	for i in xrange(0, count):	
+		os.system("python detailed.py detailed.tmp "+ str(i+1))
 		
 
 #pick up the max temperature from max temperatures of each layers
