@@ -29,8 +29,8 @@ for line1 in temp_lines:
 	data1 = line1[:-1].split('\t')
 	temp = data1[1]
 	grid[x_count][y_count] = temp
-	if x_count == 63:
-		if y_count == 63:
+	if x_count == output_grid_size-1:
+		if y_count == output_grid_size-1:
 			break
 		else:
 			x_count = 0

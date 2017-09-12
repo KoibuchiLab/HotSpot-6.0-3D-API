@@ -18,6 +18,8 @@
 #define E52667V4_Y 0.014172
 #define BASE1_X 0.016
 #define BASE1_Y 0.016
+#define BASE2_X 0.013
+#define BASE2_Y 0.013
 
      
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
@@ -141,6 +143,17 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}			
+		}else if(strstr(chip_name, "base2") != NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = BASE2_X;
+				chip_ylen = BASE2_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = BASE2_Y;
+				chip_ylen = BASE2_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
 		}else if(strstr(chip_name, "null") != NULL){
 			chip_xlen = 0.00001;
 			chip_ylen = 0.00001;
@@ -218,6 +231,17 @@ int main(int argc, char **argv){
 			}else if(rotate == 90 || rotate == 270){
 				chip_xlen = BASE1_Y;
 				chip_ylen = BASE1_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}			
+		}else if(strstr(chip_name, "base2") != NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = BASE2_X;
+				chip_ylen = BASE2_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = BASE2_Y;
+				chip_ylen = BASE2_X;
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);

@@ -4,7 +4,7 @@ import os
 import sys
 
 args = sys.argv
-
+output_grid_size = 64 
 
 tulsa_x = 0.02184 #default tulsa chip size
 tulsa_y = 0.02184
@@ -17,6 +17,9 @@ e52667v4_y = 0.014172
 
 base1_x = 0.016
 base1_y = 0.016
+
+base2_x = 0.013
+base2_y = 0.013
 
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
@@ -85,6 +88,9 @@ for line in chip_lines:
 	elif 'base1' in chip_name:
 		chip_x += [float (base1_x)]
 		chip_y += [float (base1_y)]
+	elif 'base2' in chip_name:
+		chip_x += [float (base2_x)]
+		chip_y += [float (base2_y)]
 	elif 'null' == chip_name:
 		chip_x += [0.00001]
 		chip_y += [0.00001]
@@ -136,6 +142,7 @@ os.system("cat default.config |\
            sed s/__SPREAD__/"+str(heat_spread_size)+"/ |\
            sed s/__SINK__/"+str(heatsink_size)+"/ |\
            sed s/__THICKNESS__/"+str(heatsink_thickness)+"/ |\
+           sed s/__OUTPUT_GRID_SIZE__/"+str(output_grid_size)+"/ |\
            sed s/__CONVEC1__/"+str(convec_first)+"/ |\
            sed s/__CONVEC2__/"+str(convec_second)+"/ > test.config")
 
