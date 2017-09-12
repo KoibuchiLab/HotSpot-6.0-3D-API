@@ -2,7 +2,7 @@
 import os
 import sys
 
-
+output_grid_size = 64
 args = sys.argv
 
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
@@ -85,11 +85,11 @@ else:
 	os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
 for i in xrange(0, layer_num):
 	if args[2] == "water_pillow": ##the output would be changed whether the second path is used.  
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*4098)+ "," +str(5+i*2*4098+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*4098)+ "," +str(5+i*2*4098+4095) +"p > layer" + str(i+1) + ".grid.steady")
+		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
+		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
 	else:
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*4098)+ "," +str(5+(3+i*2)*4098+4095) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*4098)+ "," +str(5+(3+i*2)*4098+4095) +"p > layer" + str(i+1) + ".grid.steady")
+		os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
+		os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
 	if (not no_images):
 		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")

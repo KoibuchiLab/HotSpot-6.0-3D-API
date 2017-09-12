@@ -3,8 +3,8 @@
 import os
 import sys
 
-grid_size = 64
-grid = [[0.0 for i in range(grid_size)] for j in range(grid_size)]
+output_grid_size = 64
+grid = [[0.0 for i in range(output_grid_size)] for j in range(output_grid_size)]
 
 input_file = sys.argv[1]
 if not os.access(input_file, os.R_OK):
