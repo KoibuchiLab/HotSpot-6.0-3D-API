@@ -23,7 +23,8 @@ base2_y = 0.013
 
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
-AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
+AIR_H = 14 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
+#AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL (using natural convection)
 WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER (using natural convection)
 FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natural convection)
