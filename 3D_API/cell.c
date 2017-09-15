@@ -266,7 +266,7 @@ int main(int argc, char **argv){
 		x_right = (float) x_right * OUTPUT_GRID_SIZE / GRID_SIZE;
 		y_top = (float) y_top * OUTPUT_GRID_SIZE / GRID_SIZE;
 		y_bottom = (float) y_bottom * OUTPUT_GRID_SIZE / GRID_SIZE;
-		fprintf(file,"%s %d %d %d %d %d %f %f %s %d %d\n", chip_name, layer, x_left, x_right, y_top, y_bottom, chip_x, chip_y, freq, rotate, rank);
+		fprintf(file,"%s %d %d %d %d %d %f %f %s %d %d\n", chip_name, layer, x_left, x_right, OUTPUT_GRID_SIZE - y_bottom, OUTPUT_GRID_SIZE - y_top, chip_x, chip_y, freq, rotate, rank);
 		 		
 	}
 	fclose(fp);
