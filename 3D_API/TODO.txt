@@ -1,0 +1,42 @@
+------------ Layout optimization (Henri and Lambert) ------------
+
+* Performance:
+
+[ ] Try to find ways to accelerate Totoki's code (i.e., removing calls to fork() in scripts)
+	- Even shaving off a few 10-ths of seconds will be useful
+
+
+
+* Power Distribution optimization:
+
+[ ] make a better greedy_random heuristic:
+	- The current one just increments the power of whatever first chip it can increment, and if that
+          increment fails, then it stops
+	- IDEA: Look at all possible increments, pick the one that has the best "power increase / temperature increase" ratio (or some
+                other criterion) and keep going. 
+			- Will increase complexity by O(n), but might be worth it
+
+[ ] Come up with a preliminary experimental scenario with a set of results
+    on Power Distribution optimizations. One key question is:
+	- In what regimes is each optimization method best
+	- The idea would be:
+		- If 1 <= n < x: use discrete exhaustive
+		- If x <= n < y: use discrete greedy random
+		- If x > y: use continous something
+	- The above depends on the number of DVFS levels for course:
+		- The more DVFS levels the best it is for continuous approaches
+
+	- Ultimate goal: produce a few results/graphs to include in a paper
+	
+* Layout optimization
+
+[ ] Come up with some clever heuristics
+
+	- Some random one
+	- Starting from a checkerboard layout? 
+
+[ ] Perhaps do metaheuristics like genetic algorithms? 
+	- Hotspot is likely too slow for this right now
+
+
+
