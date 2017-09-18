@@ -22,6 +22,7 @@ from scipy.optimize import fmin_slsqp
 ### CLASSES
 ##############################################################################################
 
+"""A convenient function that determines whether two rectangles are overlapping """
 def are_two_rectangles_overlapping(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
 		        
         # They don't overlap in X
@@ -104,12 +105,16 @@ class Layout(object):
 ### HOTSPOT INTERFACE
 ##############################################################################################
 
-def compute_layout_temperature(x, layout):
+""" The top-level function that calls hotspot to find out the max temp of a layout
+ 		- power_distribution: the power distribution
+		- layout: the layout
+"""
+def compute_layout_temperature(power_distribution, layout):
 
 	# This is a hack because it seems the scipy library ignores the bounds and will go into
         # unallowed values, so instead we return a very high temperature (lame)
 	for i in range(0, layout.get_num_chips()):
-		if ((x[i] < layout.chip.power_levels[0]) or (x[i] > layout.chip.power_levels[-1])):
+		if ((power_distribution[i] < layout.chip.power_levels[0]) or (power_distribution[i] > layout.chip.power_levels[-1])):
 			return 100000
 
 
@@ -122,7 +127,7 @@ def compute_layout_temperature(x, layout):
 		suffix = "layout-optimization-tmp-" + str(i)
 		input_file.write(layout.chip.name + " " + str(layout.chip_positions[i][0]) + " " + str(layout.chip_positions[i][1]) + " " + str(layout.chip_positions[i][2]) + " " + suffix + " " + "0\n")
 		# Create the (temporary) ptrace file
-		ptrace_file_name = create_ptrace_file("./PTRACE", layout.chip, suffix, x[i])
+		ptrace_file_name = create_ptrace_file("./PTRACE", layout.chip, suffix, power_distribution[i])
 		ptrace_file_names.append(ptrace_file_name)
 	input_file.close()
 
@@ -149,12 +154,15 @@ def compute_layout_temperature(x, layout):
 		sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 		
 	if (argv.verbose > 2):
-		sys.stderr.write("          Hotspot result: " + str(sum(x)) + " (" + str(x) + "): " + str(temperature) + " Celsius\n")
+		sys.stderr.write("          Hotspot result: " + str(sum(power_distribution)) + " (" + str(power_distribution) + "): " + str(temperature) + " Celsius\n")
 
 	return temperature
 
 
 
+""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
+    stuff, but it's simpler than trying to come up with a programmatic solution
+"""
 def create_ptrace_file(directory, chip, suffix, power):
 	ptrace_file_name = directory + "/" + chip.name + "-" + suffix + ".ptrace"
 	ptrace_file = open(ptrace_file_name, 'w')
@@ -213,24 +221,24 @@ def create_ptrace_file(directory, chip, suffix, power):
 ### POWER DISTRIBUTION OPTIMIZATION (FOR A GIVEN LAYOUT and POWER BUDGET) 
 ##############################################################################################
 
-"""Tool function to generate a decent random starting point power distribution for searching"""
-def generate_random_start(layout, total_power_budget):
+"""Helper function to generate a decent random starting power distribution for searching"""
+def generate_random_power_distribution(layout, total_power_budget):
 	# Generate a valid random start
-	random_start = []
+	power_distribution = []
 	for i in range(0, layout.get_num_chips()):
-		random_start.append(layout.chip.power_levels[-1])
+		power_distribution.append(layout.chip.power_levels[-1])
 
 	while (True):
-		extra = sum(random_start) - total_power_budget
+		extra = sum(power_distribution) - total_power_budget
 		if (extra <= 0):
 			break
 		# pick a victim
 		victim = random.randint(0, layout.get_num_chips() - 1)
 		# decrease the victim by something that makes sense
-		reduction = random.uniform(0, min(extra, random_start[victim] - layout.chip.power_levels[0]))
-		random_start[victim]  -= reduction
+		reduction = random.uniform(0, min(extra, power_distribution[victim] - layout.chip.power_levels[0]))
+		power_distribution[victim]  -= reduction
 
-	return random_start
+	return power_distribution
 
 
 """ This function computes a power distribution that minimizes the temperature, and returns
@@ -293,7 +301,7 @@ def minimize_temperature_uniform(layout, total_power_budget, num_iterations):
 def minimize_temperature_random_continuous(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
-	random_start = generate_random_start(layout, total_power_budget)
+	random_start = generate_random_power_distribution(layout, total_power_budget)
 	if (argv.verbose > 1):
 		sys.stderr.write("\t\tRandom start: " + str(random_start) + "\n")
 
@@ -307,7 +315,7 @@ def minimize_temperature_random_continuous(layout, total_power_budget, num_itera
 def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 
         # Generate a valid random start
-	random_start = generate_random_start(layout, total_power_budget)
+	random_start = generate_random_power_distribution(layout, total_power_budget)
 	if (argv.verbose > 1):
 		sys.stderr.write("\tGenerated a random start: " + str(random_start) + "\n")
 
@@ -319,7 +327,7 @@ def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
 
         # Generate a valid random start
-	random_start = generate_random_start(layout, total_power_budget)
+	random_start = generate_random_power_distribution(layout, total_power_budget)
 
         best_distribution = random_start
         best_temperature = compute_layout_temperature(random_start, layout)
@@ -356,7 +364,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
 def minimize_temperature_simulated_annealing_gradient(layout, total_power_budget, num_iterations):
 	
 	# Generate a valid random start
-	random_start = generate_random_start(layout, total_power_budget)
+	random_start = generate_random_power_distribution(layout, total_power_budget)
 	if (argv.verbose > 1):
 		sys.stderr.write("\tGenerated a random start: " + str(random_start) + "\n")
 
