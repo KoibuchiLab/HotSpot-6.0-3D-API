@@ -179,7 +179,7 @@ def compute_layout_temperature(power_distribution, layout):
 	
 	string_output = proc.stdout.read().rstrip()
 	try:
-		tokens = string_output.split(" ");
+		tokens = string_output.split(" ")
 		temperature = float(tokens[2])
 	except:
 		abort("Cannot convert HotSpot output ('" + string_output + "') to float")
@@ -454,7 +454,7 @@ def basinhopping_objective_layout_temperature(x, layout):
 """ Helper function to determine whether an optimization method is discrete or continuous
 """
 def is_power_optimization_method_discrete(method_name):
-    if method_name in ["exhaustive_discrete", "random_discrete", "greedy_random_discrete"]:
+    if method_name in ["exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete"]:
         return True
     else: 
         return False
@@ -504,6 +504,8 @@ def find_maximum_power_budget_discrete(layout):
 		return find_maximum_power_budget_discrete_random(layout)
 	elif (argv.powerdistopt == "greedy_random_discrete"):
 		return find_maximum_power_budget_discrete_greedy_random(layout)
+	elif (argv.powerdistopt == "greedy_not_so_random_discrete"):
+		return find_maximum_power_budget_discrete_greedy_not_so_random(layout)
 	else:
 		abort("Unknown discrete power budget maximization method " + argv.powerdistopt)
 
@@ -537,7 +539,7 @@ def find_maximum_power_budget_discrete_random(layout):
            
        for trial in xrange(0, argv.power_distribution_optimization_num_trials):
            if (argv.verbose > 1):
-               sys.stderr.write("Trial #"+str(trial)+"\n");
+               sys.stderr.write("Trial #"+str(trial)+"\n")
            distribution = []
            for i in xrange(0, layout.get_num_chips()):
                distribution.append(pick_random_element(power_levels))
@@ -563,10 +565,7 @@ def find_maximum_power_budget_discrete_greedy_random(layout):
        for trial in xrange(0, argv.power_distribution_optimization_num_trials):
 
            if (argv.verbose > 1):
-               sys.stderr.write("Trial #"+str(trial)+"\n");
-
-	   # TODO: Could look for the component that leads to the smallest
-           #       temperature increase, instead of the first one
+               sys.stderr.write("Trial #"+str(trial)+"\n")
 
 	   # Initialize the best distribution (that we're looking for)
            best_distribution_index = [0] * layout.get_num_chips() 
@@ -603,6 +602,72 @@ def find_maximum_power_budget_discrete_greedy_random(layout):
            if (best_best_distribution == None) or (sum(best_distribution) > sum(best_best_distribution)):
                best_best_distribution = list(best_distribution)
                best_best_distribution_temperature = best_distribution_temperature
+
+       return [best_distribution, best_distribution_temperature]
+
+""" Discrete greedy not-so-random search 
+"""
+def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
+       power_levels = layout.chip.power_levels
+       
+       best_best_distribution = None
+       best_best_distribution_temperature = None
+
+       for trial in xrange(0, argv.power_distribution_optimization_num_trials):
+
+           if (argv.verbose > 1):
+               sys.stderr.write("Trial #"+str(trial)+"\n")
+
+	   # Initialize the best distribution (that we're looking for)
+           best_distribution_index = [0] * layout.get_num_chips() 
+           best_distribution = [power_levels[x] for x in best_distribution_index]
+      	   best_temperature =  compute_layout_temperature(best_distribution, layout)
+               
+           while (True):
+	       # Evaluate all possible increases
+	       pay_off = []
+               if (argv.verbose > 1):
+                    sys.stderr.write("Looking at all neighbors...\n")
+ 	       for i in xrange(0, layout.get_num_chips()):
+			# If we're already at the max, set the payoff to a <0 value
+			if (best_distribution_index[i] == len(power_levels) - 1):
+				pay_off.append(-1.0)
+                                continue
+			# Otherwise compute the payoff
+               		candidate_index = list(best_distribution_index)
+               		candidate_index[i] += 1
+			power_increase = power_levels[candidate_index[i]] - power_levels[candidate_index[i]-1]
+               		candidate = [power_levels[x] for x in candidate_index]
+               		temperature =  compute_layout_temperature(candidate, layout)
+			if (temperature > argv.max_allowed_temperature):
+				pay_off.append(-1.0)
+			else:
+				temperature_increase = temperature - best_temperature
+				pay_off.append(power_increase / temperature_increase)
+
+	       # If all negative, we're done
+	       if (max(pay_off) < 0.0):
+	            break
+
+	       # Pick the best payoff 
+               if (argv.verbose > 1):
+                    sys.stderr.write("Neighbor payoffs: " + str(pay_off) + "\n")
+	       picked = pay_off.index(max(pay_off))
+		
+
+               if (argv.verbose > 1):
+                    sys.stderr.write("Picking neighbor #" + str(picked) + "\n")
+
+               # Otherwise, great
+               best_distribution_index[picked] +=1 
+               best_distribution = [power_levels[x] for x in candidate_index]
+               best_distribution_temperature = compute_layout_temperature(best_distribution, layout)
+               if (argv.verbose > 1):
+                    sys.stderr.write("New temperature = " + str(best_distribution_temperature) + "\n")
+           
+               if (best_best_distribution == None) or (sum(best_distribution) > sum(best_best_distribution)):
+                    best_best_distribution = list(best_distribution)
+                    best_best_distribution_temperature = best_distribution_temperature
 
        return [best_distribution, best_distribution_temperature]
 
@@ -1115,6 +1180,15 @@ POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 	'-T').	Completely ignores the '--powerdistopt_num_iterations',
 	'-I' option.
 
+  - greedy_not_so_random_discrete: 
+	given a layout, do a neighbor search over the discrete power level
+	design space, looking for the neighbor that achieves the best
+	payoff (largest "increase in power" / "increase in temperature"
+	ratio.	For this method there are X trials (as specified with
+	'--powerdistopt_num_trials', '-T'). Completely ignores the
+	'--powerdistopt_num_iterations', '-I' option.
+
+
   - random_continuous: 
 	given a layout and a power budget, just do a random CONTINOUS
 	search, and then make the solution discrete (i.e., feasible). For 
@@ -1199,7 +1273,7 @@ VISUAL PROGRESS OUTPUT:
 			    required=True,
                             dest='powerdistopt', 
 			    metavar='<power distribution optimization method>',
-                            help='"exhaustive_discrete", "random_discrete", "greedy_random_discrete",\n "uniform", "random", "gradient", "neighbor",\n"simulated_annealing_gradient"')
+                            help='"exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete", \n "uniform", "random", "gradient", "neighbor",\n"simulated_annealing_gradient"')
 
 	parser.add_argument('--powerdistopt_num_iterations', '-I', action='store', 
 			    required=True, type=int,
@@ -1297,14 +1371,14 @@ if (argv.power_distribution_optimization_num_trials < 0):
 if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 	abort("Unsupported cooling medium '" + argv.medium + "'")
 
-if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete"):
+if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete"):
         argv.power_distribution_optimization_num_iterations = 1
 
 if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform"):
         argv.power_distribution_optimization_num_trials = 1 
 
 if argv.power_budget:
-    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete"):
+    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete"):
         abort("Cannot use discrete power distribution optimization method with a fixed power budget")
 
 # Recompile cell.c with specified grid size
