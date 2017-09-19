@@ -5,11 +5,12 @@
 [ ] Try to find ways to accelerate Totoki's code (i.e., removing calls to fork() in scripts)
 	- Even shaving off a few 10-ths of seconds will be useful
 
-
-
 * Power Distribution optimization:
 
-[ ] make a better greedy_random heuristic:
+[ ] Implement a uniform_discrete power distribution optimization method
+	- Remove the uniform_continuous???
+
+[DONE] make a better greedy_random heuristic:  not_so_greedy_random heuristic
 	- The current one just increments the power of whatever first chip it can increment, and if that
           increment fails, then it stops
 	- IDEA: Look at all possible increments, pick the one that has the best "power increase / temperature increase" ratio (or some
