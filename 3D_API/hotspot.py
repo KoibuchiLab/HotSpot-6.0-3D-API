@@ -105,5 +105,8 @@ temp = open('tmp.results').readline()
 if '-273.15\n' == temp:
 	sys.stderr.write("error occurred\n")
 	sys.exit(1)
-##elif (not detailed):
-os.system("cat tmp.results | sort -n | awk \'END{print \"maximum temp: \"$1}\'")
+if (detailed):
+	os.system("cat tmp.results | sort -n | awk \'END{print \"maximum temp: \"$1}\'")
+else:
+	os.system("cat tmp.results | sort -n | awk \'END{print $1}\'")
+	
