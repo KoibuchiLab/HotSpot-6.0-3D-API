@@ -29,7 +29,7 @@ OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL (using natural convect
 WATER_H = 800 # W/(m^2 K) Heat Transffer Coefficient of WATER (using natural convection)
 FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natural convection)
 NOVEC_H = 180##caution! this value is not correct.  # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
-WATER_PILLOW_H = 4000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
+WATER_PILLOW_H = 5000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
 
 if (len(args) != 3):
 	sys.stderr.write("Usage: " + args[0] + " <input file (.dat)> <water | air | oil>\n")
@@ -136,7 +136,7 @@ convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size)
 
 ##when water pillow, removing heat sink.
 if args[2] == "water_pillow":
-	convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size) ## ignoring side area 
+	convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area 
 	heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink   
 
 os.system("cat default.config |\
