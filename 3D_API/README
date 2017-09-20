@@ -7,8 +7,8 @@
 ** Compiling/Running hotspot                     **
 ***************************************************
 
-1. Compiling
-
+1. Compiling hotspot
+--------------------
 
 sudo apt-get install superlu-dev libsuperlu4		# install the superlu package
 cd HotSpot-6.0-3D-API					# go to the main hotspot directory
@@ -17,7 +17,10 @@ cd 3D_API						# go to this directory
 make							# build (the ./cell executable)
 
 
-2. Generating an input file for target layout of 3-D chip stacking
+2. Generating a hotspot input file for target layout of 3-D chip stacking
+-------------------------------------------------------------------------
+
+A sample input file is provided in ./test.data
 
 File format (each line):
 chipname, Z(vertical)-axis(Layer: 1,2,...), X-axis(m), Y-axis(m) (left/side of chip coordinate), Frequency(MHz), chip rotation(0,90,180,270 degree)
@@ -37,10 +40,8 @@ LLC(Last Level Cache) power is not included yet (will be introduced soon)
 
 Each floorplan of processor chips is stored at ./FLOORPLAN/{e5-2667v4.flp,phi7250.flp,tulsa.flp}
 
-A sample input file is provided in ./test.data
-
-
 3. Running 
+----------
 
 Usage: python hotspot.py  <input file (.data)> [water | air | oil ]
 
@@ -55,4 +56,29 @@ Result files:
 	./figure/*.pdf -> Temperature distribution of all chips (unless the --no_images flag is specified)
 
 - Note that temperature_grid.c is modified from the HotSpot-6.0 distribution
+
+
+***************************************************
+** Running layout_optimizer.py                   **
+***************************************************
+
+./layout_optimizer.py --help  will print out the whole usage, which has many command-line arguments
+
+Here are some examples:
+
+Example #1:
+./layout_optimizer.py --numchips 10 --medium air --chip e5-2667v4 --diameter 5 --layout_scheme checkerboard --numlevels 2 --powerdistopt uniform --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1
+
+	- 10 Xeon5 chips, in air, aiming for diameter 5, checkerboard layout, with 2 levels, uniform power distribution, with 1 iteration and 1 trial for the power distribution optimization
+
+	- Note that the program right now is a bit stupid. For instance, in the above, we should have to specify the diameter because checkboard ignores it. The power
+          distribution optimization doesn't really have a number of iterations and a number of trials.  This is all said in the --help messages, but right now
+          the program still will complain if you don't pass those required arguments.
+
+Example #2:
+
+./layout_optimizer.py --numchips 4 --medium air --chip e5-2667v4 --diameter 3 --layout_scheme linear_random_greedy --numlevels 3 --powerdistopt greedy_not_so_random_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 5 
+
+	- 10 Xeon5 chips in air, aimining for diameter 3, using the linear_random_greedy layout (which is a random search for a good linear layout), using 3 levels,
+          using the greedy_not_so_random_discrete power distribution optimization heurisitic, that runs for 1 iterations and 5 trials
 
