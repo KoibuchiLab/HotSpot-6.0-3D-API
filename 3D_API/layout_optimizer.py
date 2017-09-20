@@ -179,8 +179,9 @@ def compute_layout_temperature(power_distribution, layout):
 	
 	string_output = proc.stdout.read().rstrip()
 	try:
-		tokens = string_output.split(" ")
-		temperature = float(tokens[2])
+		#tokens = string_output.split(" ")
+		#temperature = float(tokens[2])
+		temperature = float(string_output)
 	except:
 		abort("Cannot convert HotSpot output ('" + string_output + "') to float")
 	
