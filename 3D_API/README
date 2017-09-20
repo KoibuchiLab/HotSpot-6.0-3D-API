@@ -77,8 +77,9 @@ Example #1:
 
 Example #2:
 
-./layout_optimizer.py --numchips 4 --medium air --chip e5-2667v4 --diameter 3 --layout_scheme linear_random_greedy --numlevels 3 --powerdistopt greedy_not_so_random_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 5 
+./layout_optimizer.py --numchips 4 --medium air --chip e5-2667v4 --diameter 3 --layout_scheme linear_random_greedy --numlevels 3 --powerdistopt greedy_not_so_random_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 5  --verbose 2
 
 	- 10 Xeon5 chips in air, aimining for diameter 3, using the linear_random_greedy layout (which is a random search for a good linear layout), using 3 levels,
-          using the greedy_not_so_random_discrete power distribution optimization heurisitic, that runs for 1 iterations and 5 trials
+          using the greedy_not_so_random_discrete power distribution optimization heurisitic, that runs for 1 iterations and 5 trials, with pretty verbose "debugging"
+          messages.
 
