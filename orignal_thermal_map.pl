@@ -204,7 +204,7 @@ if (@ARGV == 6) {
 			'" style="stroke:black;stroke-width:30" />'."\n";
 			
 			$fp.="\t".'<text x="'.$txt_start_x .'" y="'. $txt_start_y .
-			'" fill="black" text_anchor="start" style="font-size:180" > '. @{$_}[0] .' </text>'."\n";
+			'" fill="black" text_anchor="start" style="font-size:600" > '. @{$_}[0] .' </text>'."\n";
 		}
 	}
 	}
@@ -251,7 +251,7 @@ if (@ARGV == 6) {
 my $svgheader= <<"SVG_HEADER";
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
     "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<svg width="900px" height="500px"
+<svg width="2700px" height="1500px"
     viewBox="$min_x $min_y $x_bound $max_y">
 <title>Sample Temperature Map For HotSpot Grid Model</title>
 SVG_HEADER
