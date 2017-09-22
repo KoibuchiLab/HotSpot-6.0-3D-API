@@ -913,6 +913,19 @@ def optimize_layout_rectilinear(mode):
 	return [layout, power_distribution, temperature]
 	
 			
+"""Helper function that returns a set of candidate (randomized) chip positions
+   that overlaps with another chip, or None if nothing is found
+	- layout: the layout
+	- neighbor_chip_index: which chip to connect to in the layout (by index)
+	- num_positions: how many positions should be returned
+	- max_num_trials: how many attempts should be done before returning "not found" (None)
+"""
+
+def get_candidate_feasible_chip_positions(layout, neighbor_chip_index, num_positions, max_num_trials):
+
+	
+
+
 
 """Linear random greedy layout optimization"""
 def optimize_layout_linear_random_greedy():
@@ -1022,6 +1035,13 @@ def optimize_layout_linear_random_greedy():
         [power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
+
+
+"""Random greedy layout optimization"""
+def optimize_layout_random_greedy():
+
+# TODO
+
 
 """Checkboard layout optimization"""
 def optimize_layout_checkerboard():
@@ -1140,6 +1160,10 @@ LAYOUT SCHEMES (--layout, -L):
        all levels in a "bouncing ball" fashion.
        (-d flag ignored)
 
+  - checkerboard:
+       a 2-level checkerboard layout, that's built to minimize diameter.
+       (-d flag ignored)
+
   - linear_random_greedy: 
        a greedy randomized search for a linear but non-rectilinear layout,
        using all levels in a "bouncing ball fashion". The main difference
@@ -1147,9 +1171,9 @@ LAYOUT SCHEMES (--layout, -L):
        and chip n+1 is arbitrarily shaped. 
        (-d flag ignored)
 
-  - checkboard:
-       a 2-level checkboard layout, that's built to minimize diameter.
-       (-d flag ignored)
+  - random_greedy:
+	a greedy randomized search that incrementally adds chips
+        to a starting layout. 
 
 POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 
