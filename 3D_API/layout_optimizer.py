@@ -19,27 +19,41 @@ from scipy.optimize import fmin_slsqp
 
 import networkx as nx
 
+FLOATING_POINT_EPSILON = 0.000001
+
 ##############################################################################################
 ### CLASSES
 ##############################################################################################
 
-"""A convenient function that determines whether two rectangles are overlapping """
-def are_two_rectangles_overlapping(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
+"""A convenient function that compute the overlap area between two rectangles are overlapping """
+def compute_two_rectangle_overlap_area(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
 		        
         # They don't overlap in X
         if (top_right_1[0] < bottom_left_2[0]):
-	        return False
+	        return 0.0
         if (top_right_2[0] < bottom_left_1[0]):
-	        return False
+	        return 0.0
        
         # They don't overlap in Y
         if (top_right_1[1] < bottom_left_2[1]):
-	        return False
+	        return 0.0
         if (top_right_2[1] < bottom_left_1[1]):
-	        return False
-       
-        return True
+	        return 0.0
 
+	# Compute the overlap in X
+	if max(bottom_left_1[0], bottom_left_2[0]) < min(top_right_1[0], top_right_2[0]):
+		x_overlap = min(top_right_1[0], top_right_2[0]) - max(bottom_left_1[0], bottom_left_2[0]) 
+	else:
+		x_overlap = 0.0
+		
+	# Compute the overlap in Y
+	if max(bottom_left_1[1], bottom_left_2[1]) < min(top_right_1[1], top_right_2[1]):
+		y_overlap = min(top_right_1[1], top_right_2[1]) - max(bottom_left_1[1], bottom_left_2[1]) 
+	else:
+		y_overlap = 0.0
+		
+	return x_overlap * y_overlap
+       
 
 """A class that represents a chip"""
 class Chip(object):
@@ -53,28 +67,98 @@ class Chip(object):
 """A class that represents a layout of chips"""
 class Layout(object):
 
-	def __init__(self, chip, chip_positions,  medium, topology):
+	def __init__(self, chip, chip_positions,  medium):
 		self.chip = chip
 		self.medium = medium
+
 		#  [[layer, x, y], ..., [layer, x, y]]
-		self.chip_positions = chip_positions
-                #  [[edge src, edge dst], ..., [edge src, edge dst]]
-                self.topology = topology
+		self.__chip_positions = chip_positions
+
+		#  NetworkX graph
+		self.__G = nx.Graph()
+		for i in xrange(0, len(chip_positions)):
+			self.__G.add_node(i)
+
+		# Create the edges
+		for i in xrange(1, len(chip_positions)):
+			for j in xrange(0, i):
+				# Should we add an i-j edge?
+				if self.are_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
+					self.__G.add_edge(i, j)
+	
+		# Network diameter
+		self.__diameter = nx.diameter(self.__G)
+
 		
 	def get_num_chips(self):
-		return len(self.chip_positions)
+		return len(self.__chip_positions)
 
-	def can_new_chip_fit(self, layer, x, y):
-		for i in xrange(0, len(self.chip_positions)):
-			existing_chip = self.chip_positions[i]
+
+	def get_chip_positions(self):
+		return list(self.__chip_positions)
+
+	def get_topology(self):
+		return self.__G.edges()
+
+	def are_neighbors(self, position1, position2):
+		 if (abs(position1[0] - position2[0]) != 1):
+                        return False
+
+                 # must have enough overlap
+                 overlap_area = compute_two_rectangle_overlap_area(
+                        [position1[1], position1[2]],
+                        [position1[1] + self.chip.x_dimension, position1[2] + self.chip.y_dimension],
+                        [position2[1], position2[2]],
+                        [position2[1] + self.chip.x_dimension, position2[2] + self.chip.y_dimension])
+
+                 if (overlap_area / (self.chip.x_dimension * self.chip.y_dimension) < argv.overlap - FLOATING_POINT_EPSILON):
+			return False
+
+	         return True
+
+	def add_new_chip(self, new_chip):
+		if not self.can_new_chip_fit(new_chip):
+			abort("Cannot add chip")
+
+		# Add the new chip
+		self.__chip_positions.append(new_chip)
+		# Add a node to the networkX graph
+		new_node_index = len(self.__chip_positions) - 1
+		self.__G.add_node(new_node_index)
+		# Add edges
+		for i in xrange(0, len(self.__chip_positions)-1):
+			possible_neighbor = self.__chip_positions[i]
+			if self.are_neighbors(possible_neighbor, new_chip):
+				self.__G.add_edge(i, new_node_index)
+
+		# Recompute the diameter
+		self.__diameter = nx.diameter(self.__G)
+
+	def remove_chip(self, index):
+		# Remove the chip in the position list
+		self.__chip_positions.pop(index)
+		
+		# Remove the node in the graph, and thus all edges
+		self.__G.remove_node(index);
+		# Recompute the diameter
+		self.__diameter = nx.diameter(self.__G)
+
+
+	def get_diameter(self):
+		return self.__diameter
+				
+
+	def can_new_chip_fit(self, position):
+		[layer, x, y] = position
+		for i in xrange(0, len(self.__chip_positions)):
+			existing_chip = self.__chip_positions[i]
 			if (existing_chip[0] != layer):
 				continue
-			if (are_two_rectangles_overlapping(
+			if (compute_two_rectangle_overlap_area(
 					[existing_chip[1], existing_chip[2]],
 					[existing_chip[1] + self.chip.x_dimension, existing_chip[2] + self.chip.y_dimension],	
 					[x, y],
-					[x + self.chip.x_dimension, y + self.chip.y_dimension]
-				)):
+					[x + self.chip.x_dimension, y + self.chip.y_dimension]) > 0.0):
 				return False
 		return True
 
@@ -86,7 +170,7 @@ class Layout(object):
     
 	    max_x = 0
 	    max_y = 0
-            for pos in self.chip_positions:
+            for pos in self.__chip_positions:
 		[l,x,y] = pos
 		max_x = max(max_x, x + self.chip.x_dimension)
 		max_y = max(max_y, y + self.chip.y_dimension)
@@ -94,7 +178,7 @@ class Layout(object):
 	    file.write("axis([0, " + str(max(max_x, max_y)) + ", 0 , " + str(max(max_x, max_y)) + "])\n");
 				
  
-            for rect in self.chip_positions:
+            for rect in self.__chip_positions:
                 [l,x,y] = rect
                 w = argv.chip.x_dimension
                 h = argv.chip.y_dimension
@@ -111,17 +195,6 @@ class Layout(object):
             return
 
 
-	def compute_diameter(self):
-	    # Construct a networkx graph
-            G=nx.Graph()
-	    G.add_nodes_from(range(0, self.get_num_chips()))
-	    G.add_nodes_from(range(0, self.get_num_chips()))
-	    for [src, dst] in self.topology:
-		G.add_edge(src, dst)
-	    # Compute the diameter
-            return nx.diameter(G)
-
-	
 
 
 """ Function to determine the actual power levels for a chip and a benchmark
@@ -187,7 +260,7 @@ def compute_layout_temperature(power_distribution, layout):
 	for i in range(0, layout.get_num_chips()):
 		# Create a line in the input file
 		suffix = "layout-optimization-tmp-" + str(i)
-		input_file.write(layout.chip.name + " " + str(layout.chip_positions[i][0]) + " " + str(layout.chip_positions[i][1]) + " " + str(layout.chip_positions[i][2]) + " " + suffix + " " + "0\n")
+		input_file.write(layout.chip.name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
 		# Create the (temporary) ptrace file
 		ptrace_file_name = create_ptrace_file("./PTRACE", layout.chip, suffix, power_distribution[i])
 		ptrace_file_names.append(ptrace_file_name)
@@ -779,7 +852,6 @@ def pick_random_element(array):
 def compute_stacked_layout():
 
 	positions = []
-        topology = []
 
         if (argv.num_levels < argv.num_chips):
 		abort("Not enough levels to build a stacked layout with " + \
@@ -787,17 +859,14 @@ def compute_stacked_layout():
             
         for level in xrange(1, argv.num_chips+1):
             positions.append([level, 0.0, 0.0])
-            if (level > 1):
-                topology.append([level-2, level-1])
 
-	return Layout(argv.chip, positions, argv.medium, topology)
+	return Layout(argv.chip, positions, argv.medium)
 
 
 """Function to compute a straight linear layout"""
 def compute_rectilinear_straight_layout():
 
 	positions = []
-        topology = []
 
 	current_level = 1
 	level_direction = 1
@@ -805,8 +874,6 @@ def compute_rectilinear_straight_layout():
 	current_y_position = 0.0
 	for i in xrange(0, argv.num_chips):
 		positions.append([current_level, current_x_position, current_y_position])
-                if (i > 1):
-                    topology.append([i-2, i-1])
 		current_level += level_direction
 		if (current_level > argv.num_levels):
 			current_level = argv.num_levels - 1
@@ -816,14 +883,13 @@ def compute_rectilinear_straight_layout():
 			level_direction = 1
 		current_x_position += argv.chip.x_dimension * (1 - argv.overlap)
 		
-	return Layout(argv.chip, positions, argv.medium, topology)
+	return Layout(argv.chip, positions, argv.medium)
 
 	
 """Function to compute a diagonal linear layout"""
 def compute_rectilinear_diagonal_layout():
 
 	positions = []
-        topology = []
 
 	current_level = 1
 	level_direction = 1
@@ -831,8 +897,6 @@ def compute_rectilinear_diagonal_layout():
 	current_y_position = 0.0
 	for i in xrange(0, argv.num_chips):
 		positions.append([current_level, current_x_position, current_y_position])
-                if (i > 1):
-                    topology.append([i-2, i-1])
 		current_level += level_direction
 		if (current_level > argv.num_levels):
 			current_level = argv.num_levels - 1
@@ -843,14 +907,13 @@ def compute_rectilinear_diagonal_layout():
 		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap))
 		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap))
 		
-	return Layout(argv.chip, positions, argv.medium, topology)
+	return Layout(argv.chip, positions, argv.medium)
 
 
 """Function to compute a checkerboard layout"""
 def compute_checkerboard_layout():
 
 	positions = []
-        topology = []
 
         if (argv.num_levels != 2):
 		abort("A checkerboard layout can only be built for 2 levels")
@@ -909,19 +972,7 @@ def compute_checkerboard_layout():
 
             positions.remove([victim_l, victim_x, victim_y])
 
-        # Create topology
-        node1 = -1
-        for p1 in positions:
-            node1 += 1
-            node2 = -1
-            for p2 in positions:
-                node2 += 1
-                if (node2 <= node1):
-                    continue
-                if (are_two_rectangles_overlapping([p1[1], p1[2]], [p1[1] + argv.chip.x_dimension, p1[2] + argv.chip.y_dimension], [p2[1], p2[2]], [p2[1] + argv.chip.x_dimension, p2[2] + argv.chip.y_dimension])):
-                    topology.append([node1, node2])
-
-	return Layout(argv.chip, positions, argv.medium, topology)
+	return Layout(argv.chip, positions, argv.medium)
 
 
 """Stacked layout optimization"""
@@ -1021,17 +1072,17 @@ def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimension
 def optimize_layout_linear_random_greedy():
 
 	# Create an initial layout
-	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium, [])
+	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
 
 	
-	max_num_random_trials = 5
+	max_num_random_trials = 5  # TODO: Don't hardcode this
 	while (layout.get_num_chips() != argv.num_chips):
                 if (argv.verbose > 0):
-                        sys.stderr.write("* Generating " + str(max_num_random_trials) + " candidate positions for a chip #" + str(1 + layout.get_num_chips()) + " in the layout\n")
+                        sys.stderr.write("* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout\n")
 		num_random_trials = 0
                 candidate_random_trials = []
 		while (len(candidate_random_trials) < max_num_random_trials):
-			last_chip_position = layout.chip_positions[-1]
+			last_chip_position = layout.get_chip_positions()[-1]
 
 			# Pick a random location relative to the last chip
 
@@ -1050,7 +1101,7 @@ def optimize_layout_linear_random_greedy():
 			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
 
                         # Check that the chip can fit
-                        if (not layout.can_new_chip_fit(picked_level, picked_x, picked_y)):
+                        if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
                             continue
 
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
@@ -1059,8 +1110,8 @@ def optimize_layout_linear_random_greedy():
                 max_power = -1
                 picked_candidate = None
                 for candidate in candidate_random_trials:
-                        layout.chip_positions.append(candidate) 
-                        print layout.chip_positions
+                        layout.add_new_chip(candidate) 
+                        print layout.get_chip_positions()
                         if (argv.verbose > 0):
                                 sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
                         result = find_maximum_power_budget(layout) 
@@ -1068,14 +1119,12 @@ def optimize_layout_linear_random_greedy():
                             [power_distribution, temperature] = result
                             if (sum(power_distribution) > max_power):
                                 picked_candidate = candidate
-                        layout.chip_positions = layout.chip_positions[:-1]
+                        layout.remove_chip(layout.get_num_chips() - 1)
                         
                 # Add the candidate 
                 if (argv.verbose > 0):
                         sys.stderr.write("Picked candidate: " + str(candidate) + "\n")
-                layout.chip_positions.append(picked_candidate) 
-                if (len(layout.chip_positions) > 1):
-                    topology.append([len(layout.chip_positions)-2, len(layout.chip_positions)-1])
+                layout.add_new_chip(picked_candidate) 
                         
 
         # Do the final evaluation (which was already be done, but whatever)
@@ -1090,7 +1139,77 @@ def optimize_layout_linear_random_greedy():
 
 """Random greedy layout optimization"""
 def optimize_layout_random_greedy():
-	abort("Random Greedy Layout Optimization not implemented yet")
+
+	# Create an initial layout: TODO This could be anything
+	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
+
+	max_num_random_trials = 5 # TODO: Don't hardcode this
+	while (layout.get_num_chips() != argv.num_chips):
+                if (argv.verbose > 0):
+                        sys.stderr.write("* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout\n")
+		num_random_trials = 0
+                candidate_random_trials = []
+		while (len(candidate_random_trials) < max_num_random_trials):
+
+			# Pick a neighboring chip
+
+			# TODO: Linear	
+			#neighbor_of = layout.get_chip_positions()[-1]
+			neighbor_of = random.uniform(0, layout.get_num_chips()-1)
+
+			# Check whether adding a neighbor to that chip would be ok
+                        # diameter-wise
+			
+
+			# pick a random level
+			possible_levels = []
+			if (last_chip_position[0] == 1):
+				possible_levels = [2]
+			elif (last_chip_position[0] == argv.num_levels):
+				possible_levels = [argv.num_levels - 1]
+			else:
+				possible_levels = [last_chip_position[0]-1, last_chip_position[0]+1]
+
+			picked_level = pick_random_element(possible_levels)
+
+                        # pick a random coordinates
+			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
+
+                        # Check that the chip can fit
+                        if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
+                            continue
+
+                        candidate_random_trials.append([picked_level, picked_x, picked_y])
+
+                # Pick a candidate
+                max_power = -1
+                picked_candidate = None
+                for candidate in candidate_random_trials:
+                        layout.add_new_chip(candidate) 
+                        print layout.get_chip_positions()
+                        if (argv.verbose > 0):
+                                sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
+                        result = find_maximum_power_budget(layout) 
+                        if (result != None):
+                            [power_distribution, temperature] = result
+                            if (sum(power_distribution) > max_power):
+                                picked_candidate = candidate
+                        layout.remove_chip(layout.get_num_chips() - 1)
+                        
+                # Add the candidate 
+                if (argv.verbose > 0):
+                        sys.stderr.write("Picked candidate: " + str(candidate) + "\n")
+                layout.add_new_chip(picked_candidate) 
+
+        # Do the final evaluation (which was already be done, but whatever)
+        result = find_maximum_power_budget(layout) 
+        if (result == None):
+            return None
+
+        [power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+
 
 
 """Checkboard layout optimization"""
@@ -1469,9 +1588,9 @@ if (solution == None):
 print "----------- OPTIMIZATION RESULTS -----------------"
 print "Chip = ", layout.chip.name
 print "Chip power levels = ", layout.chip.power_levels
-print "Layout =", layout.chip_positions
-print "Topology = ", layout.topology
-print "Diameter = ", layout.compute_diameter()
+print "Layout =", layout.get_chip_positions()
+print "Topology = ", layout.get_topology()
+print "Diameter = ", layout.get_diameter()
 print "Power budget = ", sum(power_distribution)
 print "Power distribution =", power_distribution
 print "Temperature =", temperature
