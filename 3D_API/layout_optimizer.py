@@ -64,11 +64,6 @@ class Layout(object):
 	def get_num_chips(self):
 		return len(self.chip_positions)
 
-	def add_new_chip(self, layer, x, y):
-		if (not self.can_new_chip_fit(layer, x, y)):
-			abort("Can't add chip to layout")
-		self.chip_positions.append([layer, x, y])
-		
 	def can_new_chip_fit(self, layer, x, y):
 		for i in xrange(0, len(self.chip_positions)):
 			existing_chip = self.chip_positions[i]
@@ -82,6 +77,7 @@ class Layout(object):
 				)):
 				return False
 		return True
+
 
         def draw_in_octave(self):
             file = open("/tmp/layout.m","w") 
@@ -115,7 +111,6 @@ class Layout(object):
             return
 
 
-
 	def compute_diameter(self):
 	    # Construct a networkx graph
             G=nx.Graph()
@@ -125,6 +120,8 @@ class Layout(object):
 		G.add_edge(src, dst)
 	    # Compute the diameter
             return nx.diameter(G)
+
+	
 
 
 """ Function to determine the actual power levels for a chip and a benchmark
