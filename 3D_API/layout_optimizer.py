@@ -454,7 +454,7 @@ def basinhopping_objective_layout_temperature(x, layout):
 """ Helper function to determine whether an optimization method is discrete or continuous
 """
 def is_power_optimization_method_discrete(method_name):
-    if method_name in ["exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete"]:
+    if method_name in ["exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete", "uniform_discrete"]:
         return True
     else: 
         return False
@@ -506,8 +506,28 @@ def find_maximum_power_budget_discrete(layout):
 		return find_maximum_power_budget_discrete_greedy_random(layout)
 	elif (argv.powerdistopt == "greedy_not_so_random_discrete"):
 		return find_maximum_power_budget_discrete_greedy_not_so_random(layout)
+	elif(argv.powerdistopt == "uniform_discrete"):
+		return find_maximum_power_budget_discrete_uniform(layout)
 	else:
 		abort("Unknown discrete power budget maximization method " + argv.powerdistopt)
+
+""" Discrete uniform search
+"""
+def find_maximum_power_budget_discrete_uniform(layout):
+		power_levels = layout.chip.power_levels
+		best_power_level = None
+		best_distribution_temperature = None
+		for level in power_levels:
+			temperature = compute_layout_temperature([level] * layout.get_num_chips(), layout)
+			if (argv.verbose > 1):
+				sys.stderr.write("With power level " + str(level) + " for all chips: temperature = " + str(temperature)+ "..\n");
+			if (temperature<=argv.max_allowed_temperature):
+				best_power_level = level
+				best_distribution_temperature = temperature
+			else:
+				break
+				
+		return [[best_power_level] * layout.get_num_chips(), best_distribution_temperature]
 
 
 """ Discrete exhaustive search 
@@ -1290,7 +1310,7 @@ VISUAL PROGRESS OUTPUT:
 			    required=True,
                             dest='powerdistopt', 
 			    metavar='<power distribution optimization method>',
-                            help='"exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete", \n "uniform", "random", "gradient", "neighbor",\n"simulated_annealing_gradient"')
+                            help='"uniform_discrete", "exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete", \n "uniform", "random", "gradient", "neighbor",\n"simulated_annealing_gradient"')
 
 	parser.add_argument('--powerdistopt_num_iterations', '-I', action='store', 
 			    required=True, type=int,
@@ -1388,14 +1408,14 @@ if (argv.power_distribution_optimization_num_trials < 0):
 if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 	abort("Unsupported cooling medium '" + argv.medium + "'")
 
-if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete"):
+if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
         argv.power_distribution_optimization_num_iterations = 1
 
-if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform"):
+if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "uniform_discrete"):
         argv.power_distribution_optimization_num_trials = 1 
 
 if argv.power_budget:
-    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete"):
+    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
         abort("Cannot use discrete power distribution optimization method with a fixed power budget")
 
 # Recompile cell.c with specified grid size
