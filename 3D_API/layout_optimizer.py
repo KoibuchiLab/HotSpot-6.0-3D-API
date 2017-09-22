@@ -13,7 +13,6 @@ import argparse
 from argparse import RawTextHelpFormatter
 from math import sqrt
 
-
 import numpy as np
 from scipy.optimize import basinhopping
 from scipy.optimize import fmin_slsqp
@@ -66,7 +65,7 @@ class Layout(object):
 	def add_new_chip(self, layer, x, y):
 		if (not self.can_new_chip_fit(layer, x, y)):
 			abort("Can't add chip to layout")
-		self.chip_positions.appeng([layer, x, y])
+		self.chip_positions.append([layer, x, y])
 		
 	def can_new_chip_fit(self, layer, x, y):
 		for i in xrange(0, len(self.chip_positions)):
@@ -1100,28 +1099,21 @@ def optimize_layout():
 
         # Compute continuous solution
 	if (argv.layout_scheme == "stacked"):
-                continuous_solution = optimize_layout_stacked()
+                solution = optimize_layout_stacked()
 	elif (argv.layout_scheme == "rectilinear_straight"):
-                continuous_solution = optimize_layout_rectilinear("straight")
+                solution = optimize_layout_rectilinear("straight")
 	elif (argv.layout_scheme == "rectilinear_diagonal"):
-		continuous_solution =  optimize_layout_rectilinear("diagonal")
-	elif (argv.layout_scheme == "linear_random_greedy"):
-		continuous_solution =  optimize_layout_linear_random_greedy()
+		solution =  optimize_layout_rectilinear("diagonal")
 	elif (argv.layout_scheme == "checkerboard"):
-		continuous_solution =  optimize_layout_checkerboard()
+		solution =  optimize_layout_checkerboard()
+	elif (argv.layout_scheme == "linear_random_greedy"):
+		solution =  optimize_layout_linear_random_greedy()
+	elif (argv.layout_scheme == "random_greedy"):
+		solution =  optimize_layout_random_greedy()
 	else:
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
 
-        if (continuous_solution == None):
-            return None
-
-        # Find the lower bound feasible solution that matches available frequencies 
-        # (and will have lower overall power, sadly)
-	[layout, power_distribution, temperature] = continuous_solution
-
-#        [power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)
-
-        return [layout, power_distribution, temperature]
+        return solution
 
 
 ########################################################
@@ -1264,7 +1256,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store', 
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',
