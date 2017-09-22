@@ -507,8 +507,25 @@ def find_maximum_power_budget_discrete(layout):
 		return find_maximum_power_budget_discrete_greedy_random(layout)
 	elif (argv.powerdistopt == "greedy_not_so_random_discrete"):
 		return find_maximum_power_budget_discrete_greedy_not_so_random(layout)
+	elif(argv.powerdistopt == "uniform_discrete"):
+		return find_maximum_power_budget_discrete_uniform(layout)
 	else:
 		abort("Unknown discrete power budget maximization method " + argv.powerdistopt)
+
+""" Discrete uniform search
+"""
+
+def find_maximum_power_budget_discrete_uniform(layout):
+		power_levels = layout.chip.power_levels
+		best_power_level = None
+		best_distribution_temperature = None
+		for level in power_levels:
+			temperature = compute_layout_temperature(level * layout.get_num_chips(), layout)
+			if (temperature<=argv.max_allowed_temperature):
+				best_power_level = layout.chip.power_levels[levels]
+				best_best_distribution_temperature = temperature
+				
+		return [best_power_level, best_distribution_temperature]
 
 
 """ Discrete exhaustive search 
