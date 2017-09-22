@@ -479,7 +479,7 @@ def find_maximum_power_budget(layout):
         temperature = compute_layout_temperature([layout.chip.power_levels[-1]] * layout.get_num_chips(), layout)
         if (temperature <= argv.max_allowed_temperature):
 		if (argv.verbose > 1):
-			sys.stderr.write("We can set all chips to the max power level!")
+			sys.stderr.write("We can set all chips to the max power level!\n")
                 return [[layout.chip.power_levels[-1]] * layout.get_num_chips(), temperature]
 
 	# DISCRETE?
@@ -933,17 +933,53 @@ def optimize_layout_rectilinear(mode):
 	return [layout, power_distribution, temperature]
 	
 			
-"""Helper function that returns a set of candidate (randomized) chip positions
-   that overlaps with another chip, or None if nothing is found
-	- layout: the layout
-	- neighbor_chip_index: which chip to connect to in the layout (by index)
-	- num_positions: how many positions should be returned
-	- max_num_trials: how many attempts should be done before returning "not found" (None)
+"""Helper function that returns a randomly placed rectangle that overlaps
+   with another rectangle by a fixed amount, avoiding all negative coordinates
+	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
+	- rectangle_dimensions = [x,y]: size of the rectangle sides
+	- overlap: the fraction of overlap
+   returns:
+	- [x,y]: bottom left corner of the new rectangle
 """
+def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap):
+		
+	 [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
+	 [dim_x, dim_y] = rectangle_dimensions
 
-def get_candidate_feasible_chip_positions(layout, neighbor_chip_index, num_positions, max_num_trials):
+         candidates = []
 
-	
+         # Assume for now that the overlap is in the North-East region
+         # pick an x value
+         picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+
+         # compute the y value that makes the right overlap
+         picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+
+	 # Add this to the set of candidates
+         candidates.append([picked_x, picked_y]) 
+
+         # Consider all other symmetries
+
+         # South-East
+         new_picked_x = picked_x
+         new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
+	 if (new_picked_x >= 0) and (new_picked_y >= 0):
+		candidates.append([new_picked_x, new_picked_y])
+         
+         # North-West
+         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
+         new_picked_y = picked_y
+	 if (new_picked_x >= 0) and (new_picked_y >= 0):
+		candidates.append([new_picked_x, new_picked_y])
+
+         # South-West
+         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
+         new_picked_y = (rectangle1_y + dim_y) - picked_y - dim_y
+	 if (new_picked_x >= 0) and (new_picked_y >= 0):
+		candidates.append([new_picked_x, new_picked_y])
+
+	 # At this point, we just pick one of the candidates at random
+ 	 return pick_random_element(candidates)	
 
 
 
@@ -977,46 +1013,7 @@ def optimize_layout_linear_random_greedy():
 			picked_level = pick_random_element(possible_levels)
 
                         # x/y coordinates:
-                        #  assume for now that the overlap is in the North-East region
-                        # pick an x value
-                        picked_x = random.uniform(last_chip_position[1], 
-                                last_chip_position[1] + layout.chip.x_dimension - \
-                                        argv.overlap / layout.chip.y_dimension)
-
-            
-                        # compute the y value that makes the right overlap
-                        picked_y = -argv.overlap / (last_chip_position[1] + layout.chip.x_dimension \
-                                - picked_x) + (last_chip_position[2] + layout.chip.y_dimension)
-
-                        # Symmetries 
-                        four_sided_coin = pick_random_element([0])
-
-                        if (four_sided_coin == 0):   # North-East
-                            # do nothing
-                            pass
-
-                        elif (four_sided_coin == 1): # South-East
-                            # Apply a vertical symmetry
-                            picked_x = picked_x
-                            picked_y = (last_chip_position[2] + layout.chip.y_dimension) - \
-                                           picked_y - layout.chip.y_dimension
-                        
-                        elif (four_sided_coin == 2): # North-West
-                            # Apply a horizontal symmetry
-                            picked_x = (last_chip_position[1] + layout.chip.x_dimension) - \
-                                        picked_x - layout.chip.x_dimension
-                            picked_y = picked_y
-
-                        elif (four_sided_coin == 3): # South-West
-                            # Apply a horizontal symmetry
-                            picked_x = (last_chip_position[1] + layout.chip.x_dimension) - \
-                                        picked_x - layout.chip.x_dimension
-                            picked_y = (last_chip_position[2] + layout.chip.y_dimension) - \
-                                           picked_y - layout.chip.y_dimension
-
-                        # Check that coordinates are positive
-                        if (picked_x < 0) or (picked_y < 0):
-                            continue
+			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit(picked_level, picked_x, picked_y)):
@@ -1059,8 +1056,7 @@ def optimize_layout_linear_random_greedy():
 
 """Random greedy layout optimization"""
 def optimize_layout_random_greedy():
-
-# TODO
+	abort("Random Greedy Layout Optimization not implemented yet")
 
 
 """Checkboard layout optimization"""
