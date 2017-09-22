@@ -17,6 +17,8 @@ import numpy as np
 from scipy.optimize import basinhopping
 from scipy.optimize import fmin_slsqp
 
+import networkx as nx
+
 ##############################################################################################
 ### CLASSES
 ##############################################################################################
@@ -81,12 +83,22 @@ class Layout(object):
 				return False
 		return True
 
-        def draw_in_octave(self, filename_without_extension):
-            file = open(filename + ".m","w") 
+        def draw_in_octave(self):
+            file = open("/tmp/layout.m","w") 
             file.write("figure\n")
             file.write("hold on\n")
     
-            for rect in self.positions:
+	    max_x = 0
+	    max_y = 0
+            for pos in self.chip_positions:
+		[l,x,y] = pos
+		max_x = max(max_x, x + self.chip.x_dimension)
+		max_y = max(max_y, y + self.chip.y_dimension)
+	
+	    file.write("axis([0, " + str(max(max_x, max_y)) + ", 0 , " + str(max(max_x, max_y)) + "])\n");
+				
+ 
+            for rect in self.chip_positions:
                 [l,x,y] = rect
                 w = argv.chip.x_dimension
                 h = argv.chip.y_dimension
@@ -94,10 +106,26 @@ class Layout(object):
                 color = colors[l % len(colors)]
 
                 file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
-            file.write("print " + filename + ".pdf\n")
+            file.write("print /tmp/layout.pdf\n")
             file.close()
-            sys.stderr.write("File '" + filename + ".m" + "' created")
+#            sys.stderr.write("File '" + "/tmp/layout.m" + "' created")
+
+	    os.system("octave --silent --no-window-system /tmp/layout.m");
+            sys.stderr.write("File '" + "/tmp/layout.pdf" + "' created\n")
             return
+
+
+
+	def compute_diameter(self):
+	    # Construct a networkx graph
+            G=nx.Graph()
+	    G.add_nodes_from(range(0, self.get_num_chips()))
+	    G.add_nodes_from(range(0, self.get_num_chips()))
+	    for [src, dst] in self.topology:
+		G.add_edge(src, dst)
+	    # Compute the diameter
+            return nx.diameter(G)
+
 
 """ Function to determine the actual power levels for a chip and a benchmark
 """
@@ -829,14 +857,23 @@ def compute_checkerboard_layout():
 
         if (argv.num_levels != 2):
 		abort("A checkerboard layout can only be built for 2 levels")
+        if (argv.overlap > 0.25):
+		abort("A checkerboard layout can only be built with overlap <= 0.25")
             
         # Rather than do annoying discrete math to compute the layout in an
         # incremental fashion, we compute a large layout and then remove
         # non-needed chips
 
-        # Compute x and y overlap assuming a square overlap area
-        x_overlap = sqrt(argv.overlap * (argv.chip.x_dimension * argv.chip.y_dimension))
-        y_overlap = x_overlap
+        # Compute x and y overlap assuming an overlap area with the same aspect
+        # ratio as the chip
+	# x_overlap * y_overlap =  overlap *  dim_x * dim_y
+	# x_overlap = alpha * dim_x
+	# y_overlap = alpha * dim_y
+        #
+        #  ====> alpha^2  = overlap
+	alpha = sqrt(argv.overlap)
+        x_overlap = alpha * argv.chip.x_dimension
+        y_overlap = alpha * argv.chip.y_dimension
 
         # Create level 1
         for x in xrange(0,argv.num_chips):
@@ -1001,7 +1038,7 @@ def optimize_layout_linear_random_greedy():
 
 			# Pick a random location relative to the last chip
 
-			# level
+			# pick a random level
 			possible_levels = []
 			if (last_chip_position[0] == 1):
 				possible_levels = [2]
@@ -1012,7 +1049,7 @@ def optimize_layout_linear_random_greedy():
 
 			picked_level = pick_random_element(possible_levels)
 
-                        # x/y coordinates:
+                        # pick a random coordinates
 			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
 
                         # Check that the chip can fit
@@ -1356,6 +1393,12 @@ VISUAL PROGRESS OUTPUT:
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
 
+	parser.add_argument('--draw_in_octave', '-D', action='store_true', 
+                            required=False, default=False,
+                            dest='draw_in_octave', 
+                            help='generates a PDF of the topology using octave')
+
+
 	return parser.parse_args()
 
 
@@ -1421,18 +1464,23 @@ solution = optimize_layout()
 
 if (solution == None):
     print "************* OPTIMIZATION FAILED ***********"
-else:
+    sys.exit(1)
 
-    [layout, power_distribution, temperature] = solution
+
+[layout, power_distribution, temperature] = solution
     
-    print "----------- OPTIMIZATION RESULTS -----------------"
-    print "Chip = ", layout.chip.name
-    print "Chip power levels = ", layout.chip.power_levels
-    print "Layout =", layout.chip_positions
-    print "Topology = ", layout.topology
-    print "Power budget = ", sum(power_distribution)
-    print "Power distribution =", power_distribution
-    print "Temperature =", temperature
+print "----------- OPTIMIZATION RESULTS -----------------"
+print "Chip = ", layout.chip.name
+print "Chip power levels = ", layout.chip.power_levels
+print "Layout =", layout.chip_positions
+print "Topology = ", layout.topology
+print "Diameter = ", layout.compute_diameter()
+print "Power budget = ", sum(power_distribution)
+print "Power distribution =", power_distribution
+print "Temperature =", temperature
+
+if (argv.draw_in_octave):
+	layout.draw_in_octave()
 
 sys.exit(0)
 
