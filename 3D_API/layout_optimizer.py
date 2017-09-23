@@ -22,100 +22,149 @@ import networkx as nx
 FLOATING_POINT_EPSILON = 0.000001
 
 ##############################################################################################
-### CLASSES
+### CHIP CLASS
 ##############################################################################################
 
-"""A convenient function that compute the overlap area between two rectangles are overlapping """
-def compute_two_rectangle_overlap_area(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
-		        
-        # They don't overlap in X
-        if (top_right_1[0] < bottom_left_2[0]):
-	        return 0.0
-        if (top_right_2[0] < bottom_left_1[0]):
-	        return 0.0
-       
-        # They don't overlap in Y
-        if (top_right_1[1] < bottom_left_2[1]):
-	        return 0.0
-        if (top_right_2[1] < bottom_left_1[1]):
-	        return 0.0
-
-	# Compute the overlap in X
-	if max(bottom_left_1[0], bottom_left_2[0]) < min(top_right_1[0], top_right_2[0]):
-		x_overlap = min(top_right_1[0], top_right_2[0]) - max(bottom_left_1[0], bottom_left_2[0]) 
-	else:
-		x_overlap = 0.0
-		
-	# Compute the overlap in Y
-	if max(bottom_left_1[1], bottom_left_2[1]) < min(top_right_1[1], top_right_2[1]):
-		y_overlap = min(top_right_1[1], top_right_2[1]) - max(bottom_left_1[1], bottom_left_2[1]) 
-	else:
-		y_overlap = 0.0
-		
-	return x_overlap * y_overlap
-       
-
-"""A class that represents a chip"""
+"""A class that represents a chip
+"""
 class Chip(object):
 
-        def __init__(self, name, x_dimension, y_dimension, power_levels):
-		self.name = name
-		self.x_dimension = x_dimension
-		self.y_dimension = y_dimension
-		self.power_levels = power_levels
+	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172],
+                              'phi7250': [0.0315,   0.0205]}
 
-"""A class that represents a layout of chips"""
+	""" Constructor:
+		- name: chip name
+		- x_dimension: width
+		- y_dimension: length	
+		- benchmark_name: name of benchmark for power levels
+	"""
+        def __init__(self, name, benchmark_name):
+		self.name = name
+		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
+		self.__power_levels = self.__find_available_power_levels(self.name, benchmark_name)
+
+	""" Retrieve the chip's available power levels, sorted
+	"""
+	def get_power_levels(self):
+		return list(self.__power_levels)
+
+
+	""" Function to determine the actual power levels for a chip and a benchmark
+	"""
+	@staticmethod
+	def __find_available_power_levels(chip_name, benchmark_name):
+        	
+        	power_levels = {}
+	
+        	benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
+	
+        	# Get all the power levels
+        	for benchmark in benchmarks:
+	
+            		power_levels[benchmark] = []
+		
+            		filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
+		
+            		for filename in filenames:
+                    		f = open(filename, "r")
+                    		lines = f.readlines()
+                    		f.close()
+                    		power_levels[benchmark].append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
+		
+       			power_levels[benchmark].sort()
+
+      		if (benchmark_name in power_levels):
+       			return power_levels[benchmark_name]
+	
+      		elif (benchmark_name == "overall_max"):
+              		lengths = [len(power_levels[x]) for x in power_levels]
+              		if (max(lengths) != min(lengths)):
+                      		abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
+              		maxima = []
+              		for i in xrange(0, min(lengths)):
+               			maxima.append(max([power_levels[x][i] for x in power_levels]))
+
+              		return maxima
+
+      		else:
+              		abort("Unknon benchmark " + benchmark_name + " for computing power levels")
+ 
+##############################################################################################
+### LAYOUT CLASS
+##############################################################################################
+
+""" A class that represents a layout of chips
+"""
 class Layout(object):
 
-	def __init__(self, chip, chip_positions,  medium):
-		self.chip = chip
+	""" Constructor:
+		- chip: a chip object
+		- chip_positions: [[layer, x, y], ..., [layer, x, y]]
+		- medium: air | oil | water
+		- overlap: fraction of overlap necessary for two chips to be connected
+	"""
+	def __init__(self, chip, chip_positions,  medium, overlap):
+		self.__chip = chip
 		self.medium = medium
-
-		#  [[layer, x, y], ..., [layer, x, y]]
 		self.__chip_positions = chip_positions
+		self.__overlap = overlap
 
-		#  NetworkX graph
+		#  Greate NetworkX graph
 		self.__G = nx.Graph()
 		for i in xrange(0, len(chip_positions)):
 			self.__G.add_node(i)
 
-		# Create the edges
 		for i in xrange(1, len(chip_positions)):
 			for j in xrange(0, i):
 				# Should we add an i-j edge?
 				if self.are_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
 					self.__G.add_edge(i, j)
 	
-		# Network diameter
+		# Compute the diameter (which we maintain updated)
 		self.__diameter = nx.diameter(self.__G)
 
+	""" Get the chip object
+	"""
+	def get_chip(self):
+		return self.__chip
 		
+	""" Get the number of chips in the layout
+	"""
 	def get_num_chips(self):
 		return len(self.__chip_positions)
 
 
+	""" Get the list of chip positions
+	"""
 	def get_chip_positions(self):
 		return list(self.__chip_positions)
 
+	""" Get the list of topology edges
+	"""
 	def get_topology(self):
 		return self.__G.edges()
 
+	""" Determines whether two chips are connected in the topology
+	    (based on whether they overlap sufficiently)
+	"""
 	def are_neighbors(self, position1, position2):
 		 if (abs(position1[0] - position2[0]) != 1):
                         return False
 
                  # must have enough overlap
-                 overlap_area = compute_two_rectangle_overlap_area(
+                 overlap_area = Layout.compute_two_rectangle_overlap_area(
                         [position1[1], position1[2]],
-                        [position1[1] + self.chip.x_dimension, position1[2] + self.chip.y_dimension],
+                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
                         [position2[1], position2[2]],
-                        [position2[1] + self.chip.x_dimension, position2[2] + self.chip.y_dimension])
+                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
 
-                 if (overlap_area / (self.chip.x_dimension * self.chip.y_dimension) < argv.overlap - FLOATING_POINT_EPSILON):
+                 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
 			return False
 
 	         return True
 
+	""" Add a new chip (position) to the layout, updating the topology accordingly
+	"""
 	def add_new_chip(self, new_chip):
 		if not self.can_new_chip_fit(new_chip):
 			abort("Cannot add chip")
@@ -134,6 +183,8 @@ class Layout(object):
 		# Recompute the diameter
 		self.__diameter = nx.diameter(self.__G)
 
+	""" Remove a chip (by index) from the layout, updating the topology accordingly
+	"""
 	def remove_chip(self, index):
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
@@ -144,17 +195,21 @@ class Layout(object):
 		self.__diameter = nx.diameter(self.__G)
 
 
+	""" Get the layout's diameter
+	"""
 	def get_diameter(self):
 		return self.__diameter
 				
 
+	""" Determine whether a new chip (position) is valid (i.e., no collision)
+	"""
 	def can_new_chip_fit(self, position):
 		[layer, x, y] = position
 		for i in xrange(0, len(self.__chip_positions)):
 			existing_chip = self.__chip_positions[i]
 			if (existing_chip[0] != layer):
 				continue
-			if (compute_two_rectangle_overlap_area(
+			if (Layout.compute_two_rectangle_overlap_area(
 					[existing_chip[1], existing_chip[2]],
 					[existing_chip[1] + self.chip.x_dimension, existing_chip[2] + self.chip.y_dimension],	
 					[x, y],
@@ -163,6 +218,9 @@ class Layout(object):
 		return True
 
 
+	""" Draw the layout using Octave (really rudimentary)
+            Will produce amusing ASCI art
+	""" 
         def draw_in_octave(self):
             file = open("/tmp/layout.m","w") 
             file.write("figure\n")
@@ -172,8 +230,8 @@ class Layout(object):
 	    max_y = 0
             for pos in self.__chip_positions:
 		[l,x,y] = pos
-		max_x = max(max_x, x + self.chip.x_dimension)
-		max_y = max(max_y, y + self.chip.y_dimension)
+		max_x = max(max_x, x + self.get_chip().x_dimension)
+		max_y = max(max_y, y + self.get_chip().y_dimension)
 	
 	    file.write("axis([0, " + str(max(max_x, max_y)) + ", 0 , " + str(max(max_x, max_y)) + "])\n");
 				
@@ -195,47 +253,39 @@ class Layout(object):
             return
 
 
-
-
-""" Function to determine the actual power levels for a chip and a benchmark
-"""
-def find_available_power_levels(chip_name, benchmark_name):
-        
-        power_levels = {}
-
-        benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
-
-        # Get all the power levels
-        for benchmark in benchmarks:
-
-            power_levels[benchmark] = []
-
-            filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
-
-            for filename in filenames:
-                    f = open(filename, "r")
-                    lines = f.readlines()
-                    f.close()
-                    power_levels[benchmark].append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
-
-            power_levels[benchmark].sort()
-
-        if (benchmark_name in power_levels):
-            return power_levels[benchmark_name]
-
-        elif (benchmark_name == "overall_max"):
-                lengths = [len(power_levels[x]) for x in power_levels]
-                if (max(lengths) != min(lengths)):
-                        abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
-                maxima = []
-                for i in xrange(0, min(lengths)):
-                    maxima.append(max([power_levels[x][i] for x in power_levels]))
-
-                return maxima
-
-        else:
-                abort("Unknon benchmark " + benchmark_name + " for computing power levels")
+	"""  Compute the overlap area between two rectangles 
+        """
+	@staticmethod
+	def compute_two_rectangle_overlap_area(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
+		        	
+        	# They don't overlap in X
+        	if (top_right_1[0] < bottom_left_2[0]):
+	        	return 0.0
+        	if (top_right_2[0] < bottom_left_1[0]):
+	        	return 0.0
+       	
+        	# They don't overlap in Y
+        	if (top_right_1[1] < bottom_left_2[1]):
+	        	return 0.0
+        	if (top_right_2[1] < bottom_left_1[1]):
+	        	return 0.0
+	
+		# Compute the overlap in X
+		if max(bottom_left_1[0], bottom_left_2[0]) < min(top_right_1[0], top_right_2[0]):
+			x_overlap = min(top_right_1[0], top_right_2[0]) - max(bottom_left_1[0], bottom_left_2[0]) 
+		else:
+			x_overlap = 0.0
+			
+		# Compute the overlap in Y
+		if max(bottom_left_1[1], bottom_left_2[1]) < min(top_right_1[1], top_right_2[1]):
+			y_overlap = min(top_right_1[1], top_right_2[1]) - max(bottom_left_1[1], bottom_left_2[1]) 
+		else:
+			y_overlap = 0.0
+		
+		return x_overlap * y_overlap
  
+
+
 ##############################################################################################
 ### HOTSPOT INTERFACE
 ##############################################################################################
@@ -249,7 +299,7 @@ def compute_layout_temperature(power_distribution, layout):
 	# This is a hack because it seems the scipy library ignores the bounds and will go into
         # unallowed values, so instead we return a very high temperature (lame)
 	for i in range(0, layout.get_num_chips()):
-		if ((power_distribution[i] < layout.chip.power_levels[0]) or (power_distribution[i] > layout.chip.power_levels[-1])):
+		if ((power_distribution[i] < layout.get_chip().get_power_levels()[0]) or (power_distribution[i] > layout.get_chip().get_power_levels()[-1])):
 			return 100000
 
 
@@ -260,9 +310,9 @@ def compute_layout_temperature(power_distribution, layout):
 	for i in range(0, layout.get_num_chips()):
 		# Create a line in the input file
 		suffix = "layout-optimization-tmp-" + str(i)
-		input_file.write(layout.chip.name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
+		input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
 		# Create the (temporary) ptrace file
-		ptrace_file_name = create_ptrace_file("./PTRACE", layout.chip, suffix, power_distribution[i])
+		ptrace_file_name = create_ptrace_file("./PTRACE", layout.get_chip(), suffix, power_distribution[i])
 		ptrace_file_names.append(ptrace_file_name)
 	input_file.close()
 
@@ -363,7 +413,7 @@ def generate_random_power_distribution(layout, total_power_budget):
 	# Generate a valid random start
 	power_distribution = []
 	for i in range(0, layout.get_num_chips()):
-		power_distribution.append(layout.chip.power_levels[-1])
+		power_distribution.append(layout.get_chip().get_power_levels()[-1])
 
 	while (True):
 		extra = sum(power_distribution) - total_power_budget
@@ -372,7 +422,7 @@ def generate_random_power_distribution(layout, total_power_budget):
 		# pick a victim
 		victim = random.randint(0, layout.get_num_chips() - 1)
 		# decrease the victim by something that makes sense
-		reduction = random.uniform(0, min(extra, power_distribution[victim] - layout.chip.power_levels[0]))
+		reduction = random.uniform(0, min(extra, power_distribution[victim] - layout.get_chip().get_power_levels()[0]))
 		power_distribution[victim]  -= reduction
 
 	return power_distribution
@@ -491,7 +541,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
                 candidate = list(best_distribution)
                 candidate[pair[0]] += epsilon
                 candidate[pair[1]] -= epsilon
-                if (max(candidate) > max(layout.chip.power_levels)) or (min(best_distribution) < min(layout.chip.power_levels)):
+                if (max(candidate) > max(layout.get_chip().get_power_levels())) or (min(best_distribution) < min(layout.get_chip().get_power_levels())):
                     continue
 	        temperature =  compute_layout_temperature(candidate, layout)
                 if (temperature < best_temperature):
@@ -523,7 +573,7 @@ def minimize_temperature_simulated_annealing_gradient(layout, total_power_budget
 	# Define bounds (these seem to be ignored by the local minimizer - to investigate TODO)
 	bounds = ()
 	for i in range(0, layout.get_num_chips()):
-		bounds = bounds + ((layout.chip.power_levels[0], layout.chip.power_levels[-1]),)
+		bounds = bounds + ((layout.get_chip().get_power_levels()[0], layout.get_chip().get_power_levels()[-1]),)
 
 	# Call the basinhoping algorithm with a local minimizer that handles constraints and bounds: SLSQP
 	minimizer_kwargs = {
@@ -568,17 +618,17 @@ def find_maximum_power_budget(layout):
 		return [power_distribution, temperature]
 
 	# No search because the minimum power possible is already above temperature?
-        temperature = compute_layout_temperature([layout.chip.power_levels[0]] * layout.get_num_chips(), layout)
+        temperature = compute_layout_temperature([layout.get_chip().get_power_levels()[0]] * layout.get_num_chips(), layout)
         if (temperature > argv.max_allowed_temperature):
                 sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
                 return None
 
 	# No search because the maximum power possible is already below temperature?
-        temperature = compute_layout_temperature([layout.chip.power_levels[-1]] * layout.get_num_chips(), layout)
+        temperature = compute_layout_temperature([layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), layout)
         if (temperature <= argv.max_allowed_temperature):
 		if (argv.verbose > 1):
 			sys.stderr.write("We can set all chips to the max power level!\n")
-                return [[layout.chip.power_levels[-1]] * layout.get_num_chips(), temperature]
+                return [[layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), temperature]
 
 	# DISCRETE?
         if is_power_optimization_method_discrete(argv.powerdistopt): 
@@ -612,7 +662,7 @@ def find_maximum_power_budget_discrete(layout):
 """ Discrete uniform search
 """
 def find_maximum_power_budget_discrete_uniform(layout):
-		power_levels = layout.chip.power_levels
+		power_levels = layout.get_chip().get_power_levels()
 		best_power_level = None
 		best_distribution_temperature = None
 		for level in power_levels:
@@ -632,7 +682,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 """
 def find_maximum_power_budget_discrete_exhaustive(layout):
 
-       power_levels = layout.chip.power_levels
+       power_levels = layout.get_chip().get_power_levels()
 
        best_distribution = None
        best_distribution_temperature = None
@@ -650,8 +700,8 @@ def find_maximum_power_budget_discrete_exhaustive(layout):
 """ Discrete random search 
 """
 def find_maximum_power_budget_discrete_random(layout):
-       power_levels = layout.chip.power_levels
-       distribution = layout.chip.power_levels[0] * layout.get_num_chips(); 
+       power_levels = layout.get_chip().get_power_levels()
+       distribution = layout.get_chip().get_power_levels()[0] * layout.get_num_chips(); 
        best_distribution = None
        best_distribution_temperature = None
            
@@ -675,7 +725,7 @@ def find_maximum_power_budget_discrete_random(layout):
 """ Discrete greedy random search 
 """
 def find_maximum_power_budget_discrete_greedy_random(layout):
-       power_levels = layout.chip.power_levels
+       power_levels = layout.get_chip().get_power_levels()
        
        best_best_distribution = None
        best_best_distribution_temperature = None
@@ -726,7 +776,7 @@ def find_maximum_power_budget_discrete_greedy_random(layout):
 """ Discrete greedy not-so-random search 
 """
 def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
-       power_levels = layout.chip.power_levels
+       power_levels = layout.get_chip().get_power_levels()
        
        best_best_distribution = None
        best_best_distribution_temperature = None
@@ -795,10 +845,10 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
 """
 def find_maximum_power_budget_continuous(layout):
 
-	max_possible_power = argv.num_chips * argv.chip.power_levels[-1]
+	max_possible_power = argv.num_chips * argv.chip.get_power_levels()[-1]
 
 	power_attempt = max_possible_power
-	next_step_magnitude = (power_attempt - argv.num_chips * argv.chip.power_levels[0]) 
+	next_step_magnitude = (power_attempt - argv.num_chips * argv.chip.get_power_levels()[0]) 
 	next_step_direction = -1
 
 	last_valid_solution = None
@@ -860,7 +910,7 @@ def compute_stacked_layout():
         for level in xrange(1, argv.num_chips+1):
             positions.append([level, 0.0, 0.0])
 
-	return Layout(argv.chip, positions, argv.medium)
+	return Layout(argv.chip, positions, argv.medium, argv.overlap)
 
 
 """Function to compute a straight linear layout"""
@@ -883,7 +933,7 @@ def compute_rectilinear_straight_layout():
 			level_direction = 1
 		current_x_position += argv.chip.x_dimension * (1 - argv.overlap)
 		
-	return Layout(argv.chip, positions, argv.medium)
+	return Layout(argv.chip, positions, argv.medium, argv.overlap)
 
 	
 """Function to compute a diagonal linear layout"""
@@ -907,7 +957,7 @@ def compute_rectilinear_diagonal_layout():
 		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap))
 		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap))
 		
-	return Layout(argv.chip, positions, argv.medium)
+	return Layout(argv.chip, positions, argv.medium, argv.overlap)
 
 
 """Function to compute a checkerboard layout"""
@@ -972,7 +1022,7 @@ def compute_checkerboard_layout():
 
             positions.remove([victim_l, victim_x, victim_y])
 
-	return Layout(argv.chip, positions, argv.medium)
+	return Layout(argv.chip, positions, argv.medium, argv.overlap)
 
 
 """Stacked layout optimization"""
@@ -1072,7 +1122,7 @@ def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimension
 def optimize_layout_linear_random_greedy():
 
 	# Create an initial layout
-	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
+	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium, argv.overlap)
 
 	
 	max_num_random_trials = 5  # TODO: Don't hardcode this
@@ -1098,7 +1148,7 @@ def optimize_layout_linear_random_greedy():
 			picked_level = pick_random_element(possible_levels)
 
                         # pick a random coordinates
-			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
+			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
@@ -1140,8 +1190,10 @@ def optimize_layout_linear_random_greedy():
 """Random greedy layout optimization"""
 def optimize_layout_random_greedy():
 
+	abort("optimize_layout_random_greedy() is not implemented yet")
+
 	# Create an initial layout: TODO This could be anything
-	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium)
+	layout = Layout(argv.chip, [[1, 0.0, 0.0]], argv.medium, argv.overlap)
 
 	max_num_random_trials = 5 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != argv.num_chips):
@@ -1155,11 +1207,13 @@ def optimize_layout_random_greedy():
 
 			# TODO: Linear	
 			#neighbor_of = layout.get_chip_positions()[-1]
+
+			# Pick a random neighbor
 			neighbor_of = random.uniform(0, layout.get_num_chips()-1)
 
 			# Check whether adding a neighbor to that chip would be ok
                         # diameter-wise
-			
+			# TODO TODO TODO TODO TODO	
 
 			# pick a random level
 			possible_levels = []
@@ -1173,7 +1227,7 @@ def optimize_layout_random_greedy():
 			picked_level = pick_random_element(possible_levels)
 
                         # pick a random coordinates
-			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.chip.x_dimension, layout.chip.y_dimension], argv.overlap)
+			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
@@ -1244,7 +1298,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
         if (argv.verbose > 0):
             sys.stderr.write("Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution) + "\n")
 
-        power_levels = find_available_power_levels(argv.chip.name, argv.power_benchmark)
+        power_levels = layout.get_chip().get_power_levels(argv.power_benchmark)
 
 
         lower_bound = []
@@ -1526,15 +1580,10 @@ def abort(message):
 # Parse command-line arguments
 argv = parse_arguments()
 
-if (argv.chip_name == "e5-2667v4"):
-        power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
-        argv.chip = Chip("e5-2667v4", 0.012634, 0.014172, power_levels)
-#        argv.chip = Chip("e5-2667v4", 10, 10, power_levels)
-elif (argv.chip_name == "phi7250"):
-        power_levels = find_available_power_levels(argv.chip_name, argv.power_benchmark)
-	argv.chip = Chip("phi7250",   0.0315,   0.0205,   power_levels)
-else:
+if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
 	abort("Chip '" + argv.chip_name + "' not supported")
+else:
+	argv.chip = Chip(argv.chip_name,  argv.power_benchmark)
 
 if (argv.num_chips < 1):
 	abort("The number of chips (--numchips, -n) should be >0")
@@ -1586,8 +1635,8 @@ if (solution == None):
 [layout, power_distribution, temperature] = solution
     
 print "----------- OPTIMIZATION RESULTS -----------------"
-print "Chip = ", layout.chip.name
-print "Chip power levels = ", layout.chip.power_levels
+print "Chip = ", layout.get_chip().name
+print "Chip power levels = ", layout.get_chip().get_power_levels()
 print "Layout =", layout.get_chip_positions()
 print "Topology = ", layout.get_topology()
 print "Diameter = ", layout.get_diameter()
