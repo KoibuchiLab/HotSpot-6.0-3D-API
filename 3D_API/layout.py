@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import random
 
 from glob import glob
 
@@ -111,6 +112,8 @@ class Layout(object):
                 abort = optimize_layout_globals.abort
 		global info
                 info = optimize_layout_globals.info
+		global pick_random_element
+                pick_random_element = optimize_layout_globals.pick_random_element
 
 		self.__chip = chip
 		self.medium = medium
@@ -407,7 +410,59 @@ class Layout(object):
 		return ptrace_file_name
 
 
+	"""Helper function that returns a randomly placed rectangle that overlaps
+    	   with another rectangle by a fixed amount, avoiding all negative coordinates
+        	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
+	        - rectangle_dimensions = [x,y]: size of the rectangle sides
+       		- overlap: the fraction of overlap
+    	   returns:
+        	- [x,y]: bottom left corner of the new rectangle
+	"""
+	@staticmethod
+	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap):
+	
+	         [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
+	         [dim_x, dim_y] = rectangle_dimensions
+	
+	         candidates = []
+	
+	         # Assume for now that the overlap is in the North-East region
+	         # pick an x value
+	         picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+	
+	         # compute the y value that makes the right overlap
+	         picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+	
+	         # Add this to the set of candidates
+	         candidates.append([picked_x, picked_y])
+	
+	         # Consider all other symmetries
+	
+	         # South-East
+	         new_picked_x = picked_x
+	         new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
+	         if (new_picked_x >= 0) and (new_picked_y >= 0):
+	                candidates.append([new_picked_x, new_picked_y])
+	
+	         # North-West
+	         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
+	         new_picked_y = picked_y
+	         if (new_picked_x >= 0) and (new_picked_y >= 0):
+	                candidates.append([new_picked_x, new_picked_y])
+	
+	         # South-West
+	         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
+	         new_picked_y = (rectangle1_y + dim_y) - picked_y - dim_y
+	         if (new_picked_x >= 0) and (new_picked_y >= 0):
+	                candidates.append([new_picked_x, new_picked_y])
+	
+	         # At this point, we just pick one of the candidates at random
+	         return pick_random_element(candidates)
+	
 
+
+
+		
 
 class LayoutBuilder(object):
 
@@ -551,4 +606,4 @@ class LayoutBuilder(object):
 	
 	        return Layout(argv.chip, positions, argv.medium, argv.overlap)
 	
-	
+

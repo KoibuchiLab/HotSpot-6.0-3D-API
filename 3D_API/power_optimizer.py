@@ -32,6 +32,8 @@ class PowerOptimizer(object):
                 abort = optimize_layout_globals.abort
                 global info
                 info = optimize_layout_globals.info
+                global pick_random_element
+                pick_random_element = optimize_layout_globals.pick_random_element
 
 
 """Helper function to generate a decent random starting power distribution for searching"""
@@ -235,6 +237,53 @@ def is_power_optimization_method_discrete(method_name):
         return True
     else: 
         return False
+
+""" Function to take a continuous power distribution and make it feasible by rounding up
+    power specs to available discrete DFVS power levels. (doing some "clever" optimization
+    to try to regain some of the lost power due to rounding off)
+"""
+
+def make_power_distribution_feasible(layout, power_distribution, initial_temperature):
+
+        new_temperature = initial_temperature
+
+        info(1, "Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution))
+
+        power_levels = layout.get_chip().get_power_levels(argv.power_benchmark)
+
+
+        lower_bound = []
+        for x in power_distribution:
+            for i in xrange(len(power_levels)-1, -1, -1):
+                if (power_levels[i] <= x):
+                    lower_bound.append(i)
+                    break
+
+        info(1, "Conservative feasible power distribution: " + str([power_levels[i] for i in lower_bound]))
+
+        # exhaustively increase while possible (TODO: do a better heuristic? unclear)
+        while (True):
+            was_able_to_increase = False
+            for i in xrange(0, len(lower_bound)):
+                tentative_new_bound = lower_bound[:]
+                if (tentative_new_bound[i] < len(power_levels)-1):
+                    tentative_new_bound[i] += 1
+                    # Evaluate the temperate
+                    tentative_power_distribution = [power_levels[x] for x in tentative_new_bound]
+                    temperature = Layout.compute_layout_temperature(layout, tentative_power_distribution)
+                    if (temperature <= argv.max_allowed_temperature):
+                        lower_bound = tentative_new_bound[:]
+                        new_temperature = temperature
+                        was_able_to_increase = True
+                        info(1, "Improved feasible power distribution: " + str([power_levels[i] for i in lower_bound])
+)
+                        break
+            if (not was_able_to_increase):
+                break
+
+
+        return ([power_levels[x] for x in lower_bound], new_temperature)
+
 
 
 """Top-level function to Search for the maximum power"""

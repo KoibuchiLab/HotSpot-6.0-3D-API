@@ -33,14 +33,12 @@ class LayoutOptimizer(object):
 		abort = optimize_layout_globals.abort
 		global info
 		info = optimize_layout_globals.info
+		global pick_random_element
+		pick_random_element = optimize_layout_globals.pick_random_element
+
 
 		LayoutBuilder()
 		PowerOptimizer()
-
-"""Tool function to pick a random element from an array"""
-
-def pick_random_element(array):
-	return array[random.randint(0, len(array) - 1)]
 
 """Stacked layout optimization"""
 
@@ -86,56 +84,6 @@ def optimize_layout_rectilinear(mode):
 	return [layout, power_distribution, temperature]
 	
 			
-"""Helper function that returns a randomly placed rectangle that overlaps
-   with another rectangle by a fixed amount, avoiding all negative coordinates
-	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
-	- rectangle_dimensions = [x,y]: size of the rectangle sides
-	- overlap: the fraction of overlap
-   returns:
-	- [x,y]: bottom left corner of the new rectangle
-"""
-
-def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap):
-		
-	 [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
-	 [dim_x, dim_y] = rectangle_dimensions
-
-         candidates = []
-
-         # Assume for now that the overlap is in the North-East region
-         # pick an x value
-         picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
-
-         # compute the y value that makes the right overlap
-         picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
-
-	 # Add this to the set of candidates
-         candidates.append([picked_x, picked_y]) 
-
-         # Consider all other symmetries
-
-         # South-East
-         new_picked_x = picked_x
-         new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
-	 if (new_picked_x >= 0) and (new_picked_y >= 0):
-		candidates.append([new_picked_x, new_picked_y])
-         
-         # North-West
-         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
-         new_picked_y = picked_y
-	 if (new_picked_x >= 0) and (new_picked_y >= 0):
-		candidates.append([new_picked_x, new_picked_y])
-
-         # South-West
-         new_picked_x = (rectangle1_x + dim_x) - picked_x - dim_x
-         new_picked_y = (rectangle1_y + dim_y) - picked_y - dim_y
-	 if (new_picked_x >= 0) and (new_picked_y >= 0):
-		candidates.append([new_picked_x, new_picked_y])
-
-	 # At this point, we just pick one of the candidates at random
- 	 return pick_random_element(candidates)	
-
-
 
 """Linear random greedy layout optimization"""
 
@@ -167,7 +115,7 @@ def optimize_layout_linear_random_greedy():
 			picked_level = pick_random_element(possible_levels)
 
                         # pick a random coordinates
-			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
+			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
@@ -244,7 +192,7 @@ def optimize_layout_random_greedy():
 			picked_level = pick_random_element(possible_levels)
 
                         # pick a random coordinates
-			[picked_x, picked_y] = get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
+			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], argv.overlap)
 
                         # Check that the chip can fit
                         if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
@@ -302,56 +250,8 @@ def optimize_layout_checkerboard():
 	return [layout, power_distribution, temperature]
 
 
-""" Function to take a continuous power distribution and make it feasible by rounding up
-    power specs to available discrete DFVS power levels. (doing some "clever" optimization
-    to try to regain some of the lost power due to rounding off)
-"""
-
-def make_power_distribution_feasible(layout, power_distribution, initial_temperature):
-
-        new_temperature = initial_temperature
-
-        info(1, "Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution))
-
-        power_levels = layout.get_chip().get_power_levels(argv.power_benchmark)
-
-
-        lower_bound = []
-        for x in power_distribution:
-            for i in xrange(len(power_levels)-1, -1, -1):
-                if (power_levels[i] <= x):
-                    lower_bound.append(i)
-                    break
-
-        info(1, "Conservative feasible power distribution: " + str([power_levels[i] for i in lower_bound]))
-
-        # exhaustively increase while possible (TODO: do a better heuristic? unclear)
-        while (True):
-            was_able_to_increase = False
-            for i in xrange(0, len(lower_bound)):
-                tentative_new_bound = lower_bound[:]
-                if (tentative_new_bound[i] < len(power_levels)-1):
-                    tentative_new_bound[i] += 1
-                    # Evaluate the temperate
-                    tentative_power_distribution = [power_levels[x] for x in tentative_new_bound]
-                    temperature = Layout.compute_layout_temperature(layout, tentative_power_distribution)
-                    if (temperature <= argv.max_allowed_temperature):
-                        lower_bound = tentative_new_bound[:]
-                        new_temperature = temperature
-                        was_able_to_increase = True
-                        info(1, "Improved feasible power distribution: " + str([power_levels[i] for i in lower_bound]))
-                        break
-            if (not was_able_to_increase):
-                break
-
-
-        return ([power_levels[x] for x in lower_bound], new_temperature)
-
-
-
 
 """Top-level optimization function"""
-
 def optimize_layout():
 
         # Compute continuous solution
