@@ -10,7 +10,7 @@ import os
 import argparse
 from argparse import RawTextHelpFormatter
 
-import optimize_layout_argv
+import optimize_layout_globals
 #
 #from math import sqrt
 #
@@ -246,7 +246,7 @@ def abort(message):
 # Parse command-line arguments
 argv = parse_arguments()
 
-optimize_layout_argv.argv = argv
+optimize_layout_globals.argv = argv
 
 if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
 	abort("Chip '" + argv.chip_name + "' not supported")

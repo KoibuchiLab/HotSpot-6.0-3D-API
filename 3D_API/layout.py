@@ -9,11 +9,16 @@ from glob import glob
 from math import sqrt
 import networkx as nx
 
+import optimize_layout_globals
+
 FLOATING_POINT_EPSILON = 0.000001
+
 
 ##############################################################################################
 ### CHIP CLASS
 ##############################################################################################
+
+
 
 """A class that represents a chip
 """
@@ -94,6 +99,7 @@ class Layout(object):
 		- overlap: fraction of overlap necessary for two chips to be connected
 	"""
 	def __init__(self, chip, chip_positions,  medium, overlap):
+
 		self.__chip = chip
 		self.medium = medium
 		self.__chip_positions = chip_positions
@@ -386,5 +392,30 @@ class Layout(object):
 		ptrace_file.close()	
 		return ptrace_file_name
 
+
+
+
+class LayoutBuilder(object):
+
+	def __init__(self):
+		# Comamnd-line arguments
+                global argv
+                argv = optimize_layout_globals.argv
+		global abort
+                abort = optimize_layout_globals.abort
+
+	@staticmethod
+	def compute_stacked_layout():
+
+        	positions = []
+	
+        	if (argv.num_levels < argv.num_chips):
+                	abort("Not enough levels to build a stacked layout with " + \
+                        	str(argv.num_chips) + " chips")
+	
+        	for level in xrange(1, argv.num_chips+1):
+                	positions.append([level, 0.0, 0.0])
+	
+        	return Layout(argv.chip, positions, argv.medium, argv.overlap)
 
 

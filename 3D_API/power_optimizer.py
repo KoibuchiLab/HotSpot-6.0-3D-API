@@ -20,14 +20,14 @@ from scipy.optimize import fmin_slsqp
 from layout import Chip
 from layout import Layout
 
-import optimize_layout_argv
+import optimize_layout_globals
 
 
 class PowerOptimizer(object):
 
         def __init__(self):
                 global argv
-                argv = optimize_layout_argv.argv
+                argv = optimize_layout_globals.argv
 
 
 """Helper function to generate a decent random starting power distribution for searching"""

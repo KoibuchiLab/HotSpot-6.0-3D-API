@@ -16,11 +16,11 @@ import numpy as np
 from scipy.optimize import basinhopping
 from scipy.optimize import fmin_slsqp
 
-from layout import Chip
-from layout import Layout
+import optimize_layout_globals
 
+from layout import *
 from power_optimizer import *
-import optimize_layout_argv
+
 
 
 ##############################################################################################
@@ -32,7 +32,8 @@ class LayoutOptimizer(object):
 	
 	def __init__(self):
 		global argv
-		argv = optimize_layout_argv.argv
+		argv = optimize_layout_globals.argv
+		LayoutBuilder()
 		PowerOptimizer()
 
 """Tool function to pick a random element from an array"""
@@ -180,7 +181,7 @@ def optimize_layout_stacked():
 	if (argv.verbose > 0):
 		sys.stderr.write("Constructing a stacked layout\n")
 
-	layout = compute_stacked_layout()
+	layout = LayoutBuilder.compute_stacked_layout()
 
 	result = find_maximum_power_budget(layout)
 
@@ -493,8 +494,6 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
 """Top-level optimization function"""
 
 def optimize_layout():
-
-	print "ARGV = ", argv
 
         # Compute continuous solution
 	if (argv.layout_scheme == "stacked"):
