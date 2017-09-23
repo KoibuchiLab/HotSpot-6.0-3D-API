@@ -41,137 +41,6 @@ class LayoutOptimizer(object):
 def pick_random_element(array):
 	return array[random.randint(0, len(array) - 1)]
 
-"""Function to compute a stacked layout"""
-
-def compute_stacked_layout():
-
-	positions = []
-
-       	if (argv.num_levels < argv.num_chips):
-		abort("Not enough levels to build a stacked layout with " + \
-                       	str(argv.num_chips) + " chips")
-           	
-       	for level in xrange(1, argv.num_chips+1):
-       		positions.append([level, 0.0, 0.0])
-
-	return Layout(argv.chip, positions, argv.medium, argv.overlap)
-
-
-"""Function to compute a straight linear layout"""
-
-def compute_rectilinear_straight_layout():
-
-	positions = []
-
-	current_level = 1
-	level_direction = 1
-	current_x_position = 0.0
-	current_y_position = 0.0
-	for i in xrange(0, argv.num_chips):
-		positions.append([current_level, current_x_position, current_y_position])
-		current_level += level_direction
-		if (current_level > argv.num_levels):
-			current_level = argv.num_levels - 1
-			level_direction = -1
-		if (current_level < 1):
-			current_level = 2
-			level_direction = 1
-		current_x_position += argv.chip.x_dimension * (1 - argv.overlap)
-		
-	return Layout(argv.chip, positions, argv.medium, argv.overlap)
-
-	
-"""Function to compute a diagonal linear layout"""
-
-def compute_rectilinear_diagonal_layout():
-
-	positions = []
-
-	current_level = 1
-	level_direction = 1
-	current_x_position = 0.0
-	current_y_position = 0.0
-	for i in xrange(0, argv.num_chips):
-		positions.append([current_level, current_x_position, current_y_position])
-		current_level += level_direction
-		if (current_level > argv.num_levels):
-			current_level = argv.num_levels - 1
-			level_direction = -1
-		if (current_level < 1):
-			current_level = 2
-			level_direction = 1
-		current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap))
-		current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap))
-		
-	return Layout(argv.chip, positions, argv.medium, argv.overlap)
-
-
-"""Function to compute a checkerboard layout"""
-
-def compute_checkerboard_layout():
-
-	positions = []
-
-        if (argv.num_levels != 2):
-		abort("A checkerboard layout can only be built for 2 levels")
-        if (argv.overlap > 0.25):
-		abort("A checkerboard layout can only be built with overlap <= 0.25")
-            
-        # Rather than do annoying discrete math to compute the layout in an
-        # incremental fashion, we compute a large layout and then remove
-        # non-needed chips
-
-        # Compute x and y overlap assuming an overlap area with the same aspect
-        # ratio as the chip
-	# x_overlap * y_overlap =  overlap *  dim_x * dim_y
-	# x_overlap = alpha * dim_x
-	# y_overlap = alpha * dim_y
-        #
-        #  ====> alpha^2  = overlap
-	alpha = sqrt(argv.overlap)
-        x_overlap = alpha * argv.chip.x_dimension
-        y_overlap = alpha * argv.chip.y_dimension
-
-        # Create level 1
-        for x in xrange(0,argv.num_chips):
-            for y in xrange(0,argv.num_chips):
-                positions.append([1, x * (2 * argv.chip.x_dimension - 2 * x_overlap), y * (2 * argv.chip.y_dimension - 2 * y_overlap)])
-
-        # Create level 2
-        for x in xrange(0,argv.num_chips):
-            for y in xrange(0,argv.num_chips):
-                positions.append([2, argv.chip.x_dimension - x_overlap + x * (2 * argv.chip.x_dimension - 2 * x_overlap), argv.chip.y_dimension - y_overlap + y * (2 * argv.chip.y_dimension - 2 * y_overlap)])
-
-        while(len(positions) > argv.num_chips):
-            max_x = max([x for [l,x,y] in positions])
-            max_y = max([y for [l,x,y] in positions])
-            if (max_x > max_y):
-                # remove chip with x = max_x and largest y
-                victim_x = max_x
-                candidate_y = []
-                for position in positions:
-                    if (position[1] == victim_x):
-                        candidate_y.append(position[2])
-                victim_y = max(candidate_y)
-            elif (max_y >= max_x):
-                # remove a chip with y = max_y and largest x
-                victim_y = max_y
-                candidate_x = []
-                for position in positions:
-                    if (position[2] == victim_y):
-                        candidate_x.append(position[1])
-                victim_x = max(candidate_x)
-
-            for position in positions:
-                if (position[1] == victim_x) and (position[2] == victim_y):
-                    victim_l = position[0]
-                    break
-
-            positions.remove([victim_l, victim_x, victim_y])
-
-	return Layout(argv.chip, positions, argv.medium, argv.overlap)
-
-
 """Stacked layout optimization"""
 
 def optimize_layout_stacked():
@@ -202,9 +71,9 @@ def optimize_layout_rectilinear(mode):
 		sys.stderr.write("Constructing a " + mode + " rectilinear layout\n")
 
 	if (mode == "straight"):
-		layout = compute_rectilinear_straight_layout()
+		layout = LayoutBuilder.compute_rectilinear_straight_layout()
 	elif (mode == "diagonal"):
-		layout = compute_rectilinear_diagonal_layout()
+		layout = LayoutBuilder.compute_rectilinear_diagonal_layout()
 	else:
 		abort("Unknown rectilinear layout mode '" + mode + "'")
 
@@ -427,7 +296,7 @@ def optimize_layout_checkerboard():
 	if (argv.verbose > 0):
 		sys.stderr.write("Constructing a checkerboard layout\n")
 
-	layout = compute_checkerboard_layout()
+	layout = LayoutBuilder.compute_checkerboard_layout()
 
 	result = find_maximum_power_budget(layout)
 
