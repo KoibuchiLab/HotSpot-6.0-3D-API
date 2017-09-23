@@ -239,14 +239,11 @@ VISUAL PROGRESS OUTPUT:
 	return parser.parse_args()
 
 
-def abort(message):
-	sys.stderr.write("Error: " + message + "\n")
-	sys.exit(1)
-
 # Parse command-line arguments
 argv = parse_arguments()
 
 optimize_layout_globals.argv = argv
+abort = optimize_layout_globals.abort
 
 if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
 	abort("Chip '" + argv.chip_name + "' not supported")

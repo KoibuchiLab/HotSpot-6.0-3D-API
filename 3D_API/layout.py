@@ -34,6 +34,12 @@ class Chip(object):
 		- benchmark_name: name of benchmark for power levels
 	"""
         def __init__(self, name, benchmark_name):
+
+		global abort
+                abort = optimize_layout_globals.abort
+		global info
+                info = optimize_layout_globals.info
+
 		self.name = name
 		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
 		self.__power_levels = self.__find_available_power_levels(self.name, benchmark_name)
@@ -92,6 +98,7 @@ class Chip(object):
 """
 class Layout(object):
 
+
 	""" Constructor:
 		- chip: a chip object
 		- chip_positions: [[layer, x, y], ..., [layer, x, y]]
@@ -99,6 +106,11 @@ class Layout(object):
 		- overlap: fraction of overlap necessary for two chips to be connected
 	"""
 	def __init__(self, chip, chip_positions,  medium, overlap):
+
+		global abort
+                abort = optimize_layout_globals.abort
+		global info
+                info = optimize_layout_globals.info
 
 		self.__chip = chip
 		self.medium = medium
@@ -323,8 +335,8 @@ class Layout(object):
 			temperature = float(string_output)
 		except:
 			abort("Cannot convert HotSpot output ('" + string_output + "') to float")
-		if (argv.verbose >= 2):
-			sys.stderr.write("Hostpot returned temperature: " + str(temperature) + "\n")
+
+		info(2, "Hostpot returned temperature: " + str(temperature))
 		
 		# Remove files
 		try:
@@ -405,6 +417,8 @@ class LayoutBuilder(object):
                 argv = optimize_layout_globals.argv
 		global abort
                 abort = optimize_layout_globals.abort
+		global info
+                info = optimize_layout_globals.info
 
 	""" Function to compute a stacked layout
 	"""

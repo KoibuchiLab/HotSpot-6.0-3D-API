@@ -28,6 +28,10 @@ class PowerOptimizer(object):
         def __init__(self):
                 global argv
                 argv = optimize_layout_globals.argv
+                global abort
+                abort = optimize_layout_globals.abort
+                global info
+                info = optimize_layout_globals.info
 
 
 """Helper function to generate a decent random starting power distribution for searching"""
@@ -72,15 +76,13 @@ def optimize_power_distribution(layout, total_power_budget, optimization_method,
 	for trial in range(0, num_random_starts):
 		if (argv.verbose == 0):
 			sys.stderr.write(".")
-		if (argv.verbose >= 1):
-			sys.stderr.write("       Temperature minimization trial for total power " + str(total_power_budget) + "\n")
+		info(1, "       Temperature minimization trial for total power " + str(total_power_budget))
 
 		[temperature, power_distribution] = minimize_temperature(layout, total_power_budget, optimization_method, num_iterations)
 		if ((min_temperature == -1) or (temperature < min_temperature)):
 			min_temperature = temperature
 			best_power_distribution = power_distribution
-			if (argv.verbose >= 1):
-				sys.stderr.write("          New lowest temperature: T= " + str(min_temperature) + "\n")
+			info(1, "          New lowest temperature: T= " + str(min_temperature))
 	
         
 	return [min_temperature, best_power_distribution]
@@ -128,8 +130,7 @@ def minimize_temperature_random_continuous(layout, total_power_budget, num_itera
 	
 	# Generate a valid random start
 	random_start = generate_random_power_distribution(layout, total_power_budget)
-	if (argv.verbose > 1):
-		sys.stderr.write("\t\tRandom start: " + str(random_start) + "\n")
+	info(1, "\t\tRandom start: " + str(random_start))
 
 	# Compute the temperature
 	temperature =  Layout.compute_layout_temperature(layout, random_start)
@@ -143,8 +144,7 @@ def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 
         # Generate a valid random start
 	random_start = generate_random_power_distribution(layout, total_power_budget)
-	if (argv.verbose > 1):
-		sys.stderr.write("\tGenerated a random start: " + str(random_start) + "\n")
+	info(2, "\tGenerated a random start: " + str(random_start))
 
         result = fmin_slsqp(Layout.compute_layout_temperature, random_start, args=(layout,), full_output=True, iter=num_iterations, iprint=0)
 
@@ -159,8 +159,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
 
         best_distribution = random_start
         best_temperature = Layout.compute_layout_temperature(layout, random_start)
-	if (argv.verbose > 1):
-		sys.stderr.write("\tGenerated a random start: " + str(best_distribution) + " (temperature = " + str(best_temperature) + ")\n")
+	info(2, "\tGenerated a random start: " + str(best_distribution) + " (temperature = " + str(best_temperature) + ")")
         epsilon = 1
         for iteration in xrange(0, num_iterations):
             some_improvement = False
@@ -174,8 +173,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
                     continue
 	        temperature =  Layout.compute_layout_temperature(layout, candidate)
                 if (temperature < best_temperature):
-                    if (argv.verbose > 1):
-                        sys.stderr.write("\tNeighbor " + str(candidate) + " has temperature " + str(temperature) + "\n")
+                    info(2, "\tNeighbor " + str(candidate) + " has temperature " + str(temperature))
                     best_temperature = temperature
                     best_distribution = candidate
                     some_improvement = true
@@ -194,8 +192,7 @@ def minimize_temperature_simulated_annealing_gradient(layout, total_power_budget
 	
 	# Generate a valid random start
 	random_start = generate_random_power_distribution(layout, total_power_budget)
-	if (argv.verbose > 1):
-		sys.stderr.write("\tGenerated a random start: " + str(random_start) + "\n")
+	info(2, "\tGenerated a random start: " + str(random_start))
 
 	# Define constraints
 	constraints = ({'type': 'eq', 'fun': lambda x:  sum(x) - total_power_budget},)
@@ -259,8 +256,7 @@ def find_maximum_power_budget(layout):
 	# No search because the maximum power possible is already below temperature?
         temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips())
         if (temperature <= argv.max_allowed_temperature):
-		if (argv.verbose > 1):
-			sys.stderr.write("We can set all chips to the max power level!\n")
+		info(2, "We can set all chips to the max power level!")
                 return [[layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), temperature]
 
 	# DISCRETE?
@@ -302,8 +298,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 		best_distribution_temperature = None
 		for level in power_levels:
 			temperature = Layout.compute_layout_temperature(layout, [level] * layout.get_num_chips())
-			if (argv.verbose > 1):
-				sys.stderr.write("With power level " + str(level) + " for all chips: temperature = " + str(temperature)+ "..\n");
+			info(2, "With power level " + str(level) + " for all chips: temperature = " + str(temperature));
 			if (temperature<=argv.max_allowed_temperature):
 				best_power_level = level
 				best_distribution_temperature = temperature
@@ -328,8 +323,7 @@ def find_maximum_power_budget_discrete_exhaustive(layout):
                if (best_distribution == None) or (sum(best_distribution) < sum(distribution)):
                    best_distribution = distribution
                    best_distribution_temperature = temperature
-                   if (argv.verbose > 1):
-                       sys.stderr.write("Better distribution: Total=" + str(sum(best_distribution)) + "; Distribution=" + str(best_distribution) + "; Temperature= " + str(best_distribution_temperature) + "\n")
+                   info(2, "Better distribution: Total=" + str(sum(best_distribution)) + "; Distribution=" + str(best_distribution) + "; Temperature= " + str(best_distribution_temperature))
            
        return [best_distribution, best_distribution_temperature]
 
@@ -343,8 +337,7 @@ def find_maximum_power_budget_discrete_random(layout):
        best_distribution_temperature = None
            
        for trial in xrange(0, argv.power_distribution_optimization_num_trials):
-           if (argv.verbose > 1):
-               sys.stderr.write("Trial #"+str(trial)+"\n")
+           info(2, "Trial #"+str(trial))
            distribution = []
            for i in xrange(0, layout.get_num_chips()):
                distribution.append(pick_random_element(power_levels))
@@ -353,8 +346,7 @@ def find_maximum_power_budget_discrete_random(layout):
                if (best_distribution == None) or (sum(best_distribution) < sum(distribution)):
                    best_distribution = distribution
                    best_distribution_temperature = temperature
-                   if (argv.verbose > 1):
-                       sys.stderr.write("Better Random Trial: Total=" + str(sum(best_distribution)) + "; Distribution=" + str(best_distribution) + "; Temperature= " + str(temperature) + "\n")
+                   info(2, "Better Random Trial: Total=" + str(sum(best_distribution)) + "; Distribution=" + str(best_distribution) + "; Temperature= " + str(temperature))
 
        return [best_distribution, best_distribution_temperature]
 
@@ -370,8 +362,7 @@ def find_maximum_power_budget_discrete_greedy_random(layout):
 
        for trial in xrange(0, argv.power_distribution_optimization_num_trials):
 
-           if (argv.verbose > 1):
-               sys.stderr.write("Trial #"+str(trial)+"\n")
+           info(2, "Trial #"+str(trial))
 
 	   # Initialize the best distribution (that we're looking for)
            best_distribution_index = [0] * layout.get_num_chips() 
@@ -422,8 +413,7 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
 
        for trial in xrange(0, argv.power_distribution_optimization_num_trials):
 
-           if (argv.verbose > 1):
-               sys.stderr.write("Trial #"+str(trial)+"\n")
+           info(2, "Trial #" + str(trial))
 
 	   # Initialize the best distribution (that we're looking for)
            best_distribution_index = [0] * layout.get_num_chips() 
@@ -433,8 +423,7 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
            while (True):
 	       # Evaluate all possible increases
 	       pay_off = []
-               if (argv.verbose > 1):
-                    sys.stderr.write("Looking at all neighbors...\n")
+               info(2, "Looking at all neighbors...")
  	       for i in xrange(0, layout.get_num_chips()):
 			# If we're already at the max, set the payoff to a <0 value
 			if (best_distribution_index[i] == len(power_levels) - 1):
@@ -457,20 +446,17 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
 	            break
 
 	       # Pick the best payoff 
-               if (argv.verbose > 1):
-                    sys.stderr.write("Neighbor payoffs: " + str(pay_off) + "\n")
+               info(2, "Neighbor payoffs: " + str(pay_off))
 	       picked = pay_off.index(max(pay_off))
 		
 
-               if (argv.verbose > 1):
-                    sys.stderr.write("Picking neighbor #" + str(picked) + "\n")
+               info(2, "Picking neighbor #" + str(picked))
 
                # Otherwise, great
                best_distribution_index[picked] +=1 
                best_distribution = [power_levels[x] for x in candidate_index]
                best_distribution_temperature = Layout.compute_layout_temperature(layout, best_distribution)
-               if (argv.verbose > 1):
-                    sys.stderr.write("New temperature = " + str(best_distribution_temperature) + "\n")
+               info(2, "New temperature = " + str(best_distribution_temperature))
            
                if (best_best_distribution == None) or (sum(best_distribution) > sum(best_best_distribution)):
                     best_best_distribution = list(best_distribution)
@@ -493,14 +479,12 @@ def find_maximum_power_budget_continuous(layout):
 
 	last_valid_solution = None
 
-        if (argv.verbose > 0):
-	    sys.stderr.write("New binary search for maximizing the power\n")
+        info(1, "New binary search for maximizing the power")
 
 	while (True):
 		if (argv.verbose == 0):
 			sys.stderr.write("x")
-		if (argv.verbose > 0):
-			sys.stderr.write("    New binary search step (trying power = " + str(power_attempt) + " Watts)\n")
+		info(1, "    New binary search step (trying power = " + str(power_attempt) + " Watts)")
 
 		[temperature, power_distribution] = optimize_power_distribution(layout, power_attempt, argv.powerdistopt, argv.power_distribution_optimization_num_trials, argv.power_distribution_optimization_num_iterations)
 		# pick new direction?

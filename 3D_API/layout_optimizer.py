@@ -4,10 +4,6 @@ import math
 import random
 import os
 import sys
-import itertools
-
-import argparse
-from argparse import RawTextHelpFormatter
 
 from math import sqrt
 
@@ -33,6 +29,11 @@ class LayoutOptimizer(object):
 	def __init__(self):
 		global argv
 		argv = optimize_layout_globals.argv
+		global abort
+		abort = optimize_layout_globals.abort
+		global info
+		info = optimize_layout_globals.info
+
 		LayoutBuilder()
 		PowerOptimizer()
 
@@ -47,8 +48,8 @@ def optimize_layout_stacked():
 
 	if (argv.verbose == 0):
 		sys.stderr.write("o")
-	if (argv.verbose > 0):
-		sys.stderr.write("Constructing a stacked layout\n")
+
+	info(1, "Constructing a stacked layout")
 
 	layout = LayoutBuilder.compute_stacked_layout()
 
@@ -67,8 +68,7 @@ def optimize_layout_rectilinear(mode):
 
 	if (argv.verbose == 0):
 		sys.stderr.write("o")
-	if (argv.verbose > 0):
-		sys.stderr.write("Constructing a " + mode + " rectilinear layout\n")
+	info(1, "Constructing a " + mode + " rectilinear layout")
 
 	if (mode == "straight"):
 		layout = LayoutBuilder.compute_rectilinear_straight_layout()
@@ -147,8 +147,7 @@ def optimize_layout_linear_random_greedy():
 	
 	max_num_random_trials = 5  # TODO: Don't hardcode this
 	while (layout.get_num_chips() != argv.num_chips):
-                if (argv.verbose > 0):
-                        sys.stderr.write("* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout\n")
+                info (1, "* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 		num_random_trials = 0
                 candidate_random_trials = []
 		while (len(candidate_random_trials) < max_num_random_trials):
@@ -182,8 +181,7 @@ def optimize_layout_linear_random_greedy():
                 for candidate in candidate_random_trials:
                         layout.add_new_chip(candidate) 
                         print layout.get_chip_positions()
-                        if (argv.verbose > 0):
-                                sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
+                        info(1, "- Evaluating candidate " + str(candidate))
                         result = find_maximum_power_budget(layout) 
                         if (result != None):
                             [power_distribution, temperature] = result
@@ -192,8 +190,7 @@ def optimize_layout_linear_random_greedy():
                         layout.remove_chip(layout.get_num_chips() - 1)
                         
                 # Add the candidate 
-                if (argv.verbose > 0):
-                        sys.stderr.write("Picked candidate: " + str(candidate) + "\n")
+                info(1, "Picked candidate: " + str(candidate))
                 layout.add_new_chip(picked_candidate) 
                         
 
@@ -218,8 +215,7 @@ def optimize_layout_random_greedy():
 
 	max_num_random_trials = 5 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != argv.num_chips):
-                if (argv.verbose > 0):
-                        sys.stderr.write("* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout\n")
+                info(1, "* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 		num_random_trials = 0
                 candidate_random_trials = []
 		while (len(candidate_random_trials) < max_num_random_trials):
@@ -262,8 +258,7 @@ def optimize_layout_random_greedy():
                 for candidate in candidate_random_trials:
                         layout.add_new_chip(candidate) 
                         print layout.get_chip_positions()
-                        if (argv.verbose > 0):
-                                sys.stderr.write("- Evaluating candidate " + str(candidate) + "\n")
+                        info(1, "- Evaluating candidate " + str(candidate))
                         result = find_maximum_power_budget(layout) 
                         if (result != None):
                             [power_distribution, temperature] = result
@@ -272,8 +267,7 @@ def optimize_layout_random_greedy():
                         layout.remove_chip(layout.get_num_chips() - 1)
                         
                 # Add the candidate 
-                if (argv.verbose > 0):
-                        sys.stderr.write("Picked candidate: " + str(candidate) + "\n")
+                info(1, "Picked candidate: " + str(candidate))
                 layout.add_new_chip(picked_candidate) 
 
         # Do the final evaluation (which was already be done, but whatever)
@@ -293,8 +287,7 @@ def optimize_layout_checkerboard():
 
 	if (argv.verbose == 0):
 		sys.stderr.write("o")
-	if (argv.verbose > 0):
-		sys.stderr.write("Constructing a checkerboard layout\n")
+	info(1, "Constructing a checkerboard layout")
 
 	layout = LayoutBuilder.compute_checkerboard_layout()
 
@@ -318,8 +311,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
 
         new_temperature = initial_temperature
 
-        if (argv.verbose > 0):
-            sys.stderr.write("Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution) + "\n")
+        info(1, "Continuous solution: Total= " + str(sum(power_distribution)) + "; Distribution= " + str(power_distribution))
 
         power_levels = layout.get_chip().get_power_levels(argv.power_benchmark)
 
@@ -331,8 +323,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
                     lower_bound.append(i)
                     break
 
-        if (argv.verbose > 0):
-            sys.stderr.write("Conservative feasible power distribution: " + str([power_levels[i] for i in lower_bound]) + "\n")
+        info(1, "Conservative feasible power distribution: " + str([power_levels[i] for i in lower_bound]))
 
         # exhaustively increase while possible (TODO: do a better heuristic? unclear)
         while (True):
@@ -348,8 +339,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
                         lower_bound = tentative_new_bound[:]
                         new_temperature = temperature
                         was_able_to_increase = True
-                        if (argv.verbose > 0):
-                            sys.stderr.write("Improved feasible power distribution: " + str([power_levels[i] for i in lower_bound]) + "\n")
+                        info(1, "Improved feasible power distribution: " + str([power_levels[i] for i in lower_bound]))
                         break
             if (not was_able_to_increase):
                 break
@@ -381,9 +371,4 @@ def optimize_layout():
 		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
 
         return solution
-
-
-def abort(message):
-	sys.stderr.write("Error: " + message + "\n")
-	sys.exit(1)
 
