@@ -10,7 +10,8 @@ import os
 import argparse
 from argparse import RawTextHelpFormatter
 
-import optimize_layout_globals
+import utils
+
 #
 #from math import sqrt
 #
@@ -23,7 +24,6 @@ from layout import Chip
 #from layout import Layout
 #
 
-from layout_optimizer import *
 
 
 ########################################################
@@ -244,40 +244,39 @@ if __name__ == '__main__':
 	# Parse command-line arguments
 	argv = parse_arguments()
 	
-	optimize_layout_globals.argv = argv
-	abort = optimize_layout_globals.abort
+	utils.argv = argv
 	
 	if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
-		abort("Chip '" + argv.chip_name + "' not supported")
+		utils.abort("Chip '" + argv.chip_name + "' not supported")
 	else:
 		argv.chip = Chip(argv.chip_name,  argv.power_benchmark)
 	
 	if (argv.num_chips < 1):
-		abort("The number of chips (--numchips, -n) should be >0")
+		utils.abort("The number of chips (--numchips, -n) should be >0")
 	
 	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard"):
 	    argv.diameter = argv.num_chips
 	
 	if (argv.diameter < 1):
-		abort("The diameter (--diameter, -d) should be >0")
+		utils.abort("The diameter (--diameter, -d) should be >0")
 	
 	if (argv.diameter > argv.num_chips):
-	    abort("The diameter (--diameter, -d) should <= the number of chips")
+	    utils.abort("The diameter (--diameter, -d) should <= the number of chips")
 	        
 	if (argv.num_levels < 2):
-		abort("The number of levels (--numlevels, -d) should be >1")
+		utils.abort("The number of levels (--numlevels, -d) should be >1")
 	
 	if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
-		abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
+		utils.abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
 	
 	if (argv.power_distribution_optimization_num_iterations < 0):
-		abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
+		utils.abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
 	
 	if (argv.power_distribution_optimization_num_trials < 0):
-		abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
+		utils.abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
 	
 	if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
-		abort("Unsupported cooling medium '" + argv.medium + "'")
+		utils.abort("Unsupported cooling medium '" + argv.medium + "'")
 	
 	if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
 	        argv.power_distribution_optimization_num_iterations = 1
@@ -287,7 +286,7 @@ if __name__ == '__main__':
 	
 	if argv.power_budget:
 	    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
-	        abort("Cannot use discrete power distribution optimization method with a fixed power budget")
+	        utils.abort("Cannot use discrete power distribution optimization method with a fixed power budget")
 	
 	# Recompile cell.c with specified grid size
 	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
@@ -295,7 +294,9 @@ if __name__ == '__main__':
 	
 	
 	
+	from layout_optimizer import *
 	LayoutOptimizer()
+
 	solution = optimize_layout()
 	
 	if (solution == None):

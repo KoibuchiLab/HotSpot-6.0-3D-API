@@ -10,7 +10,7 @@ from glob import glob
 from math import sqrt
 import networkx as nx
 
-import optimize_layout_globals
+import utils
 
 FLOATING_POINT_EPSILON = 0.000001
 
@@ -35,11 +35,6 @@ class Chip(object):
 		- benchmark_name: name of benchmark for power levels
 	"""
         def __init__(self, name, benchmark_name):
-
-		global abort
-                abort = optimize_layout_globals.abort
-		global info
-                info = optimize_layout_globals.info
 
 		self.name = name
 		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
@@ -81,7 +76,7 @@ class Chip(object):
       		elif (benchmark_name == "overall_max"):
               		lengths = [len(power_levels[x]) for x in power_levels]
               		if (max(lengths) != min(lengths)):
-                      		abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
+                      		utils.abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
               		maxima = []
               		for i in xrange(0, min(lengths)):
                			maxima.append(max([power_levels[x][i] for x in power_levels]))
@@ -89,7 +84,7 @@ class Chip(object):
               		return maxima
 
       		else:
-              		abort("Unknon benchmark " + benchmark_name + " for computing power levels")
+              		utils.abort("Unknon benchmark " + benchmark_name + " for computing power levels")
  
 ##############################################################################################
 ### LAYOUT CLASS
@@ -107,13 +102,6 @@ class Layout(object):
 		- overlap: fraction of overlap necessary for two chips to be connected
 	"""
 	def __init__(self, chip, chip_positions,  medium, overlap):
-
-		global abort
-                abort = optimize_layout_globals.abort
-		global info
-                info = optimize_layout_globals.info
-		global pick_random_element
-                pick_random_element = optimize_layout_globals.pick_random_element
 
 		self.__chip = chip
 		self.medium = medium
@@ -178,7 +166,7 @@ class Layout(object):
 	"""
 	def add_new_chip(self, new_chip):
 		if not self.can_new_chip_fit(new_chip):
-			abort("Cannot add chip")
+			utils.abort("Cannot add chip")
 
 		# Add the new chip
 		self.__chip_positions.append(new_chip)
@@ -329,7 +317,7 @@ class Layout(object):
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
 		except Exception, e:
-    			abort("Could not invoke hotspot.py correctly: " + str(e))
+    			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 		
 		string_output = proc.stdout.read().rstrip()
 		try:
@@ -337,9 +325,9 @@ class Layout(object):
 			#temperature = float(tokens[2])
 			temperature = float(string_output)
 		except:
-			abort("Cannot convert HotSpot output ('" + string_output + "') to float")
+			utils.abort("Cannot convert HotSpot output ('" + string_output + "') to float")
 
-		info(2, "Hostpot returned temperature: " + str(temperature))
+		utils.info(2, "Hostpot returned temperature: " + str(temperature))
 		
 		# Remove files
 		try:
@@ -404,7 +392,7 @@ class Layout(object):
 			ptrace_file.write("\n")
 
 		else:
-			abort("Error: Chip '" + chip.name+ "' unsupported!")
+			utils.abort("Error: Chip '" + chip.name+ "' unsupported!")
 	
 		ptrace_file.close()	
 		return ptrace_file_name
@@ -457,7 +445,7 @@ class Layout(object):
 	                candidates.append([new_picked_x, new_picked_y])
 	
 	         # At this point, we just pick one of the candidates at random
-	         return pick_random_element(candidates)
+	         return utils.pick_random_element(candidates)
 	
 
 
@@ -467,13 +455,7 @@ class Layout(object):
 class LayoutBuilder(object):
 
 	def __init__(self):
-		# Comamnd-line arguments
-                global argv
-                argv = optimize_layout_globals.argv
-		global abort
-                abort = optimize_layout_globals.abort
-		global info
-                info = optimize_layout_globals.info
+		pass
 
 	""" Function to compute a stacked layout
 	"""
@@ -482,14 +464,14 @@ class LayoutBuilder(object):
 
         	positions = []
 	
-        	if (argv.num_levels < argv.num_chips):
-                	abort("Not enough levels to build a stacked layout with " + \
-                        	str(argv.num_chips) + " chips")
+        	if (utils.argv.num_levels < utils.argv.num_chips):
+                	utils.abort("Not enough levels to build a stacked layout with " + \
+                        	str(utils.argv.num_chips) + " chips")
 	
-        	for level in xrange(1, argv.num_chips+1):
+        	for level in xrange(1, utils.argv.num_chips+1):
                 	positions.append([level, 0.0, 0.0])
 	
-        	return Layout(argv.chip, positions, argv.medium, argv.overlap)
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
 	"""Function to compute a straight linear layout
 	"""
@@ -502,18 +484,18 @@ class LayoutBuilder(object):
         	level_direction = 1
         	current_x_position = 0.0
         	current_y_position = 0.0
-        	for i in xrange(0, argv.num_chips):
+        	for i in xrange(0, utils.argv.num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction
-                	if (current_level > argv.num_levels):
-                        	current_level = argv.num_levels - 1
+                	if (current_level > utils.argv.num_levels):
+                        	current_level = utils.argv.num_levels - 1
                         	level_direction = -1
                 	if (current_level < 1):
                         	current_level = 2
                         	level_direction = 1
-                	current_x_position += argv.chip.x_dimension * (1 - argv.overlap)
+                	current_x_position += utils.argv.chip.x_dimension * (1 - utils.argv.overlap)
 
-        	return Layout(argv.chip, positions, argv.medium, argv.overlap)
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
 	"""Function to compute a diagonal linear layout
 	"""
@@ -526,19 +508,19 @@ class LayoutBuilder(object):
         	level_direction = 1
         	current_x_position = 0.0
         	current_y_position = 0.0
-        	for i in xrange(0, argv.num_chips):
+        	for i in xrange(0, utils.argv.num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction
-                	if (current_level > argv.num_levels):
-                        	current_level = argv.num_levels - 1
+                	if (current_level > utils.argv.num_levels):
+                        	current_level = utils.argv.num_levels - 1
                         	level_direction = -1
                 	if (current_level < 1):
                         	current_level = 2
                         	level_direction = 1
-                	current_x_position += argv.chip.x_dimension * (1 - sqrt(argv.overlap))
-                	current_y_position += argv.chip.y_dimension * (1 - sqrt(argv.overlap))
+                	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
+                	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
 	
-        	return Layout(argv.chip, positions, argv.medium, argv.overlap)
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
@@ -546,10 +528,10 @@ class LayoutBuilder(object):
 	
 	        positions = []
 	
-	        if (argv.num_levels != 2):
-	                abort("A checkerboard layout can only be built for 2 levels")
-	        if (argv.overlap > 0.25):
-	                abort("A checkerboard layout can only be built with overlap <= 0.25")
+	        if (utils.argv.num_levels != 2):
+	                utils.abort("A checkerboard layout can only be built for 2 levels")
+	        if (utils.argv.overlap > 0.25):
+	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 	
 	        # Rather than do annoying discrete math to compute the layout in an
 	        # incremental fashion, we compute a large layout and then remove
@@ -562,22 +544,22 @@ class LayoutBuilder(object):
 	        # y_overlap = alpha * dim_y
 	        #
 	        #  ====> alpha^2  = overlap
-	        alpha = sqrt(argv.overlap)
-	        x_overlap = alpha * argv.chip.x_dimension
-	        y_overlap = alpha * argv.chip.y_dimension
+	        alpha = sqrt(utils.argv.overlap)
+	        x_overlap = alpha * utils.argv.chip.x_dimension
+	        y_overlap = alpha * utils.argv.chip.y_dimension
 	
 	        # Create level 1
-	        for x in xrange(0,argv.num_chips):
-	            for y in xrange(0,argv.num_chips):
-	                positions.append([1, x * (2 * argv.chip.x_dimension - 2 * x_overlap), y * (2 * argv.chip.y_dimension - 2 * y_overlap)])
+	        for x in xrange(0,utils.argv.num_chips):
+	            for y in xrange(0,utils.argv.num_chips):
+	                positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
 	
 	        # Create level 2
-	        for x in xrange(0,argv.num_chips):
-	            for y in xrange(0,argv.num_chips):
-	                positions.append([2, argv.chip.x_dimension - x_overlap + x * (2 * argv.chip.x_dimension - 2 * x_overlap), argv.chip.y_dimension - y_overlap + y * (2 * argv.chip.
+	        for x in xrange(0,utils.argv.num_chips):
+	            for y in xrange(0,utils.argv.num_chips):
+	                positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.
 	y_dimension - 2 * y_overlap)])
 	
-	        while(len(positions) > argv.num_chips):
+	        while(len(positions) > utils.argv.num_chips):
 	            max_x = max([x for [l,x,y] in positions])
 	            max_y = max([y for [l,x,y] in positions])
 	            if (max_x > max_y):
@@ -604,6 +586,6 @@ class LayoutBuilder(object):
 	
 	            positions.remove([victim_l, victim_x, victim_y])
 	
-	        return Layout(argv.chip, positions, argv.medium, argv.overlap)
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	
 
