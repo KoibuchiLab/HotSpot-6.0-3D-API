@@ -285,122 +285,119 @@ class Layout(object):
 		return x_overlap * y_overlap
  
 
-
-##############################################################################################
-### HOTSPOT INTERFACE
-##############################################################################################
-
-""" The top-level function that calls hotspot to find out the max temp of a layout
- 		- power_distribution: the power distribution
-		- layout: the layout
-"""
-def compute_layout_temperature(power_distribution, layout):
-
-	# This is a hack because it seems the scipy library ignores the bounds and will go into
-        # unallowed values, so instead we return a very high temperature (lame)
-	for i in range(0, layout.get_num_chips()):
-		if ((power_distribution[i] < layout.get_chip().get_power_levels()[0]) or (power_distribution[i] > layout.get_chip().get_power_levels()[-1])):
-			return 100000
-
-
-	# Create the input file and ptrace_files
-	input_file_name = "/tmp/layout-optimization-tmp.data"
-	ptrace_file_names = []
-	input_file = open(input_file_name, 'w')	
-	for i in range(0, layout.get_num_chips()):
-		# Create a line in the input file
-		suffix = "layout-optimization-tmp-" + str(i)
-		input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
-		# Create the (temporary) ptrace file
-		ptrace_file_name = create_ptrace_file("./PTRACE", layout.get_chip(), suffix, power_distribution[i])
-		ptrace_file_names.append(ptrace_file_name)
-	input_file.close()
-
-	# Call hotspot
-	command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
-	try:
-		devnull = open('/dev/null', 'w')
-		proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
-	except Exception, e:
-    		abort("Could not invoke hotspot.py correctly: " + str(e))
+	""" A function that hotspot to find out the max temp of the layout
+			- the layout
+ 			- power_distribution: the power distribution
+	"""
+	@staticmethod
+	def compute_layout_temperature(layout, power_distribution):
 	
-	string_output = proc.stdout.read().rstrip()
-	try:
-		#tokens = string_output.split(" ")
-		#temperature = float(tokens[2])
-		temperature = float(string_output)
-	except:
-		abort("Cannot convert HotSpot output ('" + string_output + "') to float")
+		# This is a hack because it seems the scipy library ignores the bounds and will go into
+        	# unallowed values, so instead we return a very high temperature (lame)
+		for i in range(0, layout.get_num_chips()):
+			if ((power_distribution[i] < layout.get_chip().get_power_levels()[0]) or (power_distribution[i] > layout.get_chip().get_power_levels()[-1])):
+				return 100000
 	
-	# Remove files
-	try:
-		os.remove(input_file_name)
-		for file_name in ptrace_file_names:
-			os.remove(file_name)
-	except Exception, e:	
-		sys.stderr.write("Warning: Cannot remove some tmp files...\n")
+	
+		# Create the input file and ptrace_files
+		input_file_name = "/tmp/layout-optimization-tmp.data"
+		ptrace_file_names = []
+		input_file = open(input_file_name, 'w')	
+		for i in range(0, layout.get_num_chips()):
+			# Create a line in the input file
+			suffix = "layout-optimization-tmp-" + str(i)
+			input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
+			# Create the (temporary) ptrace file
+			ptrace_file_name = Layout.create_ptrace_file("./PTRACE", layout.get_chip(), suffix, power_distribution[i])
+			ptrace_file_names.append(ptrace_file_name)
+		input_file.close()
+	
+		# Call hotspot
+		command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
+		try:
+			devnull = open('/dev/null', 'w')
+			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
+		except Exception, e:
+    			abort("Could not invoke hotspot.py correctly: " + str(e))
 		
-	if (argv.verbose > 2):
-		sys.stderr.write("          Hotspot result: " + str(sum(power_distribution)) + " (" + str(power_distribution) + "): " + str(temperature) + " Celsius\n")
-
-	return temperature
-
-
-
-""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
-    stuff, but it's simpler than trying to come up with a programmatic solution
-"""
-def create_ptrace_file(directory, chip, suffix, power):
-	ptrace_file_name = directory + "/" + chip.name + "-" + suffix + ".ptrace"
-	ptrace_file = open(ptrace_file_name, 'w')
+		string_output = proc.stdout.read().rstrip()
+		try:
+			#tokens = string_output.split(" ")
+			#temperature = float(tokens[2])
+			temperature = float(string_output)
+		except:
+			abort("Cannot convert HotSpot output ('" + string_output + "') to float")
+		
+		# Remove files
+		try:
+			os.remove(input_file_name)
+			for file_name in ptrace_file_names:
+				os.remove(file_name)
+		except Exception, e:	
+			sys.stderr.write("Warning: Cannot remove some tmp files...\n")
+		
+		if (argv.verbose > 2):
+			sys.stderr.write("          Hotspot result: " + str(sum(power_distribution)) + " (" + str(power_distribution) + "): " + str(temperature) + " Celsius\n")
 	
-	if (chip.name == "e5-2667v4"):
-		power_per_core = power / 8
-		ptrace_file.write("NULL0 NULL1 NULL2 NULL3 0_CORE 1_CORE 2_CORE 3_CORE 4_CORE 5_CORE 6_CORE 7_CORE 0_LL 1_LL 2_LL 3_LL 4_LL 5_LL 6_LL 7_LL\n")
-		ptrace_file.write("0 " * 4)
-		ptrace_file.write((str(power_per_core) + " ") * 8)
-		ptrace_file.write("0 " * 8)	# TODO TODO TODO
-		ptrace_file.write("\n")
+		return temperature
 
-	elif (chip.name == "phi7250"):
-		power_per_core = power / (2.0 * 42.0)
-		ptrace_file.write("EDGE_0 EDGE_1 EDGE_2 EDGE_3 0_NULL_0 0_NULL_1 0_CORE_0 0_CORE_1 1_NULL_0 1_NULL_1 1_CORE_0 1_CORE_1 2_NULL_0 2_NULL_1 2_CORE_0 2_CORE_1 3_NULL_0 3_NULL_1 3_CORE_0 3_CORE_1 4_NULL_0 4_NULL_1 4_CORE_0 4_CORE_1 5_NULL_0 5_NULL_1 5_CORE_0 5_CORE_1 6_NULL_0 6_NULL_1 6_CORE_0 6_CORE_1 7_NULL_0 7_NULL_1 7_CORE_0 7_CORE_1 8_NULL_0 8_NULL_1 8_CORE_0 8_CORE_1 9_NULL_0 9_NULL_1 9_CORE_0 9_CORE_1 10_NULL_0 10_NULL_1 10_CORE_0 10_CORE_1 11_NULL_0 11_NULL_1 11_CORE_0 11_CORE_1 12_NULL_0 12_NULL_1 12_CORE_0 12_CORE_1 13_NULL_0 13_NULL_1 13_CORE_0 13_CORE_1 14_NULL_0 14_NULL_1 14_CORE_0 14_CORE_1 15_NULL_0 15_NULL_1 15_CORE_0 15_CORE_1 16_NULL_0 16_NULL_1 16_CORE_0 16_CORE_1 17_NULL_0 17_NULL_1 17_CORE_0 17_CORE_1 18_NULL_0 18_NULL_1 18_CORE_0 18_CORE_1 19_NULL_0 19_NULL_1 19_CORE_0 19_CORE_1 20_NULL_0 20_NULL_1 20_CORE_0 20_CORE_1 21_NULL_0 21_NULL_1 21_CORE_0 21_CORE_1 22_NULL_0 22_NULL_1 22_CORE_0 22_CORE_1 23_NULL_0 23_NULL_1 23_CORE_0 23_CORE_1 24_NULL_0 24_NULL_1 24_CORE_0 24_CORE_1 25_NULL_0 25_NULL_1 25_CORE_0 25_CORE_1 26_NULL_0 26_NULL_1 26_CORE_0 26_CORE_1 27_NULL_0 27_NULL_1 27_CORE_0 27_CORE_1 28_NULL_0 28_NULL_1 28_CORE_0 28_CORE_1 29_NULL_0 29_NULL_1 29_CORE_0 29_CORE_1 30_NULL_0 30_NULL_1 30_CORE_0 30_CORE_1 31_NULL_0 31_NULL_1 31_CORE_0 31_CORE_1 32_NULL_0 32_NULL_1 32_CORE_0 32_CORE_1 33_NULL_0 33_NULL_1 33_CORE_0 33_CORE_1 34_NULL_0 34_NULL_1 34_CORE_0 34_CORE_1 35_NULL_0 35_NULL_1 35_CORE_0 35_CORE_1 36_NULL_0 36_NULL_1 36_CORE_0 36_CORE_1 37_NULL_0 37_NULL_1 37_CORE_0 37_CORE_1 38_NULL_0 38_NULL_1 38_CORE_0 38_CORE_1 39_NULL_0 39_NULL_1 39_CORE_0 39_CORE_1 40_NULL_0 40_NULL_1 40_CORE_0 40_CORE_1 41_NULL_0 41_NULL_1 41_CORE_0 41_CORE_1\n")
-		# 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800
-		ptrace_file.write("0 " * 6)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 10)
-		for i in xrange(0, 13):
-			ptrace_file.write((str(power_per_core) + " ") * 2)
-			ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 6)
-		for i in xrange(0, 3):
-			ptrace_file.write((str(power_per_core) + " ") * 2)
-			ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 10)
-		for i in xrange(0,3):
-			ptrace_file.write((str(power_per_core) + " ") * 2)
-			ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 6)
-		for i in xrange(0,7):
-			ptrace_file.write((str(power_per_core) + " ") * 2)
-			ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 10)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("0 " * 2)
-		ptrace_file.write((str(power_per_core) + " ") * 2)
-		ptrace_file.write("\n")
 
-	else:
-		abort("Error: Chip '" + chip.name+ "' unsupported!")
 
-	ptrace_file.close()	
-	return ptrace_file_name
+	""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
+    	stuff, but it's simpler than trying to come up with a programmatic solution
+	"""
+	@staticmethod
+	def create_ptrace_file(directory, chip, suffix, power):
+		ptrace_file_name = directory + "/" + chip.name + "-" + suffix + ".ptrace"
+		ptrace_file = open(ptrace_file_name, 'w')
+		
+		if (chip.name == "e5-2667v4"):
+			power_per_core = power / 8
+			ptrace_file.write("NULL0 NULL1 NULL2 NULL3 0_CORE 1_CORE 2_CORE 3_CORE 4_CORE 5_CORE 6_CORE 7_CORE 0_LL 1_LL 2_LL 3_LL 4_LL 5_LL 6_LL 7_LL\n")
+			ptrace_file.write("0 " * 4)
+			ptrace_file.write((str(power_per_core) + " ") * 8)
+			ptrace_file.write("0 " * 8)	# TODO TODO TODO
+			ptrace_file.write("\n")
+	
+		elif (chip.name == "phi7250"):
+			power_per_core = power / (2.0 * 42.0)
+			ptrace_file.write("EDGE_0 EDGE_1 EDGE_2 EDGE_3 0_NULL_0 0_NULL_1 0_CORE_0 0_CORE_1 1_NULL_0 1_NULL_1 1_CORE_0 1_CORE_1 2_NULL_0 2_NULL_1 2_CORE_0 2_CORE_1 3_NULL_0 3_NULL_1 3_CORE_0 3_CORE_1 4_NULL_0 4_NULL_1 4_CORE_0 4_CORE_1 5_NULL_0 5_NULL_1 5_CORE_0 5_CORE_1 6_NULL_0 6_NULL_1 6_CORE_0 6_CORE_1 7_NULL_0 7_NULL_1 7_CORE_0 7_CORE_1 8_NULL_0 8_NULL_1 8_CORE_0 8_CORE_1 9_NULL_0 9_NULL_1 9_CORE_0 9_CORE_1 10_NULL_0 10_NULL_1 10_CORE_0 10_CORE_1 11_NULL_0 11_NULL_1 11_CORE_0 11_CORE_1 12_NULL_0 12_NULL_1 12_CORE_0 12_CORE_1 13_NULL_0 13_NULL_1 13_CORE_0 13_CORE_1 14_NULL_0 14_NULL_1 14_CORE_0 14_CORE_1 15_NULL_0 15_NULL_1 15_CORE_0 15_CORE_1 16_NULL_0 16_NULL_1 16_CORE_0 16_CORE_1 17_NULL_0 17_NULL_1 17_CORE_0 17_CORE_1 18_NULL_0 18_NULL_1 18_CORE_0 18_CORE_1 19_NULL_0 19_NULL_1 19_CORE_0 19_CORE_1 20_NULL_0 20_NULL_1 20_CORE_0 20_CORE_1 21_NULL_0 21_NULL_1 21_CORE_0 21_CORE_1 22_NULL_0 22_NULL_1 22_CORE_0 22_CORE_1 23_NULL_0 23_NULL_1 23_CORE_0 23_CORE_1 24_NULL_0 24_NULL_1 24_CORE_0 24_CORE_1 25_NULL_0 25_NULL_1 25_CORE_0 25_CORE_1 26_NULL_0 26_NULL_1 26_CORE_0 26_CORE_1 27_NULL_0 27_NULL_1 27_CORE_0 27_CORE_1 28_NULL_0 28_NULL_1 28_CORE_0 28_CORE_1 29_NULL_0 29_NULL_1 29_CORE_0 29_CORE_1 30_NULL_0 30_NULL_1 30_CORE_0 30_CORE_1 31_NULL_0 31_NULL_1 31_CORE_0 31_CORE_1 32_NULL_0 32_NULL_1 32_CORE_0 32_CORE_1 33_NULL_0 33_NULL_1 33_CORE_0 33_CORE_1 34_NULL_0 34_NULL_1 34_CORE_0 34_CORE_1 35_NULL_0 35_NULL_1 35_CORE_0 35_CORE_1 36_NULL_0 36_NULL_1 36_CORE_0 36_CORE_1 37_NULL_0 37_NULL_1 37_CORE_0 37_CORE_1 38_NULL_0 38_NULL_1 38_CORE_0 38_CORE_1 39_NULL_0 39_NULL_1 39_CORE_0 39_CORE_1 40_NULL_0 40_NULL_1 40_CORE_0 40_CORE_1 41_NULL_0 41_NULL_1 41_CORE_0 41_CORE_1\n")
+			# 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 1.800 1.800 0 0 0 0 0 0 0 0 0 0 1.800 1.800 0 0 1.800 1.800
+			ptrace_file.write("0 " * 6)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 10)
+			for i in xrange(0, 13):
+				ptrace_file.write((str(power_per_core) + " ") * 2)
+				ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 6)
+			for i in xrange(0, 3):
+				ptrace_file.write((str(power_per_core) + " ") * 2)
+				ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 10)
+			for i in xrange(0,3):
+				ptrace_file.write((str(power_per_core) + " ") * 2)
+				ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 6)
+			for i in xrange(0,7):
+				ptrace_file.write((str(power_per_core) + " ") * 2)
+				ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 10)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("0 " * 2)
+			ptrace_file.write((str(power_per_core) + " ") * 2)
+			ptrace_file.write("\n")
+
+		else:
+			abort("Error: Chip '" + chip.name+ "' unsupported!")
+	
+		ptrace_file.close()	
+		return ptrace_file_name
 
 
 
@@ -491,7 +488,7 @@ def minimize_temperature_uniform(layout, total_power_budget, num_iterations):
         uniform_distribution = layout.get_num_chips() * [ total_power_budget / layout.get_num_chips()]
 
 	# Compute the temperature
-	temperature =  compute_layout_temperature(uniform_distribution, layout)
+	temperature =  Layout.compute_layout_temperature(layout, uniform_distribution)
 
 	return [temperature, uniform_distribution]
 
@@ -505,7 +502,7 @@ def minimize_temperature_random_continuous(layout, total_power_budget, num_itera
 		sys.stderr.write("\t\tRandom start: " + str(random_start) + "\n")
 
 	# Compute the temperature
-	temperature =  compute_layout_temperature(random_start, layout)
+	temperature =  Layout.compute_layout_temperature(layout, random_start)
 
 	return [temperature, random_start]
 
@@ -518,7 +515,7 @@ def minimize_temperature_gradient(layout, total_power_budget, num_iterations):
 	if (argv.verbose > 1):
 		sys.stderr.write("\tGenerated a random start: " + str(random_start) + "\n")
 
-        result = fmin_slsqp(compute_layout_temperature, random_start, args=(layout,), full_output=True, iter=num_iterations, iprint=0)
+        result = fmin_slsqp(Layout.compute_layout_temperature, random_start, args=(layout,), full_output=True, iter=num_iterations, iprint=0)
 
         return [result[1], result[0]]
 
@@ -529,7 +526,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
 	random_start = generate_random_power_distribution(layout, total_power_budget)
 
         best_distribution = random_start
-        best_temperature = compute_layout_temperature(random_start, layout)
+        best_temperature = Layout.compute_layout_temperature(layout, random_start)
 	if (argv.verbose > 1):
 		sys.stderr.write("\tGenerated a random start: " + str(best_distribution) + " (temperature = " + str(best_temperature) + ")\n")
         epsilon = 1
@@ -543,7 +540,7 @@ def minimize_temperature_neighbor(layout, total_power_budget, num_iterations):
                 candidate[pair[1]] -= epsilon
                 if (max(candidate) > max(layout.get_chip().get_power_levels())) or (min(best_distribution) < min(layout.get_chip().get_power_levels())):
                     continue
-	        temperature =  compute_layout_temperature(candidate, layout)
+	        temperature =  Layout.compute_layout_temperature(layout, candidate)
                 if (temperature < best_temperature):
                     if (argv.verbose > 1):
                         sys.stderr.write("\tNeighbor " + str(candidate) + " has temperature " + str(temperature) + "\n")
@@ -592,7 +589,7 @@ def minimize_temperature_simulated_annealing_gradient(layout, total_power_budget
 
 def basinhopping_objective_layout_temperature(x, layout):
 
-	return compute_layout_temperature(x, layout)
+	return Layout.compute_layout_temperature(layout, x)
 
 
 ##############################################################################################
@@ -618,13 +615,13 @@ def find_maximum_power_budget(layout):
 		return [power_distribution, temperature]
 
 	# No search because the minimum power possible is already above temperature?
-        temperature = compute_layout_temperature([layout.get_chip().get_power_levels()[0]] * layout.get_num_chips(), layout)
+        temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[0]] * layout.get_num_chips())
         if (temperature > argv.max_allowed_temperature):
                 sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(argv.max_allowed_temperature) + "\n")
                 return None
 
 	# No search because the maximum power possible is already below temperature?
-        temperature = compute_layout_temperature([layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), layout)
+        temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips())
         if (temperature <= argv.max_allowed_temperature):
 		if (argv.verbose > 1):
 			sys.stderr.write("We can set all chips to the max power level!\n")
@@ -666,7 +663,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 		best_power_level = None
 		best_distribution_temperature = None
 		for level in power_levels:
-			temperature = compute_layout_temperature([level] * layout.get_num_chips(), layout)
+			temperature = Layout.compute_layout_temperature(layout, [level] * layout.get_num_chips())
 			if (argv.verbose > 1):
 				sys.stderr.write("With power level " + str(level) + " for all chips: temperature = " + str(temperature)+ "..\n");
 			if (temperature<=argv.max_allowed_temperature):
@@ -687,7 +684,7 @@ def find_maximum_power_budget_discrete_exhaustive(layout):
        best_distribution = None
        best_distribution_temperature = None
        for distribution in itertools.permutations(power_levels,layout.get_num_chips()):
-           temperature =  compute_layout_temperature(distribution, layout)
+           temperature =  Layout.compute_layout_temperature(layout, distribution)
            if (temperature <= argv.max_allowed_temperature):
                if (best_distribution == None) or (sum(best_distribution) < sum(distribution)):
                    best_distribution = distribution
@@ -711,7 +708,7 @@ def find_maximum_power_budget_discrete_random(layout):
            distribution = []
            for i in xrange(0, layout.get_num_chips()):
                distribution.append(pick_random_element(power_levels))
-           temperature =  compute_layout_temperature(distribution, layout)
+           temperature =  Layout.compute_layout_temperature(layout, distribution)
            if (temperature <= argv.max_allowed_temperature):
                if (best_distribution == None) or (sum(best_distribution) < sum(distribution)):
                    best_distribution = distribution
@@ -754,7 +751,7 @@ def find_maximum_power_budget_discrete_greedy_random(layout):
 
 	       # Compute the temperature
                candidate = [power_levels[x] for x in candidate_index]
-               temperature =  compute_layout_temperature(candidate, layout)
+               temperature =  Layout.compute_layout_temperature(layout, candidate)
                sys.stderr.write("Looking at: " + str(candidate) + " - Temperature = " + str(temperature) + "\n")
 
                # If too hot, nevermind and give up (don't evey try another)
@@ -789,7 +786,7 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
 	   # Initialize the best distribution (that we're looking for)
            best_distribution_index = [0] * layout.get_num_chips() 
            best_distribution = [power_levels[x] for x in best_distribution_index]
-      	   best_temperature =  compute_layout_temperature(best_distribution, layout)
+      	   best_temperature =  Layout.compute_layout_temperature(layout, best_distribution)
                
            while (True):
 	       # Evaluate all possible increases
@@ -806,7 +803,7 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
                		candidate_index[i] += 1
 			power_increase = power_levels[candidate_index[i]] - power_levels[candidate_index[i]-1]
                		candidate = [power_levels[x] for x in candidate_index]
-               		temperature =  compute_layout_temperature(candidate, layout)
+               		temperature =  Layout.compute_layout_temperature(layout, candidate)
 			if (temperature > argv.max_allowed_temperature):
 				pay_off.append(-1.0)
 			else:
@@ -829,7 +826,7 @@ def find_maximum_power_budget_discrete_greedy_not_so_random(layout):
                # Otherwise, great
                best_distribution_index[picked] +=1 
                best_distribution = [power_levels[x] for x in candidate_index]
-               best_distribution_temperature = compute_layout_temperature(best_distribution, layout)
+               best_distribution_temperature = Layout.compute_layout_temperature(layout, best_distribution)
                if (argv.verbose > 1):
                     sys.stderr.write("New temperature = " + str(best_distribution_temperature) + "\n")
            
@@ -1320,7 +1317,7 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
                     tentative_new_bound[i] += 1
                     # Evaluate the temperate
                     tentative_power_distribution = [power_levels[x] for x in tentative_new_bound]
-                    temperature = compute_layout_temperature(tentative_power_distribution, layout)
+                    temperature = Layout.compute_layout_temperature(layout, tentative_power_distribution)
                     if (temperature <= argv.max_allowed_temperature):
                         lower_bound = tentative_new_bound[:]
                         new_temperature = temperature
