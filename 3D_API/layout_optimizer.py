@@ -7,20 +7,19 @@ import sys
 import subprocess
 import itertools
 
-from glob import glob
+from layout import Chip
+from layout import Layout
 
 import argparse
 from argparse import RawTextHelpFormatter
+
 from math import sqrt
 
 import numpy as np
+
 from scipy.optimize import basinhopping
 from scipy.optimize import fmin_slsqp
 
-import networkx as nx
-
-from layout import Chip
-from layout import Layout
 
 ##############################################################################################
 ### POWER DISTRIBUTION OPTIMIZATION (FOR A GIVEN LAYOUT and POWER BUDGET) 

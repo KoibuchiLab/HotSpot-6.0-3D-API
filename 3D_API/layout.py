@@ -1,22 +1,12 @@
 #!/usr/bin/python
 
-import math
-import random
 import os
 import sys
 import subprocess
-import itertools
 
 from glob import glob
 
-import argparse
-from argparse import RawTextHelpFormatter
 from math import sqrt
-
-import numpy as np
-from scipy.optimize import basinhopping
-from scipy.optimize import fmin_slsqp
-
 import networkx as nx
 
 FLOATING_POINT_EPSILON = 0.000001
