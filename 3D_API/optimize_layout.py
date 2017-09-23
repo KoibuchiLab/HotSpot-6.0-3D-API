@@ -239,85 +239,84 @@ VISUAL PROGRESS OUTPUT:
 	return parser.parse_args()
 
 
-# Parse command-line arguments
-argv = parse_arguments()
+if __name__ == '__main__':
 
-optimize_layout_globals.argv = argv
-abort = optimize_layout_globals.abort
-
-if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
-	abort("Chip '" + argv.chip_name + "' not supported")
-else:
-	argv.chip = Chip(argv.chip_name,  argv.power_benchmark)
-
-if (argv.num_chips < 1):
-	abort("The number of chips (--numchips, -n) should be >0")
-
-if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard"):
-    argv.diameter = argv.num_chips
-
-if (argv.diameter < 1):
-	abort("The diameter (--diameter, -d) should be >0")
-
-if (argv.diameter > argv.num_chips):
-    abort("The diameter (--diameter, -d) should <= the number of chips")
-        
-if (argv.num_levels < 2):
-	abort("The number of levels (--numlevels, -d) should be >1")
-
-if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
-	abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
-
-if (argv.power_distribution_optimization_num_iterations < 0):
-	abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
-
-if (argv.power_distribution_optimization_num_trials < 0):
-	abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
-
-if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
-	abort("Unsupported cooling medium '" + argv.medium + "'")
-
-if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
-        argv.power_distribution_optimization_num_iterations = 1
-
-if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "uniform_discrete"):
-        argv.power_distribution_optimization_num_trials = 1 
-
-if argv.power_budget:
-    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
-        abort("Cannot use discrete power distribution optimization method with a fixed power budget")
-
-# Recompile cell.c with specified grid size
-os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
-
-
-
-
-LayoutOptimizer()
-solution = optimize_layout()
-
-if (solution == None):
-    print "************* OPTIMIZATION FAILED ***********"
-    sys.exit(1)
-
-
-[layout, power_distribution, temperature] = solution
-    
-print "----------- OPTIMIZATION RESULTS -----------------"
-print "Chip = ", layout.get_chip().name
-print "Chip power levels = ", layout.get_chip().get_power_levels()
-print "Layout =", layout.get_chip_positions()
-print "Topology = ", layout.get_topology()
-print "Diameter = ", layout.get_diameter()
-print "Power budget = ", sum(power_distribution)
-print "Power distribution =", power_distribution
-print "Temperature =", temperature
-
-if (argv.draw_in_octave):
-	layout.draw_in_octave()
-
-sys.exit(0)
-
-
-#############################################################################################
-#############################################################################################
+	# Parse command-line arguments
+	argv = parse_arguments()
+	
+	optimize_layout_globals.argv = argv
+	abort = optimize_layout_globals.abort
+	
+	if  not (argv.chip_name in ["e5-2667v4", "phi7250"]):
+		abort("Chip '" + argv.chip_name + "' not supported")
+	else:
+		argv.chip = Chip(argv.chip_name,  argv.power_benchmark)
+	
+	if (argv.num_chips < 1):
+		abort("The number of chips (--numchips, -n) should be >0")
+	
+	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard"):
+	    argv.diameter = argv.num_chips
+	
+	if (argv.diameter < 1):
+		abort("The diameter (--diameter, -d) should be >0")
+	
+	if (argv.diameter > argv.num_chips):
+	    abort("The diameter (--diameter, -d) should <= the number of chips")
+	        
+	if (argv.num_levels < 2):
+		abort("The number of levels (--numlevels, -d) should be >1")
+	
+	if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
+		abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
+	
+	if (argv.power_distribution_optimization_num_iterations < 0):
+		abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
+	
+	if (argv.power_distribution_optimization_num_trials < 0):
+		abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
+	
+	if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
+		abort("Unsupported cooling medium '" + argv.medium + "'")
+	
+	if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
+	        argv.power_distribution_optimization_num_iterations = 1
+	
+	if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "uniform_discrete"):
+	        argv.power_distribution_optimization_num_trials = 1 
+	
+	if argv.power_budget:
+	    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
+	        abort("Cannot use discrete power distribution optimization method with a fixed power budget")
+	
+	# Recompile cell.c with specified grid size
+	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
+	
+	
+	
+	
+	LayoutOptimizer()
+	solution = optimize_layout()
+	
+	if (solution == None):
+	    print "************* OPTIMIZATION FAILED ***********"
+	    sys.exit(1)
+	
+	
+	[layout, power_distribution, temperature] = solution
+	    
+	print "----------- OPTIMIZATION RESULTS -----------------"
+	print "Chip = ", layout.get_chip().name
+	print "Chip power levels = ", layout.get_chip().get_power_levels()
+	print "Layout =", layout.get_chip_positions()
+	print "Topology = ", layout.get_topology()
+	print "Diameter = ", layout.get_diameter()
+	print "Power budget = ", sum(power_distribution)
+	print "Power distribution =", power_distribution
+	print "Temperature =", temperature
+	
+	if (argv.draw_in_octave):
+		layout.draw_in_octave()
+	
+	sys.exit(0)
+	
