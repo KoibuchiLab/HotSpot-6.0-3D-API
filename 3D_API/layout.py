@@ -210,9 +210,9 @@ class Layout(object):
 				continue
 			if (Layout.compute_two_rectangle_overlap_area(
 					[existing_chip[1], existing_chip[2]],
-					[existing_chip[1] + self.chip.x_dimension, existing_chip[2] + self.chip.y_dimension],	
+					[existing_chip[1] + self.__chip.x_dimension, existing_chip[2] + self.__chip.y_dimension],	
 					[x, y],
-					[x + self.chip.x_dimension, y + self.chip.y_dimension]) > 0.0):
+					[x + self.__chip.x_dimension, y + self.__chip.y_dimension]) > 0.0):
 				return False
 		return True
 
