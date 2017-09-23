@@ -36,9 +36,30 @@ class LayoutOptimizer(object):
 		global pick_random_element
 		pick_random_element = optimize_layout_globals.pick_random_element
 
-
 		LayoutBuilder()
 		PowerOptimizer()
+
+
+"""Top-level optimization function"""
+def optimize_layout():
+
+        # Compute continuous solution
+	if (argv.layout_scheme == "stacked"):
+                solution = optimize_layout_stacked()
+	elif (argv.layout_scheme == "rectilinear_straight"):
+                solution = optimize_layout_rectilinear("straight")
+	elif (argv.layout_scheme == "rectilinear_diagonal"):
+		solution =  optimize_layout_rectilinear("diagonal")
+	elif (argv.layout_scheme == "checkerboard"):
+		solution =  optimize_layout_checkerboard()
+	elif (argv.layout_scheme == "linear_random_greedy"):
+		solution =  optimize_layout_linear_random_greedy()
+	elif (argv.layout_scheme == "random_greedy"):
+		solution =  optimize_layout_random_greedy()
+	else:
+		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
+
+        return solution
 
 """Stacked layout optimization"""
 
@@ -250,25 +271,4 @@ def optimize_layout_checkerboard():
 	return [layout, power_distribution, temperature]
 
 
-
-"""Top-level optimization function"""
-def optimize_layout():
-
-        # Compute continuous solution
-	if (argv.layout_scheme == "stacked"):
-                solution = optimize_layout_stacked()
-	elif (argv.layout_scheme == "rectilinear_straight"):
-                solution = optimize_layout_rectilinear("straight")
-	elif (argv.layout_scheme == "rectilinear_diagonal"):
-		solution =  optimize_layout_rectilinear("diagonal")
-	elif (argv.layout_scheme == "checkerboard"):
-		solution =  optimize_layout_checkerboard()
-	elif (argv.layout_scheme == "linear_random_greedy"):
-		solution =  optimize_layout_linear_random_greedy()
-	elif (argv.layout_scheme == "random_greedy"):
-		solution =  optimize_layout_random_greedy()
-	else:
-		abort("Layout scheme '" + argv.layout_scheme + "' is not supported")
-
-        return solution
 
