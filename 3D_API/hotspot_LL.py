@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+import operator
 
 output_grid_size = 64
 args = sys.argv
@@ -63,17 +64,22 @@ read.close
 line_number = 1
 to_sort = []
 for line in input_object:
-	print "line is %s" % line
 	line = line[:-1].split(' ')
-	line.append(str(line_number))
-	line[1] = int(line[1])
-	print "line is now is %s" % line 
+	line.append(line_number)
 	line_number += 1
-	to_sort.append(str(line))
-print "input object is %s" % input_object
-print "to sort object is %s" % to_sort
-to_sort = sorted(to_sort, key=lambda column: column[1])
-print "to sort object sorted is %s" % sorted(to_sort, key=lambda column: column[1])
+	to_sort.append(tuple(line))
+	
+sorted_input = sorted(to_sort, key=operator.itemgetter(1,0))
+
+layer = []
+for tup in sorted_input:
+	layer += [int(tup[1])]
+layer_num =layer[-1]
+"""
+print "new_layer: %s\n" % layer
+print "new_layer_num: %s\n" % layer_num
+print "new_layer count: %s\n" % len(layer)
+
 
 f = open(sorted_file)
 lines2 = f.readlines()#store in array? may not need file
@@ -90,15 +96,19 @@ layer = []
 count = 0
 for line in lines2:
 	data = line[:-1].split(' ')
-#	print "data is %s" % data
-#	print "data[1] is %s" % data[1]
+	print "data is %s\n" % data
+	print "data[1] is %s\n" % data[1]
 	layer += [int(data[1])]
 	count += 1
-#print "layer is %s" % layer
-#print "layer[len(layer)-1] is %s" % layer[len(layer)-1]
-#print "layer[-1] is %s" % layer[-1]
+print "count is : %d \n" % count
+print "sorted input lenght: %d\n" % len(sorted_input)
+print "layer is %s" % layer
+print "layer[len(layer)-1] is %s" % layer[len(layer)-1]
+print "layer[-1] is %s" % layer[-1]
 layer_num = layer[-1]
-#print "layer_num is %s" % layer_num
+print "layer_num is %s" % layer_num
+"""
+
 os.system("make -s; ./cell " + sorted_file + " > null.data")
 os.system("python floor.py " + sorted_file)
 os.system("python ptrace.py " + sorted_file)
@@ -108,7 +118,7 @@ if args[2] == "water_pillow": ##when using water pillow, ignoring the second pat
 	os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
 else:
 	os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
-for i in xrange(0, layer_num):
+for i in xrange(0, layer[-1]):
 	if args[2] == "water_pillow": ##the output would be changed whether the second path is used.  
 		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
 		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
@@ -121,7 +131,7 @@ for i in xrange(0, layer_num):
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
 if(detailed):
 	os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
-	for i in xrange(0, count):	
+	for i in xrange(0, len(layer)):	
 		os.system("python detailed.py detailed.tmp "+ str(i+1))
 		
 
