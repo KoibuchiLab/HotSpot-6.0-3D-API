@@ -235,6 +235,11 @@ VISUAL PROGRESS OUTPUT:
                             dest='draw_in_octave', 
                             help='generates a PDF of the topology using octave')
 
+	parser.add_argument('--draw_in_3D', '-3', action='store_true', 
+                            required=False, default=False,
+                            dest='draw_in_3D', 
+                            help='opens up an interactive matplotlib visualization')
+
 
 	return parser.parse_args()
 
@@ -318,6 +323,8 @@ if __name__ == '__main__':
 	
 	if (argv.draw_in_octave):
 		layout.draw_in_octave()
+	if (argv.draw_in_3D):
+		layout.draw_in_3D()
 	
 	sys.exit(0)
 	

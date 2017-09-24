@@ -217,6 +217,79 @@ class Layout(object):
 		return True
 
 
+	""" Draw in 3D
+	"""
+
+	def draw_in_3D(self):
+
+		import numpy
+		import matplotlib.pyplot as plot
+		from mpl_toolkits.mplot3d import Axes3D
+		import matplotlib.tri as mtri
+		
+		################ plot_slab ###################
+
+		def plot_slab(ax, corner, x_dim, y_dim, z_dim, color):
+        		grid_resolution = z_dim / 4
+
+		
+        		other_corner = [corner[0] + x_dim, corner[1] + y_dim, corner[2] + z_dim]
+
+			num = 10
+	
+        		# Plot horizontal faces
+        		x_range = numpy.linspace(corner[0], other_corner[0], num = num)
+        		y_range = numpy.linspace(corner[1], other_corner[1], num = num)
+		
+        		X, Y = numpy.meshgrid(x_range, y_range)
+        		for z in [corner[2], other_corner[2]]:
+                		Z = numpy.ones_like( X ) * z
+                		ax.plot_wireframe(X, Y, Z, color=color)
+		
+        		# Plot side faces
+        		for y in [corner[1], other_corner[1]]:
+                		x_range = numpy.linspace(corner[0], other_corner[0], num = num)
+                		z_range = numpy.linspace(corner[2], other_corner[2], num = num)
+                		X, Z = numpy.meshgrid(x_range, z_range)
+                		Y = numpy.ones_like( 1 ) * y
+                		ax.plot_wireframe(X, Y, Z, color=color)
+		
+        		for x in [corner[0], other_corner[0]]:
+                		y_range = numpy.linspace(corner[1], other_corner[1], num = num)
+                		z_range = numpy.linspace(corner[2], other_corner[2], num = num)
+                		Y, Z = numpy.meshgrid(y_range, z_range)
+                		X = numpy.ones_like( 1 ) * x
+                		ax.plot_wireframe(X, Y, Z, color=color)
+		
+		
+
+		############ END plot_slab ###################
+
+
+		level_height = 0.1
+		chip_height = 0.01
+
+       		fig = plot.figure()
+       		ax = Axes3D(fig)
+
+		
+		max_level = -1
+		for position in self.__chip_positions:
+			xyz = [position[1], position[2], position[0] * level_height]
+			r = random.uniform(0.0, 1.0)
+			g = random.uniform(0.0, 1.0)
+			b = random.uniform(0.0, 1.0)
+			color = (r, g, b)
+			if (max_level == -1) or (max_level < position[0]):
+				max_level = position[0]	
+        		plot_slab(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
+			
+		ax.set_zlim(0, (max_level * 2) * level_height)	
+        	plot.show()
+
+
+
+
 	""" Draw the layout using Octave (really rudimentary)
             Will produce amusing ASCI art
 	""" 
@@ -247,8 +320,13 @@ class Layout(object):
             file.close()
 #            sys.stderr.write("File '" + "/tmp/layout.m" + "' created")
 
-	    os.system("octave --silent --no-window-system /tmp/layout.m");
-            sys.stderr.write("File '" + "/tmp/layout.pdf" + "' created\n")
+	    try:
+	    	os.system("octave --silent --no-window-system /tmp/layout.m");
+	    except e:
+		utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
+		return
+
+            utils.info(0, "File '" + "/tmp/layout.pdf" + "' created")
             return
 
 
