@@ -26,12 +26,11 @@ FLOATING_POINT_EPSILON = 0.000001
 class Chip(object):
 
 	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172],
-                              'phi7250': [0.0315,   0.0205]}
+                              'phi7250': [0.0315,   0.0205], 
+			      'base2': [ 0.013, 0.013]}
 
 	""" Constructor:
 		- name: chip name
-		- x_dimension: width
-		- y_dimension: length	
 		- benchmark_name: name of benchmark for power levels
 	"""
         def __init__(self, name, benchmark_name):
@@ -39,10 +38,24 @@ class Chip(object):
 		self.name = name
 		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
 		self.__power_levels = self.__find_available_power_levels(self.name, benchmark_name)
+		#print "ZIPPED POWER LEVELS = ", self.__power_levels
+		self.__power_levels = sorted(self.__power_levels)
+		
+		utils.info(2, "Chip power levels:")
+		for (power, filename) in self.__power_levels:
+			utils.info(2, "\tPower " + str(power) + "  (" + filename + ")")
 
 	""" Retrieve the chip's available power levels, sorted
 	"""
 	def get_power_levels(self):
+		power_levels = [ x for (x,y) in self.__power_levels ]
+		#print "RETURNING POWER LEVELS: ", power_levels
+		return list(power_levels)
+
+	""" Retrieve the chip's available power levels AND ptrace files, sorted
+	"""
+	def get_power_levels_and_ptrace_files(self):
+		power_levels = [ x for (x,y) in self.__power_levels ]
 		return list(self.__power_levels)
 
 
@@ -52,13 +65,19 @@ class Chip(object):
 	def __find_available_power_levels(chip_name, benchmark_name):
         	
         	power_levels = {}
+		power_level_ptrace_files = {}
 	
-        	benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
+		if (chip_name == "base2"):
+			benchmarks = [""]
+			benchmark_name = ""
+		else:
+        		benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
 	
         	# Get all the power levels
         	for benchmark in benchmarks:
 	
             		power_levels[benchmark] = []
+              		power_level_ptrace_files[benchmark] = []
 		
             		filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
 		
@@ -67,24 +86,33 @@ class Chip(object):
                     		lines = f.readlines()
                     		f.close()
                     		power_levels[benchmark].append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
+                    		power_level_ptrace_files[benchmark].append(filename)
 		
-       			power_levels[benchmark].sort()
 
       		if (benchmark_name in power_levels):
-       			return power_levels[benchmark_name]
+       			return zip(power_levels[benchmark_name], power_level_ptrace_files[benchmark_name])
 	
       		elif (benchmark_name == "overall_max"):
               		lengths = [len(power_levels[x]) for x in power_levels]
               		if (max(lengths) != min(lengths)):
                       		utils.abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
               		maxima = []
+			maxima_ptrace_file = []
               		for i in xrange(0, min(lengths)):
-               			maxima.append(max([power_levels[x][i] for x in power_levels]))
+				max_benchmark = None
+				max_power = None
+				for benchmark in power_levels:
+					power = power_levels[benchmark][i]
+					if (max_power == None) or (max_power < power):
+						max_power = power
+						max_benchmark = benchmark
+               			maxima.append(max_power)
+				maxima_ptrace_file.append(power_level_ptrace_files[max_benchmark][i])
 
-              		return maxima
+              		return zip(maxima, maxima_ptrace_file)
 
       		else:
-              		utils.abort("Unknon benchmark " + benchmark_name + " for computing power levels")
+              		utils.abort("Unknown benchmark " + benchmark_name + " for computing power levels")
  
 ##############################################################################################
 ### LAYOUT CLASS
@@ -378,15 +406,30 @@ class Layout(object):
 	
 		# Create the input file and ptrace_files
 		input_file_name = "/tmp/layout-optimization-tmp.data"
-		ptrace_file_names = []
+		tmp_ptrace_file_names = []
 		input_file = open(input_file_name, 'w')	
 		for i in range(0, layout.get_num_chips()):
-			# Create a line in the input file
-			suffix = "layout-optimization-tmp-" + str(i)
-			input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
-			# Create the (temporary) ptrace file
-			ptrace_file_name = Layout.create_ptrace_file("./PTRACE", layout.get_chip(), suffix, power_distribution[i])
-			ptrace_file_names.append(ptrace_file_name)
+
+			# Determine a ptrace file
+			ptrace_file_name = None
+			for (power, ptrace_file) in layout.get_chip().get_power_levels_and_ptrace_files():
+				if (abs(power - power_distribution[i]) < FLOATING_POINT_EPSILON):
+					# Reuse an existing file
+					ptrace_file_name = ptrace_file
+					tokens = ptrace_file_name.split('-')
+					tokens = tokens[-1].split('.')
+					suffix = tokens[0]
+					input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
+					break
+
+			if (ptrace_file_name == None):  # Couldn't find a good one, so we use a model
+				suffix = "layout-optimization-tmp-" + str(i)
+				input_file.write(layout.get_chip().name + " " + str(layout.get_chip_positions()[i][0]) + " " + str(layout.get_chip_positions()[i][1]) + " " + str(layout.get_chip_positions()[i][2]) + " " + suffix + " " + "0\n")
+				ptrace_file_name = Layout.create_ptrace_file("./PTRACE", layout.get_chip(), suffix, power_distribution[i])
+				utils.info(3, "Created a custom ptrace file since power level is custom...")
+				tmp_ptrace_file_names.append(ptrace_file_name)
+
+
 		input_file.close()
 	
 		# Call hotspot
@@ -410,7 +453,8 @@ class Layout(object):
 		# Remove files
 		try:
 			os.remove(input_file_name)
-			for file_name in ptrace_file_names:
+			# Remove tmp filenames
+			for file_name in tmp_ptrace_file_names:
 				os.remove(file_name)
 		except Exception, e:	
 			sys.stderr.write("Warning: Cannot remove some tmp files...\n")
@@ -420,10 +464,16 @@ class Layout(object):
 
 
 	""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
-    	stuff, but it's simpler than trying to come up with a programmatic solution
+    	    stuff, but it's simpler than trying to come up with a programmatic solution. This uses models
+            in case the power is a continuous power that does not correspond to an available power level
+
+            HOWEVER: if we're doing a known power, then it uses the real trace file without any modeling
 	"""
 	@staticmethod
 	def create_ptrace_file(directory, chip, suffix, power):
+
+
+		
 		ptrace_file_name = directory + "/" + chip.name + "-" + suffix + ".ptrace"
 		ptrace_file = open(ptrace_file_name, 'w')
 		
@@ -432,9 +482,29 @@ class Layout(object):
 			ptrace_file.write("NULL0 NULL1 NULL2 NULL3 0_CORE 1_CORE 2_CORE 3_CORE 4_CORE 5_CORE 6_CORE 7_CORE 0_LL 1_LL 2_LL 3_LL 4_LL 5_LL 6_LL 7_LL\n")
 			ptrace_file.write("0 " * 4)
 			ptrace_file.write((str(power_per_core) + " ") * 8)
-			ptrace_file.write("0 " * 8)	# TODO TODO TODO
+			ptrace_file.write("0 " * 8)	# TODO TODO TODO TODO
 			ptrace_file.write("\n")
-	
+
+		elif (chip.name == "base2"):
+			# power_per_core * 4 + power_per_cache * 12 = power
+			# power_per_cache = alpha + power_per_core / beta
+			alpha = 0.57
+			beta = 2.67
+			# ==> 12 * alpha +  12 * power_per_core  / beta  + power_per_core * 4 = power
+			# ==>  power_per_core = (power - 12 * alpha)  / (4 + 12 / beta)
+			# ==>  power_per_cache = alpha + power_per_core / beta
+
+			power_per_core = (power - 12 * alpha)  / (4 + 12 / beta)
+			power_per_cache = alpha + power_per_core / beta
+
+			print "POWER = ", power
+			print "CREATED POWER = ", 12 * power_per_cache + 4 * power_per_core
+
+			ptrace_file.write("L2C0 L2C1 L2C2 L2C3 L2C4 L2C5 L2C6 L2C7 L2C8 L2C9 L2C10 L2C11 CORE0 CORE1 CORE2 CORE3\n")
+			ptrace_file.write((str(power_per_cache)+" ") * 12)
+			ptrace_file.write((str(power_per_core) + " ") * 4)
+			ptrace_file.write("\n")
+
 		elif (chip.name == "phi7250"):
 			power_per_core = power / (2.0 * 42.0)
 			ptrace_file.write("EDGE_0 EDGE_1 EDGE_2 EDGE_3 0_NULL_0 0_NULL_1 0_CORE_0 0_CORE_1 1_NULL_0 1_NULL_1 1_CORE_0 1_CORE_1 2_NULL_0 2_NULL_1 2_CORE_0 2_CORE_1 3_NULL_0 3_NULL_1 3_CORE_0 3_CORE_1 4_NULL_0 4_NULL_1 4_CORE_0 4_CORE_1 5_NULL_0 5_NULL_1 5_CORE_0 5_CORE_1 6_NULL_0 6_NULL_1 6_CORE_0 6_CORE_1 7_NULL_0 7_NULL_1 7_CORE_0 7_CORE_1 8_NULL_0 8_NULL_1 8_CORE_0 8_CORE_1 9_NULL_0 9_NULL_1 9_CORE_0 9_CORE_1 10_NULL_0 10_NULL_1 10_CORE_0 10_CORE_1 11_NULL_0 11_NULL_1 11_CORE_0 11_CORE_1 12_NULL_0 12_NULL_1 12_CORE_0 12_CORE_1 13_NULL_0 13_NULL_1 13_CORE_0 13_CORE_1 14_NULL_0 14_NULL_1 14_CORE_0 14_CORE_1 15_NULL_0 15_NULL_1 15_CORE_0 15_CORE_1 16_NULL_0 16_NULL_1 16_CORE_0 16_CORE_1 17_NULL_0 17_NULL_1 17_CORE_0 17_CORE_1 18_NULL_0 18_NULL_1 18_CORE_0 18_CORE_1 19_NULL_0 19_NULL_1 19_CORE_0 19_CORE_1 20_NULL_0 20_NULL_1 20_CORE_0 20_CORE_1 21_NULL_0 21_NULL_1 21_CORE_0 21_CORE_1 22_NULL_0 22_NULL_1 22_CORE_0 22_CORE_1 23_NULL_0 23_NULL_1 23_CORE_0 23_CORE_1 24_NULL_0 24_NULL_1 24_CORE_0 24_CORE_1 25_NULL_0 25_NULL_1 25_CORE_0 25_CORE_1 26_NULL_0 26_NULL_1 26_CORE_0 26_CORE_1 27_NULL_0 27_NULL_1 27_CORE_0 27_CORE_1 28_NULL_0 28_NULL_1 28_CORE_0 28_CORE_1 29_NULL_0 29_NULL_1 29_CORE_0 29_CORE_1 30_NULL_0 30_NULL_1 30_CORE_0 30_CORE_1 31_NULL_0 31_NULL_1 31_CORE_0 31_CORE_1 32_NULL_0 32_NULL_1 32_CORE_0 32_CORE_1 33_NULL_0 33_NULL_1 33_CORE_0 33_CORE_1 34_NULL_0 34_NULL_1 34_CORE_0 34_CORE_1 35_NULL_0 35_NULL_1 35_CORE_0 35_CORE_1 36_NULL_0 36_NULL_1 36_CORE_0 36_CORE_1 37_NULL_0 37_NULL_1 37_CORE_0 37_CORE_1 38_NULL_0 38_NULL_1 38_CORE_0 38_CORE_1 39_NULL_0 39_NULL_1 39_CORE_0 39_CORE_1 40_NULL_0 40_NULL_1 40_CORE_0 40_CORE_1 41_NULL_0 41_NULL_1 41_CORE_0 41_CORE_1\n")
