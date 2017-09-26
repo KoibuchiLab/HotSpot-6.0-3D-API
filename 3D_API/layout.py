@@ -626,8 +626,7 @@ class LayoutBuilder(object):
         	positions = []
 	
         	if (utils.argv.num_levels < utils.argv.num_chips):
-                	utils.abort("Not enough levels to build a stacked layout with " + \
-                        	str(utils.argv.num_chips) + " chips")
+                	utils.info(0, "Warning: num_levels command-line argument ignored when building a stacked layout")
 	
         	for level in xrange(1, utils.argv.num_chips+1):
                 	positions.append([level, 0.0, 0.0])
@@ -641,6 +640,9 @@ class LayoutBuilder(object):
 
         	positions = []
 	
+        	if (utils.argv.num_levels < utils.argv.num_chips):
+                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
+
         	current_level = 1
         	level_direction = 1
         	current_x_position = 0.0
@@ -664,6 +666,9 @@ class LayoutBuilder(object):
 	def compute_rectilinear_diagonal_layout():
 	
         	positions = []
+
+        	if (utils.argv.num_levels < utils.argv.num_chips):
+                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
 	
         	current_level = 1
         	level_direction = 1
@@ -690,7 +695,7 @@ class LayoutBuilder(object):
 	        positions = []
 	
 	        if (utils.argv.num_levels != 2):
-	                utils.abort("A checkerboard layout can only be built for 2 levels")
+	                utils.info(0, "Warning: num_levels command-line argument ignored when building a 2-level checkboard layout")
 	        if (utils.argv.overlap > 0.25):
 	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 	
