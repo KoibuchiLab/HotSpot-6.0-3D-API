@@ -313,12 +313,18 @@ if __name__ == '__main__':
 	    
 	print "----------- OPTIMIZATION RESULTS -----------------"
 	print "Chip = ", layout.get_chip().name
-	print "Chip power levels = ", layout.get_chip().get_power_levels()
+	print "Chip frequencies and power levels = ", [(f, float("%.4f" % power)) for (f, power) in layout.get_chip().get_frequencies_and_power_levels()]
 	print "Layout =", layout.get_chip_positions()
 	print "Topology = ", layout.get_topology()
 	print "Diameter = ", layout.get_diameter()
-	print "Power budget = ", sum(power_distribution)
-	print "Power distribution =", power_distribution
+	print "Power budget = ", float("%.4f" % sum(power_distribution))
+	print "Power distribution =", [float("%.4f" % p) for p in power_distribution]
+	frequency_distribution = []
+	for p in power_distribution:
+		for (freq, power) in argv.chip.get_frequencies_and_power_levels():
+			if (abs(power - p) < 0.0001):
+				frequency_distribution.append(freq)
+	print "Frequency distribution =", frequency_distribution
 	print "Temperature =", temperature
 	
 	if (argv.draw_in_octave):

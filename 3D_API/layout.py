@@ -38,26 +38,29 @@ class Chip(object):
 		self.name = name
 		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
 		self.__power_levels = self.__find_available_power_levels(self.name, benchmark_name)
-		#print "ZIPPED POWER LEVELS = ", self.__power_levels
 		self.__power_levels = sorted(self.__power_levels)
 		
 		utils.info(2, "Chip power levels:")
-		for (power, filename) in self.__power_levels:
-			utils.info(2, "\tPower " + str(power) + "  (" + filename + ")")
+		for (frequency, power, filename) in self.__power_levels:
+			utils.info(2, "\tFrequency: " + str(frequency) + "\tPower: " + str( '%.4f' % power) + "\t(" + filename + ")")
 
 	""" Retrieve the chip's available power levels, sorted
 	"""
 	def get_power_levels(self):
-		power_levels = [ x for (x,y) in self.__power_levels ]
-		#print "RETURNING POWER LEVELS: ", power_levels
+		power_levels = [ y for (x,y,z) in self.__power_levels ]
 		return list(power_levels)
 
 	""" Retrieve the chip's available power levels AND ptrace files, sorted
 	"""
 	def get_power_levels_and_ptrace_files(self):
-		power_levels = [ x for (x,y) in self.__power_levels ]
-		return list(self.__power_levels)
+		power_levels = [ (x, y) for (f, x, y) in self.__power_levels ]
+		return list(power_levels)
 
+	""" Retrieve the chip's frequencies and power levels
+	"""
+	def get_frequencies_and_power_levels(self):
+		power_levels = [ (f, x) for (f, x, y) in self.__power_levels ]
+		return list(power_levels)
 
 	""" Function to determine the actual power levels for a chip and a benchmark
 	"""
@@ -72,12 +75,13 @@ class Chip(object):
 			benchmark_name = ""
 		else:
         		benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
+
+       		power_levels_frequency_file = {}
 	
-        	# Get all the power levels
+        	# Get all the benchmark, frequency, power, file info
         	for benchmark in benchmarks:
 	
-            		power_levels[benchmark] = []
-              		power_level_ptrace_files[benchmark] = []
+            		power_levels_frequency_file[benchmark] = []
 		
             		filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
 		
@@ -85,31 +89,40 @@ class Chip(object):
                     		f = open(filename, "r")
                     		lines = f.readlines()
                     		f.close()
-                    		power_levels[benchmark].append(sum([float(x) for x in lines[1].rstrip().split(" ")]))
-                    		power_level_ptrace_files[benchmark].append(filename)
-		
+				sum_power = sum([float(x) for x in lines[1].rstrip().split(" ")])
+				tokens = filename.split('.')
+				tokens = tokens[1].split('-')
+				last_part = tokens[-1]	
+				
+				from string import ascii_letters
+				last_part = last_part.replace(' ', '')
+				for i in ascii_letters:
+    					last_part = last_part.replace(i, '')
+				frequency = float(last_part)
+				power_levels_frequency_file[benchmark].append((frequency, sum_power, filename))
 
-      		if (benchmark_name in power_levels):
-       			return zip(power_levels[benchmark_name], power_level_ptrace_files[benchmark_name])
+			power_levels_frequency_file[benchmark] = sorted(power_levels_frequency_file[benchmark])
+
+		# Select the relevant data
+      		if (benchmark_name in benchmarks):
+       			return power_levels_frequency_file[benchmark]
 	
-      		elif (benchmark_name == "overall_max"):
-              		lengths = [len(power_levels[x]) for x in power_levels]
+      		elif (benchmark_name == "overall_max"):  # Do the "max" stuff
+              		lengths = [len(power_levels_frequency_file[x]) for x in power_levels_frequency_file]
               		if (max(lengths) != min(lengths)):
                       		utils.abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
-              		maxima = []
-			maxima_ptrace_file = []
+			maxima_power_levels_frequency_file = []
               		for i in xrange(0, min(lengths)):
 				max_benchmark = None
 				max_power = None
-				for benchmark in power_levels:
-					power = power_levels[benchmark][i]
-					if (max_power == None) or (max_power < power):
-						max_power = power
+				for benchmark in benchmarks:
+					(frequency, sum_power, filename) = power_levels_frequency_file[benchmark][i]
+					if (max_power == None) or (max_power < sum_power):
+						max_power = sum_power
 						max_benchmark = benchmark
-               			maxima.append(max_power)
-				maxima_ptrace_file.append(power_level_ptrace_files[max_benchmark][i])
+				maxima_power_levels_frequency_file.append(power_levels_frequency_file[max_benchmark][i])
 
-              		return zip(maxima, maxima_ptrace_file)
+              		return maxima_power_levels_frequency_file
 
       		else:
               		utils.abort("Unknown benchmark " + benchmark_name + " for computing power levels")
