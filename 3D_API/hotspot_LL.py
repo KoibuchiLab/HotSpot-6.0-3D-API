@@ -109,8 +109,10 @@ layer_num = layer[-1]
 print "layer_num is %s" % layer_num
 """
 
-os.system("make -s; ./cell " + sorted_file + " > null.data")
-os.system("python floor.py " + sorted_file)
+os.system("make -s; ./cell " + sorted_file + " > null.data") #make called before running per README, cell seg faults
+#os.system("python floor.py " + sorted_file) #null.data called in here
+from floor_LL import floor
+floor(sorted_input)
 os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
 os.system("python config.py " + sorted_file + " " + str(material))
