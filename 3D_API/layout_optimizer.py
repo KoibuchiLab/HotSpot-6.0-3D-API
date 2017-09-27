@@ -255,7 +255,6 @@ def optimize_layout_checkerboard():
         if result == None:
             return None
 
-	print "RESULT = ", result
 	[power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
