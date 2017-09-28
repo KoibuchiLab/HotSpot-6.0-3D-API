@@ -110,43 +110,26 @@ def optimize_layout_linear_random_greedy():
 		num_random_trials = 0
                 candidate_random_trials = []
 		while (len(candidate_random_trials) < max_num_random_trials):
-			last_chip_position = layout.get_chip_positions()[-1]
-
-			# Pick a random location relative to the last chip
-
-			# pick a random level
-			possible_levels = []
-			if (last_chip_position[0] == 1):
-				possible_levels = [2]
-			elif (last_chip_position[0] == utils.argv.num_levels):
-				possible_levels = [utils.argv.num_levels - 1]
-			else:
-				possible_levels = [last_chip_position[0]-1, last_chip_position[0]+1]
-
-			picked_level = utils.pick_random_element(possible_levels)
-
-                        # pick a random coordinates
-			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], utils.argv.overlap)
-
-                        # Check that the chip can fit
-                        if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
-                            continue
-
+			[picked_level, picked_x, picked_y] = layout.get_random_feasible_neighbor_position(-1)
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
 
                 # Pick a candidate
                 max_power = -1
                 picked_candidate = None
                 for candidate in candidate_random_trials:
+
                         layout.add_new_chip(candidate) 
-                        print layout.get_chip_positions()
+                        #print layout.get_chip_positions()
                         utils.info(1, "- Evaluating candidate " + str(candidate))
                         result = find_maximum_power_budget(layout) 
                         if (result != None):
                             [power_distribution, temperature] = result
-                            if (sum(power_distribution) > max_power):
+                            if (temperature <= utils.argv.max_allowed_temperature) and (sum(power_distribution) > max_power):
                                 picked_candidate = candidate
-                        layout.remove_chip(layout.get_num_chips() - 1)
+			try:
+                        	layout.remove_chip(layout.get_num_chips() - 1)
+			except Exception:
+				utils.abort("Fatal error: Graph shouldn't be disconnected here!!");	
                         
                 # Add the candidate 
                 utils.info(1, "Picked candidate: " + str(candidate))
@@ -169,8 +152,11 @@ def optimize_layout_random_greedy():
 
 	utils.abort("optimize_layout_random_greedy() is not implemented yet")
 
-	# Create an initial layout: TODO This could be anything
-	layout = Layout(utils.argv.chip, [[1, 0.0, 0.0]], utils.argv.medium, utils.argv.overlap)
+	# Create an initial layout: For now, a diagonal rectilinear layout
+
+	# TODO: Add an optional arbument to the function call below since
+        # TODO: we only want to generate a diagonal layout with diameter+1 chips!
+	layout = LayoutBuilder.compute_rectilinear_diagonal_layout()
 
 	max_num_random_trials = 5 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != utils.argv.num_chips):
@@ -180,35 +166,9 @@ def optimize_layout_random_greedy():
 		while (len(candidate_random_trials) < max_num_random_trials):
 
 			# Pick a neighboring chip
-
-			# TODO: Linear	
-			#neighbor_of = layout.get_chip_positions()[-1]
-
-			# Pick a random neighbor
-			neighbor_of = random.uniform(0, layout.get_num_chips()-1)
-
-			# Check whether adding a neighbor to that chip would be ok
-                        # diameter-wise
-			# TODO TODO TODO TODO TODO	
-
-			# pick a random level
-			possible_levels = []
-			if (last_chip_position[0] == 1):
-				possible_levels = [2]
-			elif (last_chip_position[0] == utils.argv.num_levels):
-				possible_levels = [utils.argv.num_levels - 1]
-			else:
-				possible_levels = [last_chip_position[0]-1, last_chip_position[0]+1]
-
-			picked_level = utils.pick_random_element(possible_levels)
-
-                        # pick a random coordinates
-			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([last_chip_position[1], last_chip_position[2]], [layout.get_chip().x_dimension, layout.get_chip().y_dimension], utils.argv.overlap)
-
-                        # Check that the chip can fit
-                        if (not layout.can_new_chip_fit([picked_level, picked_x, picked_y])):
-                            continue
-
+			# TODO: NOT ALWAYS PICK A NEIGHBOR OF THE LAST CHIP
+                        # TODO: I.E., DON'T PASS -1 THERE
+			[picked_level, picked_x, picked_y] = layout.get_random_feasible_neighbor_position(-1)
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
 
                 # Pick a candidate

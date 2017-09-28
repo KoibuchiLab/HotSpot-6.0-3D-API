@@ -206,6 +206,7 @@ class Layout(object):
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 	"""
 	def add_new_chip(self, new_chip):
+
 		if not self.can_new_chip_fit(new_chip):
 			utils.abort("Cannot add chip")
 
@@ -228,9 +229,20 @@ class Layout(object):
 	def remove_chip(self, index):
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
+
+		# Check that the graph is still connected (by doing a copy)
+		copy = self.__G.copy()
+		copy.remove_node(index);
+		if not nx.is_connected(copy):
+			raise Exception("Graph would become disconnected");
 		
 		# Remove the node in the graph, and thus all edges
 		self.__G.remove_node(index);
+
+		# Check that the graph is still connected
+		if not nx.is_connected(self.__G):
+			raise Exception("Graph would become disconnected");
+
 		# Recompute the diameter
 		self.__diameter = nx.diameter(self.__G)
 
@@ -327,6 +339,7 @@ class Layout(object):
 			
 		ax.set_zlim(0, (max_level * 2) * level_height)	
         	plot.show()
+		
 
 
 
@@ -608,8 +621,34 @@ class Layout(object):
 	         # At this point, we just pick one of the candidates at random
 	         return utils.pick_random_element(candidates)
 	
+	""" Function that returns a feasible, random, neigbhot of specified chip
+		- chip_index
+    	   returns:
+        	- [level, x, y]
+	"""
+	def get_random_feasible_neighbor_position(self, chip_index):
+	
+		chip_position = self.__chip_positions[chip_index]
 
+                # Pick a random location relative to the last chip
 
+		while (True):
+
+                	# pick a random level
+                	possible_levels = []
+                	if (chip_position[0] == 1):
+                        	possible_levels = [2]
+                	elif (chip_position[0] == utils.argv.num_levels):
+                        	possible_levels = [utils.argv.num_levels - 1]
+                	else:
+                        	possible_levels = [chip_position[0]-1, chip_position[0]+1]
+	
+                	picked_level = utils.pick_random_element(possible_levels)
+		
+                	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap)
+
+                	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
+				return [picked_level, picked_x, picked_y];
 
 		
 
