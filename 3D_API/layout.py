@@ -587,7 +587,7 @@ class Layout(object):
 	         [dim_x, dim_y] = rectangle_dimensions
 	
 	         candidates = []
-	
+	         
 	         # Assume for now that the overlap is in the North-East region
 	         # pick an x value
 	         picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
@@ -631,7 +631,7 @@ class Layout(object):
 		chip_position = self.__chip_positions[chip_index]
 
                 # Pick a random location relative to the last chip
-
+		#getout = 0 #program hanging, cant find a valid random overlapping rectangle
 		while (True):
 
                 	# pick a random level
@@ -642,11 +642,11 @@ class Layout(object):
                         	possible_levels = [utils.argv.num_levels - 1]
                 	else:
                         	possible_levels = [chip_position[0]-1, chip_position[0]+1]
-	
+			#utils.info(1,"chip_position %s\n"%chip_position)
                 	picked_level = utils.pick_random_element(possible_levels)
-		
+			#print"picked_level %s\n"%picked_level
                 	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap)
-
+			#getout+=1
                 	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
 				return [picked_level, picked_x, picked_y];
 
