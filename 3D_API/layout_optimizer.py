@@ -153,10 +153,28 @@ def optimize_layout_random_greedy():
 	utils.abort("optimize_layout_random_greedy() is not implemented yet")
 
 	# Create an initial layout: For now, a diagonal rectilinear layout
-
-	# TODO: Add an optional arbument to the function call below since
-        # TODO: we only want to generate a diagonal layout with diameter+1 chips!
 	layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
+
+	# While num_chips != desired num_chips
+	#	while num_valid_candidates != NUM_CANDIDATES
+   	#		pick a random chip in the layout
+   	#		pick a random feasible neigbhor
+   	#		add that neighbor to the layout
+   	#		compute diameter
+   	#		remove chip from the layout	
+   	#		if diameter not too big:
+   	#			add that chip position to the list of valid candidates
+   	#	
+   	#	At this point we have NUM_CANDIDATES candidates
+   	#	for each candidate:
+	#		add candidate
+   	#		Compute power distribution  (if returns None: temperature is too high)
+	#			- returns   power distribution AND temperature
+   	#		remove candidate
+	#	pick the best candidate (highest sum power, breaking ties by temperature)
+	#	add it into the layout for good
+   	#
+
 
 	max_num_random_trials = 5 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != utils.argv.num_chips):
