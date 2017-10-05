@@ -60,7 +60,7 @@ def optimize_layout_stacked():
 
 	utils.info(1, "Constructing a stacked layout")
 
-	layout = LayoutBuilder.compute_stacked_layout(utils.argv.num_chips)
+	layout = LayoutBuilder.compute_stacked_layout()
 
 	result = find_maximum_power_budget(layout)
 
@@ -80,9 +80,9 @@ def optimize_layout_rectilinear(mode):
 	utils.info(1, "Constructing a " + mode + " rectilinear layout")
 
 	if (mode == "straight"):
-		layout = LayoutBuilder.compute_rectilinear_straight_layout(utils.argv.num_chips)
+		layout = LayoutBuilder.compute_rectilinear_straight_layout()
 	elif (mode == "diagonal"):
-		layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.num_chips)
+		layout = LayoutBuilder.compute_rectilinear_diagonal_layout()
 	else:
 		utils.abort("Unknown rectilinear layout mode '" + mode + "'")
 
@@ -156,7 +156,7 @@ def optimize_layout_random_greedy():
 
 	# TODO: Add an optional arbument to the function call below since
         # TODO: we only want to generate a diagonal layout with diameter+1 chips!
-	layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
+	layout = LayoutBuilder.compute_rectilinear_diagonal_layout()
 
 	max_num_random_trials = 3 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != utils.argv.num_chips):
@@ -220,7 +220,7 @@ def optimize_layout_checkerboard():
 		sys.stderr.write("o")
 	utils.info(1, "Constructing a checkerboard layout")
 
-	layout = LayoutBuilder.compute_checkerboard_layout(utils.argv.num_chips)
+	layout = LayoutBuilder.compute_checkerboard_layout()
 
 	result = find_maximum_power_budget(layout)
 

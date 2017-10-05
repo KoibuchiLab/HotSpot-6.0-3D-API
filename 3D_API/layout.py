@@ -660,14 +660,14 @@ class LayoutBuilder(object):
 	""" Function to compute a stacked layout
 	"""
 	@staticmethod
-	def compute_stacked_layout(num_chips):
+	def compute_stacked_layout():
 
         	positions = []
 	
         	if (utils.argv.num_levels < utils.argv.num_chips):
                 	utils.info(0, "Warning: num_levels command-line argument ignored when building a stacked layout")
 	
-        	for level in xrange(1, num_chips+1):
+        	for level in xrange(1, utils.argv.num_chips+1):
                 	positions.append([level, 0.0, 0.0])
 	
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
@@ -675,7 +675,7 @@ class LayoutBuilder(object):
 	"""Function to compute a straight linear layout
 	"""
 	@staticmethod
-	def compute_rectilinear_straight_layout(num_chips):
+	def compute_rectilinear_straight_layout():
 
         	positions = []
 	
@@ -686,7 +686,7 @@ class LayoutBuilder(object):
         	level_direction = 1
         	current_x_position = 0.0
         	current_y_position = 0.0
-        	for i in xrange(0, num_chips):
+        	for i in xrange(0, utils.argv.num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction
                 	if (current_level > utils.argv.num_levels):
@@ -702,7 +702,7 @@ class LayoutBuilder(object):
 	"""Function to compute a diagonal linear layout
 	"""
 	@staticmethod
-	def compute_rectilinear_diagonal_layout(num_chips):
+	def compute_rectilinear_diagonal_layout():
 	
         	positions = []
 
@@ -713,7 +713,7 @@ class LayoutBuilder(object):
         	level_direction = 1
         	current_x_position = 0.0
         	current_y_position = 0.0
-        	for i in xrange(0, num_chips):
+        	for i in xrange(0, utils.argv.num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction
                 	if (current_level > utils.argv.num_levels):
@@ -729,7 +729,7 @@ class LayoutBuilder(object):
 
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
-	def compute_checkerboard_layout(num_chips):
+	def compute_checkerboard_layout():
 	
 	        positions = []
 	
@@ -754,17 +754,17 @@ class LayoutBuilder(object):
 	        y_overlap = alpha * utils.argv.chip.y_dimension
 	
 	        # Create level 1
-	        for x in xrange(0,num_chips):
-	            for y in xrange(0,num_chips):
+	        for x in xrange(0,utils.argv.num_chips):
+	            for y in xrange(0,utils.argv.num_chips):
 	                positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
 	
 	        # Create level 2
-	        for x in xrange(0,num_chips):
-	            for y in xrange(0,num_chips):
+	        for x in xrange(0,utils.argv.num_chips):
+	            for y in xrange(0,utils.argv.num_chips):
 	                positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.
 	y_dimension - 2 * y_overlap)])
 	
-	        while(len(positions) > num_chips):
+	        while(len(positions) > utils.argv.num_chips):
 	            max_x = max([x for [l,x,y] in positions])
 	            max_y = max([y for [l,x,y] in positions])
 	            if (max_x > max_y):
