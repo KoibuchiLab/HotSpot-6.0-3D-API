@@ -60,7 +60,7 @@ def optimize_layout_stacked():
 
 	utils.info(1, "Constructing a stacked layout")
 
-	layout = LayoutBuilder.compute_stacked_layout()
+	layout = LayoutBuilder.compute_stacked_layout(utils.argv.num_chips)
 
 	result = find_maximum_power_budget(layout)
 
@@ -80,9 +80,9 @@ def optimize_layout_rectilinear(mode):
 	utils.info(1, "Constructing a " + mode + " rectilinear layout")
 
 	if (mode == "straight"):
-		layout = LayoutBuilder.compute_rectilinear_straight_layout()
+		layout = LayoutBuilder.compute_rectilinear_straight_layout(utils.argv.num_chips)
 	elif (mode == "diagonal"):
-		layout = LayoutBuilder.compute_rectilinear_diagonal_layout()
+		layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.num_chips)
 	else:
 		utils.abort("Unknown rectilinear layout mode '" + mode + "'")
 
@@ -176,7 +176,7 @@ def optimize_layout_random_greedy():
    	#
 
 
-	max_num_random_trials = 3 # TODO: Don't hardcode this
+	max_num_random_trials = 20 # TODO: Don't hardcode this
 	while (layout.get_num_chips() != utils.argv.num_chips):
                 utils.info(1, "* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 		num_random_trials = 0
@@ -190,19 +190,26 @@ def optimize_layout_random_greedy():
 			#[picked_level, picked_x, picked_y] = layout.get_random_feasible_neighbor_position(-1)
 			#print"current diameter is %s\n"%layout.get_diameter()
 			#print"num chips is %s\n"%layout.get_num_chips()
-			random_chip = int(random.randint(0, int(layout.get_num_chips()-1))) # cant add to two ends w/o violating diameter
+			random_chip = utils.pick_random_element(range(0, layout.get_num_chips())) 
+			# cant add to two ends w/o violating diameter
 			#print"layout contains %s chips\n"% layout.get_num_chips()
 			#random_chip = utils.pick_random_element(layout.get_chip_positions())
 			#print"chip positions are %s\n"%layout.get_chip_positions()
 			#print"position 1 is %s\n"%layout.get_chip_positions(1)
 			#print"random chip value is %s\n"%random_chip
-			[picked_level, picked_x, picked_y] = layout.get_random_feasible_neighbor_position(random_chip)
+			result = layout.get_random_feasible_neighbor_position(random_chip)
+			if result == None: 
+				continue
+			[picked_level, picked_x, picked_y] = result
+			utils.info(1, "Candidate random neighbor of chip " + str(random_chip) + " : " + str([picked_level, picked_x, picked_y]))
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
 			#print"candidate_random_trials contains %s\n"%candidate_random_trials
                 # Pick a candidate
+		print "CANDIDATES FOUND = ", candidate_random_trials
                 max_power = -1
                 picked_candidate = None
                 for candidate in candidate_random_trials:
+			print "TENTATIVELY ADDING ", candidate
                         layout.add_new_chip(candidate) 
                         #print layout.get_chip_positions()
                         if(layout.get_diameter()<=utils.argv.diameter):
@@ -211,11 +218,18 @@ def optimize_layout_random_greedy():
                             result = find_maximum_power_budget(layout) 
                             if (result != None):
                                 [power_distribution, temperature] = result
+				utils.info(1, "  - Temperature = " + str(temperature))
                                 if (sum(power_distribution) > max_power):
                                     picked_candidate = candidate
-                            layout.remove_chip(layout.get_num_chips() - 1)
+			else:
+			    utils.info(1, "- Layout diameter is too big")
+
+                        layout.remove_chip(layout.get_num_chips() - 1)
                         
                 # Add the candidate 
+		if picked_candidate == None:
+			utils.abort("Could not find a candidate that met the temperature constraint")
+
                 utils.info(1, "Picked candidate: " + str(candidate))
                 layout.add_new_chip(picked_candidate) 
 
@@ -238,7 +252,7 @@ def optimize_layout_checkerboard():
 		sys.stderr.write("o")
 	utils.info(1, "Constructing a checkerboard layout")
 
-	layout = LayoutBuilder.compute_checkerboard_layout()
+	layout = LayoutBuilder.compute_checkerboard_layout(utils.argv.num_chips)
 
 	result = find_maximum_power_budget(layout)
 
