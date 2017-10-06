@@ -138,6 +138,8 @@ def floor(sorted_input, null_data):
 
 	for i in xrange(1, layer_num):
 		os.system("touch test" + str(i) + ".flp") #usd in lcf.py
+		file_name = "ltest" + str(i) + ".flp"
+		file = open(file_name,"w")
 		for j in xrange(0, len(chip_layer)):
 		# create file called "test"+i.flp, Open it and fill it with contents below
 			if chip_layer[j] == i:
@@ -157,7 +159,7 @@ def floor(sorted_input, null_data):
 		for k in xrange(0, len(null_layer)):
 			if null_layer[k] == i:
 				os.system("echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp ")
-
+				print "echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp "
 
 		 
 			
