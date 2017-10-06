@@ -149,12 +149,17 @@ class Layout(object):
 		self.__chip_positions = chip_positions
 		self.__overlap = overlap
 
+		self.generate_topology_graph()
+
+	""" Genreate a Networkx graph based on chip positions
+	"""
+	def generate_topology_graph(self):
 		#  Greate NetworkX graph
 		self.__G = nx.Graph()
-		for i in xrange(0, len(chip_positions)):
+		for i in xrange(0, len(self.__chip_positions)):
 			self.__G.add_node(i)
 
-		for i in xrange(1, len(chip_positions)):
+		for i in xrange(1, len(self.__chip_positions)):
 			for j in xrange(0, i):
 				# Should we add an i-j edge?
 				if self.are_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
@@ -162,6 +167,7 @@ class Layout(object):
 	
 		# Compute the diameter (which we maintain updated)
 		self.__diameter = nx.diameter(self.__G)
+
 
 	""" Get the chip object
 	"""
@@ -204,22 +210,23 @@ class Layout(object):
 	         return True
 
 	""" Add a new chip (position) to the layout, updating the topology accordingly
+		- new_chip_position: position of the new chip
 	"""
-	def add_new_chip(self, new_chip):
+	def add_new_chip(self, new_chip_position):
 
-		if not self.can_new_chip_fit(new_chip):
+		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
 
 		# Add the new chip
-		self.__chip_positions.append(new_chip)
+		self.__chip_positions.append(new_chip_position)
 		# Add a node to the networkX graph
 		new_node_index = len(self.__chip_positions) - 1
 		self.__G.add_node(new_node_index)
 		# Add edges
 		for i in xrange(0, len(self.__chip_positions)-1):
 			possible_neighbor = self.__chip_positions[i]
-			if self.are_neighbors(possible_neighbor, new_chip):
+			if self.are_neighbors(possible_neighbor, new_chip_position):
 				self.__G.add_edge(i, new_node_index)
 
 		# Recompute the diameter
@@ -237,15 +244,8 @@ class Layout(object):
 		if not nx.is_connected(copy):
 			raise Exception("Graph would become disconnected");
 		
-		# Remove the node in the graph, and thus all edges
-		self.__G.remove_node(index);
-
-		# Check that the graph is still connected
-		if not nx.is_connected(self.__G):
-			raise Exception("Graph would become disconnected");
-
-		# Recompute the diameter
-		self.__diameter = nx.diameter(self.__G)
+		# Rebuild the graph from scratch!
+		self.generate_topology_graph()
 
 
 	""" Get the layout's diameter
