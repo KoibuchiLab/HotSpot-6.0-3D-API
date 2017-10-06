@@ -71,6 +71,8 @@ for line in input_object:
 	
 sorted_input = sorted(to_sort, key=operator.itemgetter(1,0))
 
+
+
 layer = []
 for tup in sorted_input:
 	layer += [int(tup[1])]
@@ -109,10 +111,13 @@ layer_num = layer[-1]
 print "layer_num is %s" % layer_num
 """
 
-os.system("make -s; ./cell " + sorted_file + " > null.data") #make called before running per README, cell seg faults
+os.system("make -s; ./cell " + sorted_file + " > null.data") #make called before running per README
 #os.system("python floor.py " + sorted_file) #null.data called in here
+from helper_funcs import *
+null_data = read_file_to_array('null.data')
+#print "null data is "+str(null_data)
 from floor_LL import floor
-floor(sorted_input)
+floor(sorted_input, null_data)
 os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
 os.system("python config.py " + sorted_file + " " + str(material))

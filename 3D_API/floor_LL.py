@@ -16,8 +16,24 @@ base2_y = 0.013
 material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
 material_resistance = [2e-5, 0.0025, 0.25]
+
+"""
+def read_null_data(null_dot_data):
+	f2 = open('null.data')
+	null_data_lines = f2.readlines()
+	f2.close
 	
-def floor(sorted_input):
+	for lines in null_data_lines:
+		data2 = line2[:-1].split(' ')
+		null_layer += [int(data2[0])]
+		name += [str(data2[1])]
+		null_x += [float(data2[2])]
+		null_y += [float(data2[3])]
+		null_x_len += [float(data2[4])]
+		null_y_len += [float(data2[5])]
+"""	
+
+def floor(sorted_input, null_data):
 	"""
 	if (len(sys.argv) != 2):
 		sys.stderr.write("Usage: " + sys.argv[0] + " <input file (.dat)>\n")
@@ -33,11 +49,11 @@ def floor(sorted_input):
 	f = open(input_file)
 	data_lines = f.readlines()
 	f.close
-	"""
+	
 	f2 = open('null.data')
 	null_data_lines = f2.readlines()
 	f2.close
-
+	"""
 	os.system("rm -f test*.flp")
 
 
@@ -100,7 +116,7 @@ def floor(sorted_input):
 
 	null_layer, name, null_x, null_y, null_x_len, null_y_len = [],[],[],[],[],[] 
 
-	for line2 in null_data_lines:
+	for line2 in null_data:
 		data2 = line2[:-1].split(' ')
 		null_layer += [int(data2[0])]
 		name += [str(data2[1])]
@@ -123,15 +139,21 @@ def floor(sorted_input):
 	for i in xrange(1, layer_num):
 		os.system("touch test" + str(i) + ".flp") #usd in lcf.py
 		for j in xrange(0, len(chip_layer)):
+		# create file called "test"+i.flp, Open it and fill it with contents below
 			if chip_layer[j] == i:
 				if rotate[j] == 0: 
 					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+					print"cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  "
+					#print"count is "+str(count[j])+" chipt x is "+str(chip_x[j])+" chip y is "+str(chip_y[j])
 				elif rotate[j] == 90:
-					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +","+str(chip_xlen[j])+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +"," +str(chip_xlen[j])+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+					print "cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,$5+"+str(chip_x[j]) +"," +str(chip_xlen[j])+"-$4-$2+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  "
 				elif rotate[j] == 180:
 					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,"+str(chip_xlen[j])+"-$4-$2+"+str(chip_x[j]) +","+str(chip_ylen[j])+"-$5-$3+"+str(chip_y[j])+"}' >> test" + str(i) + ".flp  ")
+					print "cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,"+str(chip_xlen[j])+"-$4-$2+"+str(chip_x[j]) +","+str(chip_ylen[j])+"-$5-$3+"+str(chip_y[j])+"}' >> test" + str(i) + ".flp  "
 				elif rotate[j] == 270:
 					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(chip_ylen[j])+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
+					print "cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(chip_ylen[j])+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  "
 		for k in xrange(0, len(null_layer)):
 			if null_layer[k] == i:
 				os.system("echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp ")
