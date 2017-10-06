@@ -148,8 +148,11 @@ class Layout(object):
 		self.medium = medium
 		self.__chip_positions = chip_positions
 		self.__overlap = overlap
+		self.__diameter = 0
+		self.__all_pairs_shortest_path_lengths = {}
 
 		self.generate_topology_graph()
+
 
 	""" Genreate a Networkx graph based on chip positions
 	"""
@@ -164,10 +167,15 @@ class Layout(object):
 				# Should we add an i-j edge?
 				if self.are_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
 					self.__G.add_edge(i, j)
+
+		if not nx.is_connected(self.__G):
+			raise Exception("Graph is disconnected");
 	
 		# Compute the diameter (which we maintain updated)
 		self.__diameter = nx.diameter(self.__G)
 
+		# Compute all pairs shortest path lengths
+		self.__all_pairs_shortest_path_lengths = dict(nx.all_pairs_shortest_path_length(self.__G))
 
 	""" Get the chip object
 	"""
@@ -217,20 +225,15 @@ class Layout(object):
 		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
-
 		# Add the new chip
 		self.__chip_positions.append(new_chip_position)
-		# Add a node to the networkX graph
-		new_node_index = len(self.__chip_positions) - 1
-		self.__G.add_node(new_node_index)
-		# Add edges
-		for i in xrange(0, len(self.__chip_positions)-1):
-			possible_neighbor = self.__chip_positions[i]
-			if self.are_neighbors(possible_neighbor, new_chip_position):
-				self.__G.add_edge(i, new_node_index)
 
-		# Recompute the diameter
-		self.__diameter = nx.diameter(self.__G)
+		# Rebuild the graph from scratch!
+		try:	
+			self.generate_topology_graph()
+		except e:
+			raise e
+
 
 	""" Remove a chip (by index) from the layout, updating the topology accordingly
 	"""
@@ -252,6 +255,14 @@ class Layout(object):
 	"""
 	def get_diameter(self):
 		return self.__diameter
+
+	""" Get a chip's longest shortest path over all other chip
+	"""
+	def get_longest_shortest_path_from_chip(self, chip_index):
+		#print "===> ", self.__all_pairs_shortest_path_lengths
+		#print "INDEX = ", chip_index
+		#print "===> ", self.__all_pairs_shortest_path_lengths[chip_index]
+		return max([self.__all_pairs_shortest_path_lengths[chip_index][z] for z in self.__all_pairs_shortest_path_lengths[chip_index]])
 				
 
 	""" Determine whether a new chip (position) is valid (i.e., no collision)

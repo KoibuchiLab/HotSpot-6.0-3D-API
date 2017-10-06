@@ -326,7 +326,7 @@ if __name__ == '__main__':
 				frequency_distribution.append(freq)
 	print "Frequency distribution =", frequency_distribution
 	print "Temperature =", temperature
-	
+
 	if (argv.draw_in_octave):
 		layout.draw_in_octave()
 	if (argv.draw_in_3D):
