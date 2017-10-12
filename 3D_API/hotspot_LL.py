@@ -11,6 +11,7 @@ if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.exit(1)
 
 input_file = args[1]
+print "input file is "+str(input_file)
 sorted_file = 'sorted.data'
 
 if not os.access(input_file, os.R_OK):
@@ -56,6 +57,7 @@ if (len(args) == 5):
 #os.system("rm -f sorted.data")
 #os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
 os.system("cat " + input_file + " | nl | awk '{print $2,$3,$4,$5,$6,$7,$1}' | sort -n -k2 > " +sorted_file)
+#print "cat " + input_file + " | nl | awk '{print $2,$3,$4,$5,$6,$7,$1}' | sort -n -k2 > " +sorted_file
 
 read = open(input_file)
 input_object = read.readlines()
@@ -64,19 +66,20 @@ read.close
 line_number = 1
 to_sort = []
 for line in input_object:
+	#print "input line is "+ str(line)
 	line = line[:-1].split(' ')
+	#print "after line split "+str(line)
 	line.append(line_number)
 	line_number += 1
 	to_sort.append(tuple(line))
 	
 sorted_input = sorted(to_sort, key=operator.itemgetter(1,0))
 
-
-
 layer = []
 for tup in sorted_input:
 	layer += [int(tup[1])]
 layer_num =layer[-1]
+#print "layer[-1] is "+ str(layer[-1])
 """
 print "new_layer: %s\n" % layer
 print "new_layer_num: %s\n" % layer_num
@@ -111,10 +114,11 @@ layer_num = layer[-1]
 print "layer_num is %s" % layer_num
 """
 
-os.system("make -s; ./cell " + sorted_file + " > null.data") #make called before running per README
+#Eos.system("make -s; ./cell_LL " + sorted_file + " > null1.data")
+os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file) #make called before running per README
 #os.system("python floor.py " + sorted_file) #null.data called in here
 from helper_funcs import *
-null_data = read_file_to_array('null.data')
+null_data = read_file_to_array('null_LL.data')
 #print "null data is "+str(null_data)
 from floor_LL import floor
 floor(sorted_input, null_data)
