@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os
 import sys
+import null_data_file
+import floorplan_LL
 
 tulsa_x = 0.02184 #default xeon tulsa chip size 
 tulsa_y = 0.02184 
@@ -137,15 +139,20 @@ def floor(sorted_input, null_data):
 	#def out(s):
 	#	print s
 	#os.system = out
-
+	nulldatall = null_data_file.null_data_file('null.data')
+	floorplan=floorplan_LL.floorplan()
 	for i in xrange(1, layer_num):
+		print "xrange is "+ str(xrange(1, layer_num))
 		os.system("touch test" + str(i) + ".flp") #usd in lcf.py
-		file_name = "ltest" + str(i) + ".flp"
+		file_name = "test" + str(i) + "_LL.flp"
 		file = open(file_name,"w")
 		for j in xrange(0, len(chip_layer)):
 		# create file called "test"+i.flp, Open it and fill it with contents below
 			if chip_layer[j] == i:
 				if rotate[j] == 0: 
+					#file.write('')
+					tmp_floorplan = floorplan.get_floorplan(str(chip_name[j]))
+					print "floorplan going to write "+str(tmp_)
 					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 					#print"cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$2,$3,$4+"+str(chip_x[j]) +",$5+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  "
 					#print"count is "+str(count[j])+" chipt x is "+str(chip_x[j])+" chip y is "+str(chip_y[j])
@@ -158,13 +165,13 @@ def floor(sorted_input, null_data):
 				elif rotate[j] == 270:
 					os.system("cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(chip_ylen[j])+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  ")
 					#print "cat FLOORPLAN/"+str(chip_name[j]) +".flp | awk '{OFMT = \"%.8f\"}{print \""+ str(chip_layer[j])+ "_"  + str(count[j])  + "\"$1,$3,$2,"+str(chip_ylen[j])+"-$5-$3+"+str(chip_x[j]) +",$4+"+str(chip_y[j]) +"}' >> test" + str(i) + ".flp  "
+		
 		for k in xrange(0, len(null_layer)):
 			if null_layer[k] == i:
 				os.system("echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp ")
 				#print "echo " +str(name[k])+" " +str(null_x[k])+" "+ str(null_y[k])+" "+ str(null_x_len[k])+" "+str(null_y_len[k])+" " + str(material_capacity[material])+" "+str(material_resistance[material])+"  >> test"+str(i) + ".flp "
-
 		 
-			
+		file.close()	
 			
 
 
