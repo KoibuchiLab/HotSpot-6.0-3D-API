@@ -34,17 +34,19 @@ class LayoutOptimizer(object):
 def optimize_layout():
 
         # Compute continuous solution
-	if (utils.argv.layout_scheme == "stacked"):
+        layout_scheme = utils.argv.layout_scheme.split(":")[0]
+
+	if (layout_scheme == "stacked"):
                 solution = optimize_layout_stacked()
-	elif (utils.argv.layout_scheme == "rectilinear_straight"):
+	elif (layout_scheme == "rectilinear_straight"):
                 solution = optimize_layout_rectilinear("straight")
-	elif (utils.argv.layout_scheme == "rectilinear_diagonal"):
+	elif (layout_scheme == "rectilinear_diagonal"):
 		solution =  optimize_layout_rectilinear("diagonal")
-	elif (utils.argv.layout_scheme == "checkerboard"):
+	elif (layout_scheme == "checkerboard"):
 		solution =  optimize_layout_checkerboard()
-	elif (utils.argv.layout_scheme == "linear_random_greedy"):
+	elif (layout_scheme == "linear_random_greedy"):
 		solution =  optimize_layout_linear_random_greedy()
-	elif (utils.argv.layout_scheme == "random_greedy"):
+	elif (layout_scheme == "random_greedy"):
 		solution =  optimize_layout_random_greedy()
 	else:
 		utils.abort("Layout scheme '" + utils.argv.layout_scheme + "' is not supported")
@@ -155,6 +157,7 @@ def optimize_layout_random_greedy():
 	# Create an initial layout: For now, a diagonal rectilinear layout
 	layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
 
+
 	# While num_chips != desired num_chips
 	#	while num_valid_candidates != NUM_CANDIDATES
    	#		pick a random chip in the layout
@@ -175,45 +178,55 @@ def optimize_layout_random_greedy():
 	#	add it into the layout for good
    	#
 
+	num_neighbor_candidates = 20 			# Default value
+        max_num_neighbor_candidate_attempts = 1000      # default value
 
-	max_num_random_trials = 20 # TODO: Don't hardcode this
+	if (len(utils.argv.layout_scheme.split(":")) == 2):
+		num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1]);
+
+	if (len(utils.argv.layout_scheme.split(":")) == 3):
+		num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1]);
+		max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2]);
+
 	while (layout.get_num_chips() != utils.argv.num_chips):
-                utils.info(1, "* Generating " + str(max_num_random_trials) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
-		num_random_trials = 0
+
+		# layout.draw_in_3D("layout_figure_" + str(layout.get_num_chips()) + ".pdf")
+
+                utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
+
                 candidate_random_trials = []
-		while (len(candidate_random_trials) < max_num_random_trials):
+		num_attempts = 0
+		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
+			num_attempts += 1
+
 			#print"trial %s\n"%len(candidate_random_trials)
 			#utils.info(1,"layout.chip position is "+layout.chip_positions)
-			# Pick a neighboring chip
-			# TODO: NOT ALWAYS PICK A NEIGHBOR OF THE LAST CHIP
-                        # TODO: I.E., DON'T PASS -1 THERE
-			#[picked_level, picked_x, picked_y] = layout.get_random_feasible_neighbor_position(-1)
 			#print"current diameter is %s\n"%layout.get_diameter()
 			#print"num chips is %s\n"%layout.get_num_chips()
 			random_chip = utils.pick_random_element(range(0, layout.get_num_chips())) 
-			# cant add to two ends w/o violating diameter
-			#print"layout contains %s chips\n"% layout.get_num_chips()
-			#random_chip = utils.pick_random_element(layout.get_chip_positions())
-			#print"chip positions are %s\n"%layout.get_chip_positions()
-			#print"position 1 is %s\n"%layout.get_chip_positions(1)
-			#print"random chip value is %s\n"%random_chip
+			if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
+				#utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
+				continue;
+
 			result = layout.get_random_feasible_neighbor_position(random_chip)
 			if result == None: 
 				continue
+
 			[picked_level, picked_x, picked_y] = result
 			utils.info(1, "Candidate random neighbor of chip " + str(random_chip) + " : " + str([picked_level, picked_x, picked_y]))
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
 			#print"candidate_random_trials contains %s\n"%candidate_random_trials
+
                 # Pick a candidate
-		print "CANDIDATES FOUND = ", candidate_random_trials
+		utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
                 max_power = -1
                 picked_candidate = None
                 for candidate in candidate_random_trials:
-			print "TENTATIVELY ADDING ", candidate
+			print "Tentatively adding candidate ", candidate
                         layout.add_new_chip(candidate) 
                         #print layout.get_chip_positions()
                         if(layout.get_diameter()<=utils.argv.diameter):
-                            utils.info(1, "- Layout diameter is good at value " + str(layout.get_diameter()))
+                            #utils.info(1, "- Layout diameter is good at value " + str(layout.get_diameter()))
                             utils.info(1, "- Evaluating candidate " + str(candidate))
                             result = find_maximum_power_budget(layout) 
                             if (result != None):
@@ -222,7 +235,7 @@ def optimize_layout_random_greedy():
                                 if (sum(power_distribution) > max_power):
                                     picked_candidate = candidate
 			else:
-			    utils.info(1, "- Layout diameter is too big")
+			    utils.info(1, "- Layout diameter is too big (this should never happen here!)")
 
                         layout.remove_chip(layout.get_num_chips() - 1)
                         

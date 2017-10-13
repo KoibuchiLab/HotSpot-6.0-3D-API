@@ -61,9 +61,12 @@ LAYOUT SCHEMES (--layout, -L):
        and chip n+1 is arbitrarily shaped. 
        (-d flag ignored)
 
-  - random_greedy:
+  - random_greedy[:num_neighbor_candidates[:max_num_neighbor_candidate_attempts]]:
 	a greedy randomized search that incrementally adds chips
-        to a starting layout. 
+        to a starting layout. Each iteration, it tries to come up with
+        <num_neighbor_candidates> candidates, and then picks the best one. 
+        It gives up if at an iteration, it cannot come up with the required
+        number of candidates after <max_num_neighbor_candidate_attempts> attempts
 
 POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 
@@ -316,7 +319,9 @@ if __name__ == '__main__':
 	print "Chip frequencies and power levels = ", [(f, float("%.4f" % power)) for (f, power) in layout.get_chip().get_frequencies_and_power_levels()]
 	print "Layout =", layout.get_chip_positions()
 	print "Topology = ", layout.get_topology()
+	print "Number of edges = ", len(layout.get_topology())
 	print "Diameter = ", layout.get_diameter()
+	print "ASPL = ", layout.get_ASPL()
 	print "Power budget = ", float("%.4f" % sum(power_distribution))
 	print "Power distribution =", [float("%.4f" % p) for p in power_distribution]
 	frequency_distribution = []
@@ -330,7 +335,10 @@ if __name__ == '__main__':
 	if (argv.draw_in_octave):
 		layout.draw_in_octave()
 	if (argv.draw_in_3D):
-		layout.draw_in_3D()
+		filename = "layout_" + utils.argv.layout_scheme + "_" + str(utils.argv.num_chips) + ".pdf"
+		layout.draw_in_3D(filename)
+		print "3-D view saved in file " + filename
+
 	
 	sys.exit(0)
 	
