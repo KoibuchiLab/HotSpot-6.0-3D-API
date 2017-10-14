@@ -2,6 +2,11 @@
 import os
 import sys
 import operator
+import input_file
+import null_data_file
+import floorplan_LL
+import floor_LL
+import ptrace_LL
 
 output_grid_size = 64
 args = sys.argv
@@ -10,12 +15,12 @@ if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
 
-input_file = args[1]
-print "input file is "+str(input_file)
+test_file = args[1]
+print "input file is "+test_file
 sorted_file = 'sorted.data'
 
-if not os.access(input_file, os.R_OK):
-	sys.stderr.write("Can't read file '"+input_file+"'\n")
+if not os.access(test_file, os.R_OK):
+	sys.stderr.write("Can't read file '"+test_file+"'\n")
 	sys.exit(1)
 
 if args[2] == "water":
@@ -52,7 +57,7 @@ if (len(args) == 5):
 	else:
 	 	sys.stderr.write("Invalid argument '" + args[3] + args[4]+"'\n")
 		sys.exit(1)
-
+"""
 #os.system("rm -f null.data")
 #os.system("rm -f sorted.data")
 #os.system("cat " + input_file + " | sort -n -k2 > " +sorted_file)
@@ -80,7 +85,7 @@ for tup in sorted_input:
 	layer += [int(tup[1])]
 layer_num =layer[-1]
 #print "layer[-1] is "+ str(layer[-1])
-"""
+
 print "new_layer: %s\n" % layer
 print "new_layer_num: %s\n" % layer_num
 print "new_layer count: %s\n" % len(layer)
@@ -114,14 +119,26 @@ layer_num = layer[-1]
 print "layer_num is %s" % layer_num
 """
 
-#Eos.system("make -s; ./cell_LL " + sorted_file + " > null1.data")
-os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file) #make called before running per README
+input = input_file.input_file(test_file)
+sorted_input = input.get_sorted_file()
+input.sorted_to_file()
+layer = input.get_layer_array()
+
+#os.system("make -s; ./cell_LL " + sorted_file + " > null1.data")
+#os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file) #make called before running per README
+
+null_data = null_data_file.null_data_file('null.data') #dont hardcode name
 #os.system("python floor.py " + sorted_file) #null.data called in here
+"""
 from helper_funcs import *
 null_data = read_file_to_array('null_LL.data')
 #print "null data is "+str(null_data)
 from floor_LL import floor
 floor(sorted_input, null_data)
+"""
+floor_LL.floor(sorted_input, null_data)
+ptrace_LL.ptrace(input, null_data)
+
 os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
 os.system("python config.py " + sorted_file + " " + str(material))

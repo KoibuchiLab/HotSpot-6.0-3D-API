@@ -19,6 +19,27 @@ class null_data_file(object):
 		self.__null_y_len = []
 		self.process_file(null_data)
 		
+	def get_null_data(self):
+		return self.__null_data
+		
+	def get_null_layer(self):
+		return self.__null_layer
+		
+	def get_name(self):
+		return self.__name
+		
+	def get_null_x(self):
+		return self.__null_x
+		
+	def get_null_y(self):
+		return self.__null_y
+		
+	def get_null_x_len(self):
+		return self.__null_x_len
+		
+	def get_null_y_len(self):
+		return self.__null_y_len
+		
 	def process_file(self, null_data):
 		read = open(null_data)
 		null_object = read.readlines()
@@ -34,7 +55,11 @@ class null_data_file(object):
 			self.__null_y += [float(data2[3])]
 			self.__null_x_len += [float(data2[4])]
 			self.__null_y_len += [float(data2[5])]
+			
+	#def write_null_to_test(self, name, null_x, null_y, null_x_len, null_y_len, material_capacity, material_resistance):
+		
 		
 #null_data = null_data_file('null.data')
 #print(null_data.__dict__)
+#print null_data.get_name()[0]
 #print "null_data "+str(input.get_sorted_file())
