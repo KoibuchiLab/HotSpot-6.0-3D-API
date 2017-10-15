@@ -8,6 +8,7 @@ import floorplan_LL
 import floor_LL
 import ptrace_LL
 import lcf_LL
+import config_LL
 
 output_grid_size = 64
 args = sys.argv
@@ -130,23 +131,26 @@ layer = input.get_layer_array()
 
 null_data = null_data_file.null_data_file('null.data') #dont hardcode name
 
-floor_LL.floor(sorted_input, null_data)
+floor_LL.floor(sorted_input, null_data)	#may have to fix to pass whole object
 ptrace_LL.ptrace(input, null_data)
 lcf_LL.lcf(input)
-
+config_LL.config(input, str(material))
 """
 #old calls
 #os.system("python floor.py " + sorted_file) #null.data called in here
 #os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
+os.system("python config.py " + sorted_file + " " + str(material))
 """
 
-os.system("python config.py " + sorted_file + " " + str(material))
+#these call clear file, wont need once we do proper IO
+os.system("rm -f tmp.results")
+os.system("touch tmp.results") 
 
 if args[2] == "water_pillow": ##when using water pillow, ignoring the second path.
-	os.system("../hotspot -f test1_LL.flp -c test.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+	os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
 else:
-	os.system("../hotspot -f test1_LL.flp -c test.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+	os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
 for i in xrange(0, layer[-1]):
 	if args[2] == "water_pillow": ##the output would be changed whether the second path is used.  
 		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")

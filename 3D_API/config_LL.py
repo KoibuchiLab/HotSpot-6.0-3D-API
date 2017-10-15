@@ -31,7 +31,7 @@ FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natur
 NOVEC_H = 180##caution! this value is not correct.  # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
 WATER_PILLOW_H = 5000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
 
-def config(input, material):
+def config(sorted_input, material):
 	
 	if material == "water":
 		H_TRANS = WATER_H
@@ -45,6 +45,8 @@ def config(input, material):
 		H_TRANS = NOVEC_H
 	elif material == "water_pillow":
 		H_TRANS = WATER_PILLOW_H
+		convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area 
+		heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink 
 	else:
 		sys.stderr.write("In config(): Invalid material '" + material + "'\n")
 		sys.exit(1)
@@ -69,7 +71,7 @@ def config(input, material):
 	else:
 		sys.stderr.write("Invalid argument '" + args[2] + "'\n")
 		sys.exit(1)
-	"""
+	
 	input_file = args[1]
 	if not os.access(input_file, os.R_OK):
 		sys.stderr.write("Can't read file '"+input_file+"'\n")
@@ -77,25 +79,29 @@ def config(input, material):
 
 
 	f = open(input_file)
-	chip_lines = f.readlines()
+	sorted_input = f.readlines()
 	f.close
 
 	os.system("rm -f test.config")
 	os.system("rm -f testTIM.flp")
 
-
+	
+	
 	layer_tmp = 0;
 	count_tmp = 0;
-
-	lay, count, rotate = [], [], []
+	"""
+	
+	#lay, count, rotate = [], [], []
+	lay = sorted_input.get_layer_array()
+	count = sorted_input.get_ptrace_count()	#make sure pcount() called prior or else empty []
+	rotate = sorted_input.get_chip_rotate()
 	chip_x, chip_y = [], []
-	x, y = [], []
-
-	for line in chip_lines:
-		data = line[:-1].split(' ')
-		chip_name = str(data[0])
-		rotate += [int(data[5])]
-
+	#x, y = [], []
+	x = sorted_input.get_chip_x()
+	y = sorted_input.get_chip_y()
+	
+	for line in sorted_input.get_sorted_file():	#fix later
+		chip_name = sorted_input.get_chip_name()
 		if 'tulsa' in chip_name:
 			chip_x += [float (tulsa_x)]
 			chip_y += [float (tulsa_y)]
@@ -117,18 +123,22 @@ def config(input, material):
 		else:
 			sys.stderr('invalid chip name in input file ' + input_file)
 			sys.exit()
-
+		"""
+		#handled in input_file class
+		chip_name = str(data[0])
 		lay += [int(data[1])]
 		x += [float(data[2])]
 		y += [float(data[3])]
-		if int(data[1])== layer_tmp:
+		rotate += [int(data[5])]
+		
+		if int(sorted_input.get_layer_array)== layer_tmp:
 			count_tmp +=1
 			layer_tmp = int(data[1])
 		else:	
 			count_tmp = 1
 			layer_tmp = int(data[1])
 		count += [count_tmp]
-	 
+		"""	
 	num = len(rotate)
 	system_size = -10.0 
 	for i in xrange(0, num):
@@ -152,12 +162,35 @@ def config(input, material):
 	heatsink_height = heatsink_size
 	convec_first = 1 / (H_TRANS * (heatsink_size * heatsink_size + heatsink_size * heatsink_height * heatsink_fin_num)) ##Heat convection can be calculated by 1/(H_TRANS * area). area: bottom area + side area
 	convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size)
-
+	"""
+	#handled above, redundant if check
 	##when water pillow, removing heat sink.
 	if args[2] == "water_pillow":
 		convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area 
 		heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink   
-
+	"""
+	read = open('default.config')
+	default= read.readlines()
+	read.close
+	
+	read = open('TIM.flp')
+	tim= read.readlines()
+	read.close
+	
+	file_name = "test_LL.config"
+	file = open(file_name,"w+")
+	for line in default:
+		#line = line.replace("__CONVEC1__",str(convec_first))
+		line = line.replace("__SPREAD__",str(heat_spread_size))
+		line = line.replace("__SINK__",str(heatsink_size))
+		line = line.replace("__THICKNESS__",str(heatsink_thickness))
+		line = line.replace("__OUTPUT_GRID_SIZE__",str(output_grid_size))
+		line = line.replace("__CONVEC1__",str(convec_first))
+		line = line.replace("__CONVEC2__",str(convec_second))
+		
+		file.write(line)	#move out of loop
+	file.close()
+	"""
 	os.system("cat default.config |\
 			   sed s/__SPREAD__/"+str(heat_spread_size)+"/ |\
 			   sed s/__SINK__/"+str(heatsink_size)+"/ |\
@@ -165,12 +198,19 @@ def config(input, material):
 			   sed s/__OUTPUT_GRID_SIZE__/"+str(output_grid_size)+"/ |\
 			   sed s/__CONVEC1__/"+str(convec_first)+"/ |\
 			   sed s/__CONVEC2__/"+str(convec_second)+"/ > test.config")
-
+	"""
+	file_name2 = "testTIM_LL.flp"
+	file2 = open(file_name2,"w+")
+	for line2 in tim:
+		line2 = line2.replace("__TIMSIZE__",str(system_size))
+		file2.write(line2)	#move out of loop?
+	file2.close()
+	"""
 	os.system("cat TIM.flp |\
 			   sed s/__TIMSIZE__/"+str(system_size)+"/ |\
-			   sed s/__TIMSIZE__/"+str(system_size)+"/  > testTIM.flp")
-
-
+			   sed s/__TIMSIZE__/"+str(system_size)+"/  > testTIM.flp")  # same call sed?
+	"""
+	
 		 
 
 

@@ -47,7 +47,7 @@ def lcf(input):
 		os.system("echo  \"testTIM.flp\n\"  >> test.lcf")
 		"""
 	
-	file = open("test_LL.lcf","w")
+	file = open("test_LL.lcf","w+")
 	file.write(to_write)
 	file.close
 	

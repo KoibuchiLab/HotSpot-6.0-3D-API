@@ -118,7 +118,7 @@ def ptrace(input, null_data):
 	#append string2 to end of string1 and add newline after both trings thren write
 	"""
 	string1+=("\n"+string2+"\n")
-	file = open("test_LL.ptrace","w")
+	file = open("test_LL.ptrace","w+")
 	file.write(string1)
 	file.close
 		 

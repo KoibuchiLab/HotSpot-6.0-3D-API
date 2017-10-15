@@ -148,7 +148,7 @@ def floor(sorted_input, null_data):
 		#print "xrange is "+ str(xrange(1, layer_num))
 		os.system("touch test" + str(i) + ".flp") #usd in lcf.py
 		file_name = "test" + str(i) + "_LL.flp"
-		file = open(file_name,"w")
+		file = open(file_name,"w+")
 		for j in xrange(0, len(chip_layer)):
 		# create file called "test"+i.flp, Open it and fill it with contents below
 			if chip_layer[j] == i:

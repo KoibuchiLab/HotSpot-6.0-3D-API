@@ -50,7 +50,7 @@ class input_file(object):
 		return self.__chip_freq
 		
 	def get_chip_rotate(self):
-		return self.__chip_rotat
+		return self.__chip_rotate
 		
 	def get_chip_name(self):
 		return self.__chip_name
@@ -94,7 +94,7 @@ class input_file(object):
 		
 	def sorted_to_file(self):
 		file_name = "sorted_LL.data"
-		file = open(file_name,"w")
+		file = open(file_name,"w+")
 		to_write = ""
 		for tup in self.__sorted_input:
 			#s = str(tup).strip(",")
