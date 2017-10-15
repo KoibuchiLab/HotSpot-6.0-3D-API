@@ -7,6 +7,7 @@ import null_data_file
 import floorplan_LL
 import floor_LL
 import ptrace_LL
+import lcf_LL
 
 output_grid_size = 64
 args = sys.argv
@@ -16,7 +17,7 @@ if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.exit(1)
 
 test_file = args[1]
-print "input file is "+test_file
+#print "input file is "+test_file
 sorted_file = 'sorted.data'
 
 if not os.access(test_file, os.R_OK):
@@ -128,24 +129,24 @@ layer = input.get_layer_array()
 #os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file) #make called before running per README
 
 null_data = null_data_file.null_data_file('null.data') #dont hardcode name
-#os.system("python floor.py " + sorted_file) #null.data called in here
-"""
-from helper_funcs import *
-null_data = read_file_to_array('null_LL.data')
-#print "null data is "+str(null_data)
-from floor_LL import floor
-floor(sorted_input, null_data)
-"""
+
 floor_LL.floor(sorted_input, null_data)
 ptrace_LL.ptrace(input, null_data)
+lcf_LL.lcf(input)
 
-os.system("python ptrace.py " + sorted_file)
+"""
+#old calls
+#os.system("python floor.py " + sorted_file) #null.data called in here
+#os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
+"""
+
 os.system("python config.py " + sorted_file + " " + str(material))
+
 if args[2] == "water_pillow": ##when using water pillow, ignoring the second path.
-	os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
+	os.system("../hotspot -f test1_LL.flp -c test.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
 else:
-	os.system("../hotspot -f test1.flp -c test.config -p test.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test.lcf")
+	os.system("../hotspot -f test1_LL.flp -c test.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
 for i in xrange(0, layer[-1]):
 	if args[2] == "water_pillow": ##the output would be changed whether the second path is used.  
 		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")

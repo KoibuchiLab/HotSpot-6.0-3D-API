@@ -15,6 +15,8 @@ class input_file(object):
 		self.__sorted_input = []
 		#self.__sorted_input = self.process_file(input_file_name);
 		#print "self. sorted input "+str(self.__sorted_input)
+		
+		#all the following were populated after main sort
 		self.__chip_name = []
 		self.__layer_array = []
 		self.__chip_x = []
