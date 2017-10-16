@@ -10,7 +10,7 @@
 1. Compiling hotspot
 --------------------
 
-sudo apt-get install superlu-dev libsuperlu4		# install the superlu package
+sudo apt-get install libsuperlu-dev libsuperlu4		# install the superlu package
 cd HotSpot-6.0-3D-API					# go to the main hotspot directory
 make SUPERLU=1						# build (enabling superlu)
 cd 3D_API						# go to this directory
