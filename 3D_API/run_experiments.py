@@ -74,7 +74,8 @@ if __name__ == '__main__':
                 for diameter in [result["diameter"]]:
 			print "  * DIAMETER = ", diameter 
 			for num_levels in [2,3,4,5]:
+				print "    * NUM_LEVELS = ", num_levels 
 				result = run_experiment(num_chips,  medium, diameter, "random_greedy:5:200", num_levels, overlap);
-				print "    ", result
+				print "      ", result
 		
 
