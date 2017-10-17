@@ -219,9 +219,9 @@ VISUAL PROGRESS OUTPUT:
                             help='the step size, in Watts, at which the binary search for the maximum\npower budget stops (default = 0.1)')
 
 	parser.add_argument('--max_allowed_temperature', '-a', action='store',
-		            type=float, required=False, default=80,
+		            type=float, required=False, default=58,
                             dest='max_allowed_temperature', metavar='<temperature in Celsius>',
-                            help='the maximum allowed temperature for the layout (default: 80)')
+                            help='the maximum allowed temperature for the layout (default: 58)')
 
 	parser.add_argument('--grid_size', '-g', action='store',
 		            type=int, required=False, default=2048,

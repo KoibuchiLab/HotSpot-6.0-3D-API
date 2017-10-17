@@ -17,7 +17,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	command_line += " --powerdistopt_num_iterations 1"
 	command_line += " --powerdistopt_num_trials 5"
 	command_line += " --overlap " + str(overlap)
-	command_line += " --max_allowed_temperature 68"
+	command_line += " --max_allowed_temperature 58"
 
 
 	results = {}
@@ -64,8 +64,8 @@ if __name__ == '__main__':
 
 
 	medium = "air"
-	overlaps = [1.0/float(x) for x in [9, 8, 7, 6, 5, 4]]
-	#overlaps = [.25]
+	#overlaps = [1.0/float(x) for x in [9, 8, 7, 6, 5, 4]]
+	overlaps = [1.0/9.0]
 
 	for overlap in overlaps:
 		print "* OVERLAP = ", overlap
