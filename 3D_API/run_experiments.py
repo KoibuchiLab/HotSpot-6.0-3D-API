@@ -71,7 +71,7 @@ if __name__ == '__main__':
 		print "* OVERLAP = ", overlap
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 2, overlap);
 		print "    ", result
-		for diameter in [result["diameter"], result["diameter"] + 1]:
+                for diameter in [result["diameter"]]:
 			print "  * DIAMETER = ", diameter 
 			for num_levels in [2,3,4,5]:
 				result = run_experiment(num_chips,  medium, diameter, "random_greedy:5:200", num_levels, overlap);
