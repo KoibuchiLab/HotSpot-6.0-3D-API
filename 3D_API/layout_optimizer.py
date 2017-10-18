@@ -219,23 +219,54 @@ def optimize_layout_random_greedy():
 
                 # Pick a candidate
 		utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
-                max_power = -1
+                picked_candidate_temperature = -1
+                picked_candidate_power = -1
+                picked_candidate_ASPL = -1.0
+                picked_candidate_num_edges = -1
+
                 picked_candidate = None
                 for candidate in candidate_random_trials:
-			print "Tentatively adding candidate ", candidate
+
                         layout.add_new_chip(candidate) 
-                        #print layout.get_chip_positions()
-                        if(layout.get_diameter()<=utils.argv.diameter):
-                            #utils.info(1, "- Layout diameter is good at value " + str(layout.get_diameter()))
-                            utils.info(1, "- Evaluating candidate " + str(candidate))
-                            result = find_maximum_power_budget(layout) 
-                            if (result != None):
-                                [power_distribution, temperature] = result
-				utils.info(1, "  - Temperature = " + str(temperature))
-                                if (sum(power_distribution) > max_power):
-                                    picked_candidate = candidate
-			else:
-			    utils.info(1, "- Layout diameter is too big (this should never happen here!)")
+
+                        utils.info(1, "  - Evaluating candidate " + str(candidate))
+                        if(layout.get_diameter() > utils.argv.diameter):
+			    utils.abort("Layout diameter is too big (this should never happen here!)")
+
+                        result = find_maximum_power_budget(layout) 
+                        if (result != None):
+                            [power_distribution, temperature] = result
+                            power = sum(power_distribution)
+                            ASPL = layout.get_ASPL()
+                            num_edges = layout.get_num_edges()
+                            utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(ASPL) + " edges="+str(num_edges))
+
+                            new_pick = False
+                            if (picked_candidate == None):
+                                utils.info(2, "    ** INITIAL PICK **")
+                                new_pick = True
+                            else:
+                                # this is where we implement candidate selection
+                                if (power > picked_candidate_power):
+                                    utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+                                    new_pick = True
+                                elif (power == picked_candidate_power):
+                                    if (num_edges > picked_candidate_num_edges):
+                                        utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+                                        new_pick = True
+                                    elif (num_edges == picked_candidate_num_edges) and (ASPL < picked_candidate_ASPL):
+                                        utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+                                        new_pick = True
+                                    elif (num_edges == picked_candidate_num_edges) and (ASPL == picked_candidate_ASPL) and (temperature < picked_candidate_temperature):
+                                        utils.info(2, "    ** PICKED DUE TO BETTER TEMPERATURE **")
+                                        new_pick = True
+
+                            if new_pick:
+                                picked_candidate = candidate
+                                picked_candidate_power = power
+                                picked_candidate_temperature = temperature
+                                picked_candidate_ASPL = ASPL
+                                picked_candidate_num_edges = num_edges
 
                         layout.remove_chip(layout.get_num_chips() - 1)
                         
@@ -243,7 +274,7 @@ def optimize_layout_random_greedy():
 		if picked_candidate == None:
 			utils.abort("Could not find a candidate that met the temperature constraint")
 
-                utils.info(1, "Picked candidate: " + str(candidate))
+                utils.info(1, "Picked candidate: " + str(picked_candidate))
                 layout.add_new_chip(picked_candidate) 
 
         # Do the final evaluation (which was already be done, but whatever)

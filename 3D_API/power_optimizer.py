@@ -298,7 +298,7 @@ def find_maximum_power_budget(layout):
 	# No search because the maximum power possible is already below temperature?
         temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips())
         if (temperature <= utils.argv.max_allowed_temperature):
-		utils.info(2, "We can set all chips to the max power level!")
+		#utils.info(2, "We can set all chips to the max power level!")
                 return [[layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), temperature]
 
 	# DISCRETE?

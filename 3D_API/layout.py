@@ -186,6 +186,12 @@ class Layout(object):
 		return len(self.__chip_positions)
 
 
+	""" Get the number of edges in the layout
+	"""
+	def get_num_edges(self):
+		return (self.__G.number_of_edges())
+
+
 	""" Get the list of chip positions
 	"""
 	def get_chip_positions(self):
