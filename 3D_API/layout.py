@@ -463,7 +463,8 @@ class Layout(object):
 	
 	
 		# Create the input file and ptrace_files
-		input_file_name = "/tmp/layout-optimization-tmp.data"
+		random_number = random.randint(0, 100000000)
+		input_file_name = "/tmp/layout-optimization-tmp-" + str(random_number) + ".data"
 		tmp_ptrace_file_names = []
 		input_file = open(input_file_name, 'w')	
 		for i in range(0, layout.get_num_chips()):
@@ -777,8 +778,6 @@ class LayoutBuilder(object):
 	def compute_checkerboard_layout(num_chips):
 	
 	
-	        if (utils.argv.num_levels != 2):
-	                utils.info(0, "Warning: num_levels command-line argument ignored when building a 2-level checkboard layout")
 	        if (utils.argv.overlap > 0.25):
 	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 	
@@ -791,7 +790,7 @@ class LayoutBuilder(object):
 		x_offset = utils.argv.chip.x_dimension - x_overlap
 		y_offset = utils.argv.chip.y_dimension - y_overlap
 	    
-		if (utils.argv.num_chips == 5): 
+		if ((utils.argv.num_chips == 5) and (utils.argv.num_levels == 2)): 
                     # Create level 1
                     positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
@@ -801,7 +800,7 @@ class LayoutBuilder(object):
                     # Create level 2
 	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
 	    
-		elif (utils.argv.num_chips == 9):
+		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 2)):
 		    # Create level 1
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
@@ -815,8 +814,24 @@ class LayoutBuilder(object):
 		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
 		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 
+		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 3)):
 
-		elif (utils.argv.num_chips == 13):
+                    # Create level 1
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+
+                    # Create level 2
+	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
+	
+	            # Create level 3
+                    positions.append([3, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([3, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+
+		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 2)):
 		    # Create level 1
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
@@ -834,9 +849,27 @@ class LayoutBuilder(object):
 		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 		    positions.append([2, 0 + 4 * x_offset, 4 * y_offset])
 
+		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 3)):
+		    # Create level 1
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
+	            # Create level 2
+		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
+		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 
-		elif (utils.argv.num_chips == 21):
+		    # Create level 3
+                    positions.append([3, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([3, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+
+		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 2)):
 		    # Create level 1
                     positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
                     positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
@@ -866,7 +899,7 @@ class LayoutBuilder(object):
 		    positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
 
 
-		else:
+		elif (utils.argv.num_levels == 2):
 
 	            # Rather than do annoying discrete math to compute the layout in an
 	            # incremental fashion, we compute a large layout and then remove
@@ -916,6 +949,8 @@ class LayoutBuilder(object):
 	    
 	                positions.remove([victim_l, victim_x, victim_y])
 	    
+		else:
+	                utils.abort(0, "Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(utils.argv.num_chips) + " chips")
 
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	    
