@@ -369,7 +369,7 @@ class Layout(object):
 		ax.set_zlim(0, (max_level * 2) * level_height)	
 		ax.azim=+0
 		ax.elev=90
-        	plot.show()
+        	#plot.show()
 		fig.savefig(figure_filename, bbox_inches='tight')
 		
 
@@ -832,24 +832,25 @@ class LayoutBuilder(object):
                     positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
 
 		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 2)):
-		    # Create level 1
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+		    # Create level 2
+                    positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
 	            # Create level 2
-		    positions.append([2, 0 + 0 * x_offset, 0 * y_offset])
-		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 0 * x_offset, 4 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
-		    positions.append([2, 0 + 4 * x_offset, 0 * y_offset])
-		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 4 * x_offset, 4 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 4 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 4 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 4 * y_offset])
 
 		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 3)):
+
 		    # Create level 1
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
