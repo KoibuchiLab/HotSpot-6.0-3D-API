@@ -302,7 +302,7 @@ class Layout(object):
 	""" Draw in 3D
 	"""
 
-	def draw_in_3D(self, figure_filename):
+	def draw_in_3D(self, figure_filename, show_plot):
 
 		import numpy
 		import matplotlib.pyplot as plot
@@ -369,17 +369,21 @@ class Layout(object):
 		ax.set_zlim(0, (max_level * 2) * level_height)	
 		ax.azim=+0
 		ax.elev=90
-        	#plot.show()
-		fig.savefig(figure_filename, bbox_inches='tight')
-		
 
+		if (figure_filename):
+			fig.savefig(figure_filename, bbox_inches='tight')
+
+		if show_plot: 
+        		plot.show()
+		
 
 
 
 	""" Draw the layout using Octave (really rudimentary)
             Will produce amusing ASCI art
+		(DEPRECATED)
 	""" 
-        def draw_in_octave(self):
+        def draw_in_octave(self, filename):
             file = open("/tmp/layout.m","w") 
             file.write("figure\n")
             file.write("hold on\n")
@@ -402,9 +406,8 @@ class Layout(object):
                 color = colors[l % len(colors)]
 
                 file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
-            file.write("print /tmp/layout.pdf\n")
+            file.write("print " + filename +"\n")
             file.close()
-#            sys.stderr.write("File '" + "/tmp/layout.m" + "' created")
 
 	    try:
 	    	os.system("octave --silent --no-window-system /tmp/layout.m");
@@ -412,7 +415,7 @@ class Layout(object):
 		utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
 		return
 
-            utils.info(0, "File '" + "/tmp/layout.pdf" + "' created")
+            utils.info(0, "File '" + filename + "' created")
             return
 
 

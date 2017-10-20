@@ -190,7 +190,7 @@ def optimize_layout_random_greedy():
 
 	while (layout.get_num_chips() != utils.argv.num_chips):
 
-		# layout.draw_in_3D("layout_figure_" + str(layout.get_num_chips()) + ".pdf")
+		# layout.draw_in_3D("layout_figure_" + str(layout.get_num_chips()) + ".pdf", False)
 
                 utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 

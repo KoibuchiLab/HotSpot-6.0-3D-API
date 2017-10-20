@@ -233,15 +233,20 @@ VISUAL PROGRESS OUTPUT:
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
 
-	parser.add_argument('--draw_in_octave', '-D', action='store_true', 
-                            required=False, default=False,
-                            dest='draw_in_octave', 
-                            help='generates a PDF of the topology using octave')
+#	parser.add_argument('--draw_in_octave', '-D', action='store', 
+#                            required=False, 
+#                            dest='draw_in_octave', metavar='<PDF file path>',
+#                            help='generates a PDF of the topology using octave')
 
-	parser.add_argument('--draw_in_3D', '-3', action='store_true', 
-                            required=False, default=False,
-                            dest='draw_in_3D', 
+	parser.add_argument('--export_to_PDF', '-e', action='store', 
+                            required=False, 
+                            dest='export_to_PDF', metavar='<PDF file path>',
+                            help='Saves a PDF of the final layout viewed from above')
+	parser.add_argument('--show_in_3D', '-s', action='store_true', 
+                            required=False, 
+                            dest='show_in_3D', 
                             help='opens up an interactive matplotlib visualization')
+
 
 
 	return parser.parse_args()
@@ -333,13 +338,11 @@ if __name__ == '__main__':
 	print "Frequency distribution =", frequency_distribution
 	print "Temperature =", temperature
 
-	if (argv.draw_in_octave):
-		layout.draw_in_octave()
-	if (argv.draw_in_3D):
-		filename = "layout_" + utils.argv.layout_scheme + "_" + str(utils.argv.num_chips) + ".pdf"
-		layout.draw_in_3D(filename)
-		print "3-D view saved in file " + filename
+	if (argv.export_to_PDF):
+		layout.draw_in_3D(utils.argv.export_to_PDF, False)
 
+	if (argv.show_in_3D):
+		layout.draw_in_3D(None, True)
 	
 	sys.exit(0)
 	
