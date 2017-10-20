@@ -26,6 +26,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	results["overlap"] = float(overlap)
 	results["num_chips"] = float(n)
 
+        print "---> ", command_line
 	try:
 		with open(os.devnull, 'w') as devnull:
 			output = subprocess.check_output(command_line, stdin=None, stderr=devnull, shell=True)
@@ -39,6 +40,8 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 		for (output_header, key) in output_headers:
 			if (len(line.split(output_header)) == 2):
 				results[key] = line.split(output_header)[1]
+
+        print "results = ", results
 
 	results["diameter"] = int(results["diameter"])
 	results["outcome"] = "SUCCESS"
@@ -56,11 +59,13 @@ if __name__ == '__main__':
 
 	args = sys.argv
 	
-	if (len(args) != 2):
-        	sys.stderr.write('Usage: ' + args[0] + ' <# of chips>\n');
+	if (len(args) != 4):
+        	sys.stderr.write('Usage: ' + args[0] + ' <# of chips> <# of trials> <max # of trials>\n');
         	sys.exit(1)
 
 	num_chips = int(args[1])
+	num_trials = int(args[2])
+	max_num_trials = int(args[3])
 
 
 	medium = "air"
@@ -71,11 +76,13 @@ if __name__ == '__main__':
 		print "* OVERLAP = ", overlap
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 2, overlap);
 		print "    ", result
+		result = run_experiment(num_chips,  medium, 2, "checkerboard", 3, overlap);
+		print "    ", result
                 for diameter in [result["diameter"]]:
 			print "  * DIAMETER = ", diameter 
 			for num_levels in [2,3,4,5]:
 				print "    * NUM_LEVELS = ", num_levels 
-				result = run_experiment(num_chips,  medium, diameter, "random_greedy:10:200", num_levels, overlap);
+                                result = run_experiment(num_chips,  medium, diameter, "random_greedy:"+str(num_trials)+":"+str(max_num_trials), num_levels, overlap);
 				print "      ", result
 		
 

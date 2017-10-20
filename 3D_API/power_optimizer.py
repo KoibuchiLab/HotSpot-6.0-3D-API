@@ -337,7 +337,7 @@ def find_maximum_power_budget_discrete(layout):
 def find_maximum_power_budget_discrete_uniform(layout):
 		power_levels = layout.get_chip().get_power_levels()
 		best_power_level = None
-		best_distribution_temperature = None
+		guess_temperature = None
 		lower_bound = 0
 		upper_bound = len(power_levels) - 1
 		guess_index = -1
@@ -352,6 +352,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 			if (temperature > utils.argv.max_allowed_temperature): 
 				upper_bound = guess_index
 			else: 	
+                                guess_temperature = temperature
 				lower_bound = guess_index
 
 
@@ -367,7 +368,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 			#else:
 				#break
 				
-		return [[best_power_level] * layout.get_num_chips(), best_distribution_temperature]
+		return [[best_power_level] * layout.get_num_chips(), guess_temperature]
 
 
 """ Discrete exhaustive search 
