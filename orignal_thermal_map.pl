@@ -30,8 +30,8 @@ sub usage () {
 	print("prints an 'SVG' format visual thermal map to stdout\n");
     print("<flp_file>       -- path to the file containing the floorplan (eg: ev6.flp)\n");
     print("<grid_temp_file> -- path to the grid temperatures file (eg: sample.t)\n");
-    print("<rows>           -- no. of rows in the grid (default 64)\n");
-    print("<cols>           -- no. of columns in the grid (default 64)\n");
+    print("<rows>           -- no. of rows in the grid (default 128)\n");
+    print("<cols>           -- no. of columns in the grid (default 128)\n");
     print("<min>            -- min. temperature of the scale (defaults to min. from <grid_temp_file>)\n");
     print("<max>            -- max. temperature of the scale (defaults to max. from <grid_temp_file>)\n");
     exit(1);
@@ -63,7 +63,7 @@ my $min_y=10**10;my $max_y=0;
 my $tot_x;my $tot_y;
 
 #Specify grid row and column here
-my $row=64; my $col=64;
+my $row=128; my $col=128;
 if (@ARGV >= 4) {
 	$row = $ARGV[2];
 	$col = $ARGV[3];
