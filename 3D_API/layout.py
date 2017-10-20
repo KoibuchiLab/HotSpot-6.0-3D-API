@@ -708,9 +708,6 @@ class LayoutBuilder(object):
 
         	positions = []
 	
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a stacked layout")
-	
         	for level in xrange(1, num_chips+1):
                 	positions.append([level, 0.0, 0.0])
 	
@@ -723,9 +720,6 @@ class LayoutBuilder(object):
 
         	positions = []
 	
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
-
         	current_level = 1
         	level_direction = 1
         	current_x_position = 0.0
@@ -749,9 +743,6 @@ class LayoutBuilder(object):
 	def compute_rectilinear_diagonal_layout(num_chips):
 	
         	positions = []
-
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
 	
         	current_level = 1
         	level_direction = 1
