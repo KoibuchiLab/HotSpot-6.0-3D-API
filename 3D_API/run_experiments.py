@@ -80,7 +80,7 @@ if __name__ == '__main__':
 		print "    ", result
                 checkboard_diameter = -1
                 if (result["outcome"] == "SUCCESS"):
-                    checkerboard_diameter = results["diameter"]
+                    checkerboard_diameter = result["diameter"]
 
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 3, overlap);
 		print "    ", result
