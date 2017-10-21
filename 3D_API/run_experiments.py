@@ -26,13 +26,17 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	results["overlap"] = float(overlap)
 	results["num_chips"] = float(n)
 
-        print "---> ", command_line
+        #print "----> ", command_line
+
 	try:
 		with open(os.devnull, 'w') as devnull:
-			output = subprocess.check_output(command_line, stdin=None, stderr=devnull, shell=True)
+			output = subprocess.check_output(command_line, stdin=None, stderr=None, shell=True)
 	except subprocess.CalledProcessError as e:
 		results["outcome"] = "FAILED"
+                print "RETURNIN ", results
 		return results
+
+        print "--> NO EXCEPTION: results=", results
 
 	lines = output.split('\n')
 	output_headers = [("Number of edges = ", "num_edges"), ("Diameter = ", "diameter"), ("ASPL = ", "ASPL"), ("Power budget = ", "power"), ("Temperature = ", "temperature"), ("Frequency distribution = ", "frequencies"), ("Number of levels = ", "num_levels")]
@@ -40,8 +44,6 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 		for (output_header, key) in output_headers:
 			if (len(line.split(output_header)) == 2):
 				results[key] = line.split(output_header)[1]
-
-        print "results = ", results
 
 	results["diameter"] = int(results["diameter"])
 	results["outcome"] = "SUCCESS"
@@ -76,9 +78,20 @@ if __name__ == '__main__':
 		print "* OVERLAP = ", overlap
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 2, overlap);
 		print "    ", result
+                checkboard_diameter = -1
+                if (result["outcome"] == "SUCCESS"):
+                    checkerboard_diameter = results["diameter"]
+
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 3, overlap);
 		print "    ", result
-                for diameter in [result["diameter"]]:
+                if (result["outcome"] == "SUCCESS"):
+                    checkerboard_diameter = max(checkboard_diameter, result["diameter"])
+
+                if (checkerboard_diameter < 0):
+                        print "Checkerboards have failed... not sure what diameter to use"
+                        sys.exit(1)
+
+                for diameter in [checkerboard_diameter]:
 			print "  * DIAMETER = ", diameter 
 			for num_levels in [2,3,4,5]:
 				print "    * NUM_LEVELS = ", num_levels 
