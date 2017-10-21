@@ -893,6 +893,36 @@ class LayoutBuilder(object):
 		    positions.append([2, x_offset + 4 * x_offset, y_offset + 2 * y_offset])
 		    positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
 
+		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 3)):
+
+	            # Create level 1
+		    positions.append([1, 0 + 0 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
+
+                    # Create level 2
+		    positions.append([1, x_offer  + 0 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([1, x_offer  + 1 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([1, x_offer  + 0 * x_offset, y_offset + 1 * y_offset])
+		    positions.append([1, x_offer  + 1 * x_offset, y_offset + 1 * y_offset])
+
+	            # Create level 3
+		    positions.append([3, 0 + 0 * x_offset, 0 + 0 * y_offset])
+		    positions.append([3, 0 + 0 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 0 * x_offset, 0 + 4 * y_offset])
+		    positions.append([3, 0 + 2 * x_offset, 0 + 0 * y_offset])
+		    positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 2 * x_offset, 0 + 4 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 0 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 4 * y_offset])
+
 
 		elif (utils.argv.num_levels == 2):
 
@@ -945,7 +975,7 @@ class LayoutBuilder(object):
 	                positions.remove([victim_l, victim_x, victim_y])
 	    
 		else:
-	                utils.abort(0, "Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(utils.argv.num_chips) + " chips")
+	                utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(utils.argv.num_chips) + " chips")
 
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	    
