@@ -85,7 +85,7 @@ if __name__ == '__main__':
 		result = run_experiment(num_chips,  medium, 2, "checkerboard", 3, overlap);
 		print "    ", result
                 if (result["outcome"] == "SUCCESS"):
-                    checkerboard_diameter = max(checkboard_diameter, result["diameter"])
+                    checkerboard_diameter = min(checkboard_diameter, result["diameter"])
 
                 if (checkerboard_diameter < 0):
                         print "Checkerboards have failed... not sure what diameter to use"
