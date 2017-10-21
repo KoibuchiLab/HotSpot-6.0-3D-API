@@ -908,16 +908,16 @@ class LayoutBuilder(object):
 
                     # Create level 2
 		    positions.append([1, x_offer  + 0 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([1, x_offer  + 1 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([1, x_offer  + 0 * x_offset, y_offset + 1 * y_offset])
-		    positions.append([1, x_offer  + 1 * x_offset, y_offset + 1 * y_offset])
+		    positions.append([1, x_offer  + 2 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([1, x_offer  + 0 * x_offset, y_offset + 2 * y_offset])
+		    positions.append([1, x_offer  + 2 * x_offset, y_offset + 2 * y_offset])
 
 	            # Create level 3
 		    positions.append([3, 0 + 0 * x_offset, 0 + 0 * y_offset])
 		    positions.append([3, 0 + 0 * x_offset, 0 + 2 * y_offset])
 		    positions.append([3, 0 + 0 * x_offset, 0 + 4 * y_offset])
 		    positions.append([3, 0 + 2 * x_offset, 0 + 0 * y_offset])
-		    positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
+		    #positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
 		    positions.append([3, 0 + 2 * x_offset, 0 + 4 * y_offset])
 		    positions.append([3, 0 + 4 * x_offset, 0 + 0 * y_offset])
 		    positions.append([3, 0 + 4 * x_offset, 0 + 2 * y_offset])
