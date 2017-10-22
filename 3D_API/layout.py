@@ -493,9 +493,11 @@ class Layout(object):
 
 
 		input_file.close()
-	
+
 		# Call hotspot
 		command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
+                print "--> ", command_line
+                #layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
@@ -750,8 +752,8 @@ class LayoutBuilder(object):
         	current_level = 1
         	level_direction = 1
 		# HENRI DEBUG
-        	current_x_position = 1
-        	current_y_position = 1
+        	current_x_position = 0
+        	current_y_position = 0
         	for i in xrange(0, num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction

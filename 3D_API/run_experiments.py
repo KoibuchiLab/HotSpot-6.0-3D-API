@@ -26,7 +26,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	results["overlap"] = float(overlap)
 	results["num_chips"] = float(n)
 
-        #print "----> ", command_line
+        print "----> ", command_line
 
 	try:
 		with open(os.devnull, 'w') as devnull:
