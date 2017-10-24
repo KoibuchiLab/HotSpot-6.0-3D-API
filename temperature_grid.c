@@ -254,8 +254,8 @@ void set_bgmap(grid_model_t *model, layer_t *layer)
 	printf("lu:%10.10f ru:%10.10f bu:%10.10f tu:%10.10f\n %d/%d i1:%d j2%d", lu,ru,bu,tu,u, layer->flp->n_units, i1, j1);
         fatal("negative grid cell start index!\n");
 	}
-      if(j2==65)
-	j2=64;
+      if(j2 == model->rows + 1) //totoki added
+		j2 = model->rows;       //
       if((i2 > model->rows) || (j2 > model->cols)){
 	printf("%d %d %d %d",i2,model->rows,j2,model->cols);
         fatal("grid cell end index out of bounds!\n");
