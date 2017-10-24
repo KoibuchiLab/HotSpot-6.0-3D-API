@@ -4,6 +4,12 @@ import sys
 import subprocess 
 import random 
 
+def append_to_file(filename, message):
+    f =open(filename, "a+")
+    f.write(message + "\n")
+    f.close()
+
+
 def run_experiment(n, medium, diameter, scheme, num_levels, overlap): 
 	command_line = "" 
 	command_line += "./optimize_layout.py" 
@@ -26,7 +32,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	results["overlap"] = float(overlap)
 	results["num_chips"] = float(n)
 
-        #print "----> ", command_line
+        print "----> ", command_line
 
 	try:
 		with open(os.devnull, 'w') as devnull:
@@ -35,7 +41,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 		results["outcome"] = "FAILED"
 		return results
 
-        #print "--> NO EXCEPTION: results=", results
+        print "--> results=", results
 
 	lines = output.split('\n')
 	output_headers = [("Number of edges = ", "num_edges"), ("Diameter = ", "diameter"), ("ASPL = ", "ASPL"), ("Power budget = ", "power"), ("Temperature = ", "temperature"), ("Frequency distribution = ", "frequencies"), ("Number of levels = ", "num_levels")]
@@ -59,14 +65,15 @@ if __name__ == '__main__':
 
 	args = sys.argv
 	
-	if (len(args) != 5):
-        	sys.stderr.write('Usage: ' + args[0] + ' <# of chips> <# of heuristic runs> <# of chip addition trials> <max # of chip addition trials before giving up>\n');
+	if (len(args) != 6):
+        	sys.stderr.write('Usage: ' + args[0] + ' <# of chips> <# of heuristic runs> <# of chip addition trials> <max # of chip addition trials before giving up> <output file>\n');
         	sys.exit(1)
 
 	num_chips = int(args[1])
         num_runs = int(args[2])
 	num_trials = int(args[3])
 	max_num_trials = int(args[4])
+        output_file = args[5]
 
 	mediums = ["air", "oil", "water"]
 
@@ -74,30 +81,30 @@ if __name__ == '__main__':
 	#overlaps = [1.0/9.0]
 
         for medium in mediums:
-            print "* MEDIUM = ", medium
+            append_to_file(output_file, "* MEDIUM = " +  medium)
 	    for overlap in overlaps:
-		    print "  * OVERLAP = ", overlap
+		    append_to_file(output_file, "  * OVERLAP = "+ str(overlap))
 		    result = run_experiment(num_chips,  medium, 2, "checkerboard", 2, overlap);
-		    print "   CHECKBOARD-2:", result
+		    append_to_file(output_file, "   CHECKBOARD-2: "+ str(result))
                     checkerboard_diameters = []
                     if (result["outcome"] == "SUCCESS"):
                         checkerboard_diameters.append(result["diameter"])
     
 		    result = run_experiment(num_chips,  medium, 2, "checkerboard", 3, overlap);
-                    print "   CHECKBOARD-3:", result
+                    append_to_file(output_file, "   CHECKBOARD-3: " +  str(result))
                     if (result["outcome"] == "SUCCESS"):
                         checkerboard_diameters.append(result["diameter"])
     
                     if (len(checkerboard_diameters) == 0):
-                            print "Checkerboards have failed... not sure what diameter to use"
+                            append_to_file(output_file, "Checkerboards have failed... not sure what diameter to use")
                             continue
     
                     for diameter in checkerboard_diameters:
-			    print "  * DIAMETER = ", diameter 
+			    append_to_file(output_file, "  * DIAMETER = " + str(diameter))
 			    for num_levels in [2,3,4,5,6]:
-				    print "    * NUM_LEVELS = ", num_levels 
+				    append_to_file(output_file, "    * NUM_LEVELS = "+ str(num_levels))
                                     for iter in xrange(0, num_runs):
                                         result = run_experiment(num_chips,  medium, diameter, "random_greedy:"+str(num_trials)+":"+str(max_num_trials), num_levels, overlap);
-                                        print "      HEURISTIC RUN # ", str(iter), ":", result
+                                        append_to_file(output_file, "      HEURISTIC RUN # ", str(iter), ":" +  str(result))
 		    
 
