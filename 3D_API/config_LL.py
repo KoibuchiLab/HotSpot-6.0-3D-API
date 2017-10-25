@@ -45,7 +45,7 @@ def config(sorted_input, material):
 		H_TRANS = NOVEC_H
 	elif material == "water_pillow":
 		H_TRANS = WATER_PILLOW_H
-		convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area 
+		convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area, #heatsink_size not initialized		
 		heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink 
 	else:
 		sys.stderr.write("In config(): Invalid material '" + material + "'\n")

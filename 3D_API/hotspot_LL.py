@@ -3,6 +3,7 @@ import os
 import sys
 import operator
 import itertools
+import threading
 
 import input_file
 import null_data_file
@@ -15,6 +16,15 @@ import config_LL
 output_grid_size = 64
 args = sys.argv
 
+def call_cell(sorted_file):
+	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file)
+
+def call_hotspot(material):
+	if material == "water_pillow": ##when using water pillow, ignoring the second path.
+		os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_LL.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+	else:
+		os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_LL.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+	
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
@@ -129,7 +139,9 @@ input.sorted_to_file()
 layer = input.get_layer_array()
 
 #os.system("make -s; ./cell_LL " + sorted_file + " > null1.data")
-#os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file) #make called before running per README
+os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file") #make called before running per README
+#os.system("gcc -Wall -O3 -pg cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file +"; gprof > cellprofile.txt") #make called before running per README
+call_cell(sorted_file)
 
 null_data = null_data_file.null_data_file('null.data') #dont hardcode name
 
@@ -146,56 +158,85 @@ os.system("python config.py " + sorted_file + " " + str(material))
 """
 
 #these call clear file, wont need once we do proper IO
-os.system("rm -f tmp.results")
-os.system("touch tmp.results") 
+#os.system("rm -f tmp.results")
+#os.system("touch tmp.results") 
 
-if args[2] == "water_pillow": ##when using water pillow, ignoring the second path.
+call_hotspot(material)
+
+"""
+if material == "water_pillow": ##when using water pillow, ignoring the second path.
 	os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
 else:
 	os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+"""
 """
 read_tmp_grid_steady = open('tmp.grid.steady') # hardcode?
 tmp_grid_steady = read_tmp_grid_steady.readlines()
 read_tmp_grid_steady.close	
 """
 results_file = open("tmp_LL.results","w")
-
+results_list = []	
 
 
 for i in xrange(0, layer[-1]):
-	if args[2] == "water_pillow": ##the output would be changed whether the second path is used.  
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
+	if material == "water_pillow": ##the output would be changed whether the second path is used. 
+		#needs to be tested. bug in config.py prevented full testing.
+		with open('tmp_LL.grid.steady', "r") as tmp_grid_steady:
+			write_to_layer = ""
+			for record in itertools.islice(tmp_grid_steady, (5+i*2*(output_grid_size*output_grid_size+2)-1), (5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))):
+				write_to_layer+=record
+				record = record.strip(" \n")
+				record = record.replace("\t"," ")
+				record = record.split(' ')
+				#print str(record[1])
+				temps.append(str(record[1]))	#float?
+			#print str(i)+" iteration \n"+str(temps)
+			results_file.write(str(float(max(temps))-273.15)+"\n")
+			layer_name = "layer"+str(i+1)+"_LL.grid.steady"
+			layer_grid_steady = open(layer_name,"w")
+			layer_grid_steady.write(write_to_layer)
+			layer_grid_steady.close()
+		tmp_grid_steady.close()
 		
-		os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
+		#os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
+		
+		#os.system("cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
+		#print "cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results"
+		#print "cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady"
 	else:
+		#print "cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results"
+		#print "cat tmp.grid.steady | sed -n "+ str(5+i*2*(output_grid_size*output_grid_size+2))+ "," +str(5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady"
 		temps = []
 		#print "range is "+str(5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)+" and "+str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
 		
-	with open('tmp.grid.steady', "r") as tmp_grid_steady:
-		write_to_layer = ""
-		for record in itertools.islice(tmp_grid_steady, 5+(3+i*2)*(output_grid_size*output_grid_size+2)-1, 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)):
-			write_to_layer+=record
-			record = record.strip(" \n")
-			record = record.replace("\t"," ")
-			record = record.split(' ')
-			#print str(record[1])
-			temps.append(str(record[1]))	#float?
-		#print str(i)+" iteration \n"+str(temps)
-		results_file.write(str(float(max(temps))-273.15)+"\n")
-		
+		with open('tmp.grid.steady', "r") as tmp_grid_steady:
+			write_to_layer = ""
+			for record in itertools.islice(tmp_grid_steady, 5+(3+i*2)*(output_grid_size*output_grid_size+2)-1, 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)):
+				write_to_layer+=record
+				record = record.strip(" \n")
+				record = record.replace("\t"," ")
+				record = record.split(' ')
+				#print str(record[1])
+				temps.append(str(record[1]))	#float?
+			#print str(i)+" iteration \n"+str(temps)
+			maxTemp = str(float(max(temps))-273.15)
+			results_file.write(str(maxTemp+"\n"))
+			results_list.append((maxTemp))	#for check at bottom
+			layer_name = "layer"+str(i+1)+"_LL.grid.steady"
+			layer_grid_steady = open(layer_name,"w")
+			layer_grid_steady.write(write_to_layer)
+			layer_grid_steady.close()
+		tmp_grid_steady.close()
 		#os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
 		#print "cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results"
-		layer_name = "layer"+str(i+1)+"_LL.grid.steady"
-		layer_grid_steady = open(layer_name,"w")
-		layer_grid_steady.write(write_to_layer)
-		layer_grid_steady.close()
+
 		#os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady")
 		#print "cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p > layer" + str(i+1) + ".grid.steady"
 	if (not no_images):
 		os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
 		os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
-tmp_grid_steady.close()
+
 results_file.close()
 if(detailed):
 	os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
@@ -204,13 +245,21 @@ if(detailed):
 		
 
 #pick up the max temperature from max temperatures of each layers
-#temp = open('tmp.results').readline()
-temp = open('tmp_LL.results').readline()
-if '-273.15\n' == temp:	#any negative temp?
+temp = open('tmp.results').readline()
+#temp = open('tmp_LL.results', "r").readlines()
+#print "temp "+str(temp)
+#print "results list "+str(results_list)
+#print "min is "+ str(float(min(results_list))+100)
+#if '-273.15\n' == temp:	#any negative temp?
+if (float(min(results_list)))<0:
 	sys.stderr.write("error occurred\n")
 	sys.exit(1)
+
 if (detailed):
-	os.system("cat tmp_LL.results | sort -n | awk \'END{print \"maximum temp: \"$1}\'")
+	print "maximum temp: "+str(max(results_list))
+	#os.system("cat tmp_LL.results | sort -n | awk \'END{print \"maximum temp: \"$1}\'")
 else:
-	os.system("cat tmp_LL.results | sort -n | awk \'END{print $1}\'")
+	print str(max(results_list))
+	#os.system("cat tmp_LL.results | sort -n | awk \'END{print $1}\'")
+	
 	
