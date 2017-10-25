@@ -24,6 +24,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
 	command_line += " --powerdistopt_num_trials 5"
 	command_line += " --overlap " + str(overlap)
 	command_line += " --max_allowed_temperature 58"
+	command_line += " --verbose 3"
 
 
 	results = {}
@@ -105,6 +106,6 @@ if __name__ == '__main__':
 				    append_to_file(output_file, "    * NUM_LEVELS = "+ str(num_levels))
                                     for iter in xrange(0, num_runs):
                                         result = run_experiment(num_chips,  medium, diameter, "random_greedy:"+str(num_trials)+":"+str(max_num_trials), num_levels, overlap);
-                                        append_to_file(output_file, "      HEURISTIC RUN # ", str(iter), ":" +  str(result))
+                                        append_to_file(output_file, "      HEURISTIC RUN # " + str(iter) + ":" +  str(result))
 		    
 

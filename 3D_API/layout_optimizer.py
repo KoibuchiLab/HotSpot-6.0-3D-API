@@ -298,6 +298,7 @@ def optimize_layout_checkerboard():
 
 	layout = LayoutBuilder.compute_checkerboard_layout(utils.argv.num_chips)
 
+	utils.info(1, "Finding the maximum Power Budget")
 	result = find_maximum_power_budget(layout)
 
         if result == None:

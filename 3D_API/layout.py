@@ -496,7 +496,7 @@ class Layout(object):
 
 		# Call hotspot
 		command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
-                print "--> ", command_line
+                utils.info(3, "--> " + command_line)
                 #layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
