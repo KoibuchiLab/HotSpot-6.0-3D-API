@@ -44,7 +44,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap):
         print "--> results=", results
 
 	lines = output.split('\n')
-	output_headers = [("Number of edges = ", "num_edges"), ("Diameter = ", "diameter"), ("ASPL = ", "ASPL"), ("Power budget = ", "power"), ("Temperature = ", "temperature"), ("Frequency distribution = ", "frequencies"), ("Number of levels = ", "num_levels")]
+	output_headers = [("Number of edges = ", "num_edges"), ("Diameter = ", "diameter"), ("ASPL = ", "ASPL"), ("Power budget = ", "power"), ("Temperature = ", "temperature"), ("Frequency distribution = ", "frequencies"), ("Number of levels = ", "num_levels"), ("Layout = ", "chip_positions"), ("Topology =", "topology")]
 	for line in lines:
 		for (output_header, key) in output_headers:
 			if (len(line.split(output_header)) == 2):
