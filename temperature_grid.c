@@ -2724,7 +2724,9 @@ void steady_state_temp_grid(grid_model_t *model, double *power, double *temp)
   /* solve with SuperLU. use grid model's internal 
    * state vector to store the grid temperatures
    */ 
+  //printf("CALLING direct_SLU\n");
   direct_SLU(model, p, model->last_steady);
+  //printf("CALLED direct_SLU\n");
 #else
   /* solve recursively. use grid model's internal 
    * state vector to store the grid temperatures
@@ -4572,7 +4574,9 @@ SuperMatrix build_steady_grid_matrix(grid_model_t *model)
   if(curidx != nnz)
     fatal("Steady-state Matrix build error: less elements than nnz\n");
 
+  //printf("CALLING coo2csc\n");
   coo2csc(n, nnz, cooX, cooY, cooV, asub, xa, a);
+  //printf("CALLED coo2csc\n");
 
   /* Create matrix A in the format expected by SuperLU. */
   dCreate_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
@@ -4689,8 +4693,13 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   else
     dim = nl*nr*nc + EXTRA;
 
+  //printf("CALLING build_steady_grid_matrix\n");
   A = build_steady_grid_matrix(model);
+  //printf("CALLED build_steady_grid_matrix\n");
+
+  //printf("CALLING build_steady_rhs_vector\n");
   B = build_steady_rhs_vector(model, power, &rhs);
+  //printf("CALLED build_steady_rhs_vector\n");
 
   if ( !(perm_r = intMalloc(dim)) ) fatal("Malloc fails for perm_r[].\n");
   if ( !(perm_c = intMalloc(dim)) ) fatal("Malloc fails for perm_c[].\n");
@@ -4706,7 +4715,9 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   StatInit(&stat);
 
   /* Solve the linear system. */
+  //printf("CALLING dgssv\n");
   dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
+  //printf("CALLED dgssv\n");
 
   Astore = (DNformat *) B.Store;
   dp = (double *) Astore->nzval;
