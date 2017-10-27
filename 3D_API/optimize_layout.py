@@ -61,9 +61,12 @@ LAYOUT SCHEMES (--layout, -L):
        and chip n+1 is arbitrarily shaped. 
        (-d flag ignored)
 
-  - random_greedy:
+  - random_greedy[:num_neighbor_candidates[:max_num_neighbor_candidate_attempts]]:
 	a greedy randomized search that incrementally adds chips
-        to a starting layout. 
+        to a starting layout. Each iteration, it tries to come up with
+        <num_neighbor_candidates> candidates, and then picks the best one. 
+        It gives up if at an iteration, it cannot come up with the required
+        number of candidates after <max_num_neighbor_candidate_attempts> attempts
 
 POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 
@@ -216,9 +219,9 @@ VISUAL PROGRESS OUTPUT:
                             help='the step size, in Watts, at which the binary search for the maximum\npower budget stops (default = 0.1)')
 
 	parser.add_argument('--max_allowed_temperature', '-a', action='store',
-		            type=float, required=False, default=80,
+		            type=float, required=False, default=58,
                             dest='max_allowed_temperature', metavar='<temperature in Celsius>',
-                            help='the maximum allowed temperature for the layout (default: 80)')
+                            help='the maximum allowed temperature for the layout (default: 58)')
 
 	parser.add_argument('--grid_size', '-g', action='store',
 		            type=int, required=False, default=2048,
@@ -230,15 +233,20 @@ VISUAL PROGRESS OUTPUT:
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
 
-	parser.add_argument('--draw_in_octave', '-D', action='store_true', 
-                            required=False, default=False,
-                            dest='draw_in_octave', 
-                            help='generates a PDF of the topology using octave')
+#	parser.add_argument('--draw_in_octave', '-D', action='store', 
+#                            required=False, 
+#                            dest='draw_in_octave', metavar='<PDF file path>',
+#                            help='generates a PDF of the topology using octave')
 
-	parser.add_argument('--draw_in_3D', '-3', action='store_true', 
-                            required=False, default=False,
-                            dest='draw_in_3D', 
+	parser.add_argument('--export_to_PDF', '-e', action='store', 
+                            required=False, 
+                            dest='export_to_PDF', metavar='<PDF file path>',
+                            help='Saves a PDF of the final layout viewed from above')
+	parser.add_argument('--show_in_3D', '-s', action='store_true', 
+                            required=False, 
+                            dest='show_in_3D', 
                             help='opens up an interactive matplotlib visualization')
+
 
 
 	return parser.parse_args()
@@ -316,7 +324,10 @@ if __name__ == '__main__':
 	print "Chip frequencies and power levels = ", [(f, float("%.4f" % power)) for (f, power) in layout.get_chip().get_frequencies_and_power_levels()]
 	print "Layout =", layout.get_chip_positions()
 	print "Topology = ", layout.get_topology()
+	print "Number of edges = ", len(layout.get_topology())
+	print "Number of levels = ", int(argv.num_levels)
 	print "Diameter = ", layout.get_diameter()
+	print "ASPL = ", layout.get_ASPL()
 	print "Power budget = ", float("%.4f" % sum(power_distribution))
 	print "Power distribution =", [float("%.4f" % p) for p in power_distribution]
 	frequency_distribution = []
@@ -327,10 +338,11 @@ if __name__ == '__main__':
 	print "Frequency distribution =", frequency_distribution
 	print "Temperature =", temperature
 
-	if (argv.draw_in_octave):
-		layout.draw_in_octave()
-	if (argv.draw_in_3D):
-		layout.draw_in_3D()
+	if (argv.export_to_PDF):
+		layout.draw_in_3D(utils.argv.export_to_PDF, False)
+
+	if (argv.show_in_3D):
+		layout.draw_in_3D(None, True)
 	
 	sys.exit(0)
 	

@@ -25,9 +25,7 @@ FLOATING_POINT_EPSILON = 0.000001
 """
 class Chip(object):
 
-	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172],
-                              'phi7250': [0.0315,   0.0205], 
-			      'base2': [ 0.013, 0.013]}
+	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172], 'phi7250': [0.0315,   0.0205], 'base2': [ 0.013, 0.013]}
 
 	""" Constructor:
 		- name: chip name
@@ -188,6 +186,12 @@ class Layout(object):
 		return len(self.__chip_positions)
 
 
+	""" Get the number of edges in the layout
+	"""
+	def get_num_edges(self):
+		return (self.__G.number_of_edges())
+
+
 	""" Get the list of chip positions
 	"""
 	def get_chip_positions(self):
@@ -251,6 +255,12 @@ class Layout(object):
 		self.generate_topology_graph()
 
 
+	""" Get the layout's ASPL
+	"""
+	def get_ASPL(self):
+		return nx.average_shortest_path_length(self.__G)
+
+
 	""" Get the layout's diameter
 	"""
 	def get_diameter(self):
@@ -292,7 +302,7 @@ class Layout(object):
 	""" Draw in 3D
 	"""
 
-	def draw_in_3D(self):
+	def draw_in_3D(self, figure_filename, show_plot):
 
 		import numpy
 		import matplotlib.pyplot as plot
@@ -357,16 +367,23 @@ class Layout(object):
         		plot_slab(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 			
 		ax.set_zlim(0, (max_level * 2) * level_height)	
-        	plot.show()
-		
+		ax.azim=+0
+		ax.elev=90
 
+		if (figure_filename):
+			fig.savefig(figure_filename, bbox_inches='tight')
+
+		if show_plot: 
+        		plot.show()
+		
 
 
 
 	""" Draw the layout using Octave (really rudimentary)
             Will produce amusing ASCI art
+		(DEPRECATED)
 	""" 
-        def draw_in_octave(self):
+        def draw_in_octave(self, filename):
             file = open("/tmp/layout.m","w") 
             file.write("figure\n")
             file.write("hold on\n")
@@ -389,9 +406,8 @@ class Layout(object):
                 color = colors[l % len(colors)]
 
                 file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n") 
-            file.write("print /tmp/layout.pdf\n")
+            file.write("print " + filename +"\n")
             file.close()
-#            sys.stderr.write("File '" + "/tmp/layout.m" + "' created")
 
 	    try:
 	    	os.system("octave --silent --no-window-system /tmp/layout.m");
@@ -399,7 +415,7 @@ class Layout(object):
 		utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
 		return
 
-            utils.info(0, "File '" + "/tmp/layout.pdf" + "' created")
+            utils.info(0, "File '" + filename + "' created")
             return
 
 
@@ -450,7 +466,8 @@ class Layout(object):
 	
 	
 		# Create the input file and ptrace_files
-		input_file_name = "/tmp/layout-optimization-tmp.data"
+		random_number = random.randint(0, 100000000)
+		input_file_name = "/tmp/layout-optimization-tmp-" + str(random_number) + ".data"
 		tmp_ptrace_file_names = []
 		input_file = open(input_file_name, 'w')	
 		for i in range(0, layout.get_num_chips()):
@@ -476,9 +493,11 @@ class Layout(object):
 
 
 		input_file.close()
-	
+
 		# Call hotspot
 		command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
+                utils.info(3, "--> " + command_line)
+                #layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
@@ -675,8 +694,9 @@ class Layout(object):
 			#print"picked_level %s\n"%picked_level
                 	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap)
                 	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
+				utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
 				return [picked_level, picked_x, picked_y];
-		utils.info(2, "Could not find a feasible random neighbor for chip #" + str(chip_index))
+		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
 		return None
 
 		
@@ -693,9 +713,6 @@ class LayoutBuilder(object):
 
         	positions = []
 	
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a stacked layout")
-	
         	for level in xrange(1, num_chips+1):
                 	positions.append([level, 0.0, 0.0])
 	
@@ -708,9 +725,6 @@ class LayoutBuilder(object):
 
         	positions = []
 	
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
-
         	current_level = 1
         	level_direction = 1
         	current_x_position = 0.0
@@ -734,15 +748,12 @@ class LayoutBuilder(object):
 	def compute_rectilinear_diagonal_layout(num_chips):
 	
         	positions = []
-
-        	if (utils.argv.num_levels < num_chips):
-                	utils.info(0, "Warning: num_levels command-line argument ignored when building a linear layout")
 	
         	current_level = 1
         	level_direction = 1
 		# HENRI DEBUG
-        	current_x_position = 1
-        	current_y_position = 1
+        	current_x_position = 0
+        	current_y_position = 0
         	for i in xrange(0, num_chips):
                 	positions.append([current_level, current_x_position, current_y_position])
                 	current_level += level_direction
@@ -757,70 +768,217 @@ class LayoutBuilder(object):
 	
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
+
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
 	def compute_checkerboard_layout(num_chips):
 	
-	        positions = []
 	
-	        if (utils.argv.num_levels != 2):
-	                utils.info(0, "Warning: num_levels command-line argument ignored when building a 2-level checkboard layout")
 	        if (utils.argv.overlap > 0.25):
 	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 	
-	        # Rather than do annoying discrete math to compute the layout in an
-	        # incremental fashion, we compute a large layout and then remove
-	        # non-needed chips
-	
-	        # Compute x and y overlap assuming an overlap area with the same aspect
-	        # ratio as the chip
-	        # x_overlap * y_overlap =  overlap *  dim_x * dim_y
-	        # x_overlap = alpha * dim_x
-	        # y_overlap = alpha * dim_y
-	        #
-	        #  ====> alpha^2  = overlap
+
+	        positions = []
 	        alpha = sqrt(utils.argv.overlap)
 	        x_overlap = alpha * utils.argv.chip.x_dimension
 	        y_overlap = alpha * utils.argv.chip.y_dimension
-	
-	        # Create level 1
-	        for x in xrange(0,num_chips):
-	            for y in xrange(0,num_chips):
-	                positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
-	
-	        # Create level 2
-	        for x in xrange(0,num_chips):
-	            for y in xrange(0,num_chips):
-	                positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.
-	y_dimension - 2 * y_overlap)])
-	
-	        while(len(positions) > num_chips):
-	            max_x = max([x for [l,x,y] in positions])
-	            max_y = max([y for [l,x,y] in positions])
-	            if (max_x > max_y):
-	                # remove chip with x = max_x and largest y
-	                victim_x = max_x
-	                candidate_y = []
-	                for position in positions:
-	                    if (position[1] == victim_x):
-	                        candidate_y.append(position[2])
-	                victim_y = max(candidate_y)
-	            elif (max_y >= max_x):
-	                # remove a chip with y = max_y and largest x
-	                victim_y = max_y
-	                candidate_x = []
-	                for position in positions:
-	                    if (position[2] == victim_y):
-	                        candidate_x.append(position[1])
-	                victim_x = max(candidate_x)
-	
-	            for position in positions:
-	                if (position[1] == victim_x) and (position[2] == victim_y):
-	                    victim_l = position[0]
-	                    break
-	
-	            positions.remove([victim_l, victim_x, victim_y])
-	
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
-	
 
+		x_offset = utils.argv.chip.x_dimension - x_overlap
+		y_offset = utils.argv.chip.y_dimension - y_overlap
+	    
+		if ((utils.argv.num_chips == 5) and (utils.argv.num_levels == 2)): 
+                    # Create level 1
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+
+                    # Create level 2
+	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
+	    
+		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 2)):
+		    # Create level 1
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+
+	            # Create level 2
+		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
+		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
+
+		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 3)):
+
+                    # Create level 1
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+
+                    # Create level 2
+	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
+	
+	            # Create level 3
+                    positions.append([3, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([3, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+
+		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 2)):
+		    # Create level 2
+                    positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+
+	            # Create level 2
+		    positions.append([1, 0 + 0 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 4 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 4 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 2 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 4 * y_offset])
+
+		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 3)):
+
+		    # Create level 1
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+
+	            # Create level 2
+		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
+		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
+		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
+
+		    # Create level 3
+                    positions.append([3, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+                    positions.append([3, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+                    positions.append([3, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+
+		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 2)):
+		    # Create level 1
+                    positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
+                    positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
+
+                    positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
+                    positions.append([1, 0 + 2 * x_offset, 0 + 6 * y_offset])
+
+                    positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
+                    positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
+                    positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
+                    positions.append([1, 0 + 4 * x_offset, 0 + 6 * y_offset])
+
+                    positions.append([1, 0 + 6 * x_offset, 0 + 2 * y_offset])
+                    positions.append([1, 0 + 6 * x_offset, 0 + 4 * y_offset])
+
+	            # Create level 2
+		    positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+		    positions.append([2, x_offset + 0 * x_offset, y_offset + 4 * y_offset])
+		    positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+		    positions.append([2, x_offset + 2 * x_offset, y_offset + 4 * y_offset])
+		    positions.append([2, x_offset + 4 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([2, x_offset + 4 * x_offset, y_offset + 2 * y_offset])
+		    positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
+
+		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 3)):
+
+	            # Create level 1
+		    positions.append([1, 0 + 0 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
+		    positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
+
+                    # Create level 2
+		    positions.append([2, x_offset  + 0 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([2, x_offset  + 2 * x_offset, y_offset + 0 * y_offset])
+		    positions.append([2, x_offset  + 0 * x_offset, y_offset + 2 * y_offset])
+		    positions.append([2, x_offset  + 2 * x_offset, y_offset + 2 * y_offset])
+
+	            # Create level 3
+		    positions.append([3, 0 + 0 * x_offset, 0 + 0 * y_offset])
+		    positions.append([3, 0 + 0 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 0 * x_offset, 0 + 4 * y_offset])
+		    positions.append([3, 0 + 2 * x_offset, 0 + 0 * y_offset])
+		    #positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 2 * x_offset, 0 + 4 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 0 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 2 * y_offset])
+		    positions.append([3, 0 + 4 * x_offset, 0 + 4 * y_offset])
+
+
+		elif (utils.argv.num_levels == 2):
+
+	            # Rather than do annoying discrete math to compute the layout in an
+	            # incremental fashion, we compute a large layout and then remove
+	            # non-needed chips
+	    
+	            # Compute x and y overlap assuming an overlap area with the same aspect
+	            # ratio as the chip
+	            # x_overlap * y_overlap =  overlap *  dim_x * dim_y
+	            # x_overlap = alpha * dim_x
+	            # y_overlap = alpha * dim_y
+	                #
+	            #  ====> alpha^2  = overlap
+	            # Create level 1
+	            for x in xrange(0,num_chips):
+	                for y in xrange(0,num_chips):
+	                    positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
+	    
+	            # Create level 2
+	            for x in xrange(0,num_chips):
+	                for y in xrange(0,num_chips):
+	                    positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
+	    
+	            while(len(positions) > num_chips):
+	                max_x = max([x for [l,x,y] in positions])
+	                max_y = max([y for [l,x,y] in positions])
+	                if (max_x > max_y):
+	                    # remove chip with x = max_x and largest y
+	                    victim_x = max_x
+	                    candidate_y = []
+	                    for position in positions:
+	                        if (position[1] == victim_x):
+	                            candidate_y.append(position[2])
+	                    victim_y = max(candidate_y)
+	                elif (max_y >= max_x):
+	                    # remove a chip with y = max_y and largest x
+	                    victim_y = max_y
+	                    candidate_x = []
+	                    for position in positions:
+	                        if (position[2] == victim_y):
+	                            candidate_x.append(position[1])
+	                    victim_x = max(candidate_x)
+	    
+	                for position in positions:
+	                    if (position[1] == victim_x) and (position[2] == victim_y):
+	                        victim_l = position[0]
+	                        break
+	    
+	                positions.remove([victim_l, victim_x, victim_y])
+	    
+		else:
+	                utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(utils.argv.num_chips) + " chips")
+
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+	    
+                

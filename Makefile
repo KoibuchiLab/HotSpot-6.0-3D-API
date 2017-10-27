@@ -71,6 +71,9 @@ endif
 #EXTRAFLAGS	= -dalign 
 
 # basic compiler flags - special case for sun
+
+
+
 ifeq ($(MATHACCEL), sun)
 CC 			= CC
 ifeq ($(DEBUG), 1)

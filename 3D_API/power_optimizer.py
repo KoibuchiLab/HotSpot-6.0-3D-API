@@ -290,15 +290,17 @@ def find_maximum_power_budget(layout):
 		return [power_distribution, temperature]
 
 	# No search because the minimum power possible is already above temperature?
+        utils.info(1,"Checking if the minimum power is already too hot")
         temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[0]] * layout.get_num_chips())
         if (temperature > utils.argv.max_allowed_temperature):
                 sys.stderr.write("Even setting all chips to minimum power gives a temperature of " + str(temperature) +", which is above the maximum allowed temperature of " + str(utils.argv.max_allowed_temperature) + "\n")
                 return None
 
 	# No search because the maximum power possible is already below temperature?
+        utils.info(1,"Checking if the maximum power is cool enough")
         temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips())
         if (temperature <= utils.argv.max_allowed_temperature):
-		utils.info(2, "We can set all chips to the max power level!")
+		#utils.info(2, "We can set all chips to the max power level!")
                 return [[layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), temperature]
 
 	# DISCRETE?
@@ -337,17 +339,38 @@ def find_maximum_power_budget_discrete(layout):
 def find_maximum_power_budget_discrete_uniform(layout):
 		power_levels = layout.get_chip().get_power_levels()
 		best_power_level = None
-		best_distribution_temperature = None
-		for level in power_levels:
-			temperature = Layout.compute_layout_temperature(layout, [level] * layout.get_num_chips())
-			utils.info(2, "With power level " + str(level) + " for all chips: temperature = " + str(temperature));
-			if (temperature<=utils.argv.max_allowed_temperature):
-				best_power_level = level
-				best_distribution_temperature = temperature
-			else:
+		guess_temperature = None
+		lower_bound = 0
+		upper_bound = len(power_levels) - 1
+		guess_index = -1
+		while (lower_bound != upper_bound): 
+			#print "l=", lower_bound, "u=", upper_bound
+			if (guess_index == (upper_bound + lower_bound) / 2):
 				break
+			guess_index = (upper_bound + lower_bound) / 2
+			#print "Trying guess ", guess_index
+			temperature = Layout.compute_layout_temperature(layout, [power_levels[guess_index]] * layout.get_num_chips())
+			#print "temperature = ", temperature
+			if (temperature > utils.argv.max_allowed_temperature): 
+				upper_bound = guess_index
+			else: 	
+                                guess_temperature = temperature
+				lower_bound = guess_index
+
+
+		#print "PICKED index ", guess_index
+		best_power_level = power_levels[guess_index]
+
+#		for level in power_levels:
+			#temperature = Layout.compute_layout_temperature(layout, [level] * layout.get_num_chips())
+			#utils.info(2, "With power level " + str(level) + " for all chips: temperature = " + str(temperature));
+			#if (temperature<=utils.argv.max_allowed_temperature):
+				#best_power_level = level
+				#best_distribution_temperature = temperature
+			#else:
+				#break
 				
-		return [[best_power_level] * layout.get_num_chips(), best_distribution_temperature]
+		return [[best_power_level] * layout.get_num_chips(), guess_temperature]
 
 
 """ Discrete exhaustive search 
