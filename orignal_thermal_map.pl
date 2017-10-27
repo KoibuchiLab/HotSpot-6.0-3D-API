@@ -63,7 +63,7 @@ my $min_y=10**10;my $max_y=0;
 my $tot_x;my $tot_y;
 
 #Specify grid row and column here
-my $row=64; my $col=64;
+my $row=128; my $col=128;
 if (@ARGV >= 4) {
 	$row = $ARGV[2];
 	$col = $ARGV[3];

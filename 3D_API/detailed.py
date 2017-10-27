@@ -3,7 +3,7 @@
 import os
 import sys
 
-output_grid_size = 64
+output_grid_size = 128
 grid = [[0.0 for i in range(output_grid_size)] for j in range(output_grid_size)]
 
 input_file = sys.argv[1]

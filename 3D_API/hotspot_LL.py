@@ -13,7 +13,7 @@ import ptrace_LL
 import lcf_LL
 import config_LL
 
-output_grid_size = 64
+output_grid_size = 128
 args = sys.argv
 
 def call_cell(sorted_file):
@@ -139,16 +139,16 @@ input.sorted_to_file()
 layer = input.get_layer_array()
 
 #os.system("make -s; ./cell_LL " + sorted_file + " > null1.data")
-os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file") #make called before running per README
+#os.system("gcc -Wall -O3 cell_LL.c -o cell_LL -s; ./cell_LL " + "sorted_file") #make called before running per README
 #os.system("gcc -Wall -O3 -pg cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file +"; gprof > cellprofile.txt") #make called before running per README
 call_cell(sorted_file)
 
 null_data = null_data_file.null_data_file('null.data') #dont hardcode name
-
 floor_LL.floor(sorted_input, null_data)	#may have to fix to pass whole object
 ptrace_LL.ptrace(input, null_data)
 lcf_LL.lcf(input)
 config_LL.config(input, str(material))
+
 """
 #old calls
 #os.system("python floor.py " + sorted_file) #null.data called in here
@@ -161,6 +161,7 @@ os.system("python config.py " + sorted_file + " " + str(material))
 #os.system("rm -f tmp.results")
 #os.system("touch tmp.results") 
 
+#print"!!!!here"
 call_hotspot(material)
 
 """
@@ -209,16 +210,21 @@ for i in xrange(0, layer[-1]):
 		temps = []
 		#print "range is "+str(5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)+" and "+str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
 		
-		with open('tmp.grid.steady', "r") as tmp_grid_steady:
+		with open('tmp_LL.grid.steady', "r") as tmp_grid_steady:
 			write_to_layer = ""
-			for record in itertools.islice(tmp_grid_steady, 5+(3+i*2)*(output_grid_size*output_grid_size+2)-1, 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)):
+			#print str( 5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)+", "+str( 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
+			#for record in range((5+(3+i*2)*(output_grid_size*output_grid_size+2)-1),( 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))):
+			read_start = (5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)
+			read_end = (5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
+			print "for loop range is "+str(read_start)+", "+str(read_end)
+			for record in itertools.islice(tmp_grid_steady, read_start, read_end):
 				write_to_layer+=record
 				record = record.strip(" \n")
 				record = record.replace("\t"," ")
 				record = record.split(' ')
 				#print str(record[1])
 				temps.append(str(record[1]))	#float?
-			#print str(i)+" iteration \n"+str(temps)
+			print str(i)+" iteration \n"+str(temps)
 			maxTemp = str(float(max(temps))-273.15)
 			results_file.write(str(maxTemp+"\n"))
 			results_list.append((maxTemp))	#for check at bottom
@@ -227,6 +233,12 @@ for i in xrange(0, layer[-1]):
 			layer_grid_steady.write(write_to_layer)
 			layer_grid_steady.close()
 		tmp_grid_steady.close()
+		"""
+		reader = open('tmp_LL.grid.steady')
+		tmp_grid_steady_2 = reader.readlines()
+		reader.close()
+		"""
+		
 		#os.system("cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results")
 		#print "cat tmp.grid.steady | sed -n "+ str(5+(3+i*2)*(output_grid_size*output_grid_size+2))+ "," +str(5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1)) +"p | sort -n -k2 | awk \'END{print $2-273.15}\' >> tmp.results"
 

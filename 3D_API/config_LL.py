@@ -4,7 +4,7 @@ import os
 import sys
 
 args = sys.argv
-output_grid_size = 64 
+output_grid_size = 128
 
 tulsa_x = 0.02184 #default tulsa chip size
 tulsa_y = 0.02184

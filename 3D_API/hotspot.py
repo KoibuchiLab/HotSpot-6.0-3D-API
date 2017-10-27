@@ -2,7 +2,7 @@
 import os
 import sys
 
-output_grid_size = 64
+output_grid_size = 128
 args = sys.argv
 
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
