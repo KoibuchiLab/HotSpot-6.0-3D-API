@@ -147,6 +147,15 @@ def optimize_layout_linear_random_greedy():
 
 	return [layout, power_distribution, temperature]
 
+""" Helper function """
+def evaluate_candidate(layout, candidate):
+        utils.info(1, "  - Evaluating candidate " + str(candidate))
+	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap())
+        dummy_layout.add_new_chip(candidate)
+        if (dummy_layout.get_diameter() > utils.argv.diameter):
+	    utils.abort("Layout diameter is too big (this should never happen here!)")
+
+        return find_maximum_power_budget(dummy_layout)
 
 """Random greedy layout optimization"""
 
@@ -192,6 +201,7 @@ def optimize_layout_random_greedy():
 
 		# layout.draw_in_3D("layout_figure_" + str(layout.get_num_chips()) + ".pdf", False)
 
+                ###############################################
                 ### Create Candidates
                 ##########################################
 
@@ -220,38 +230,36 @@ def optimize_layout_random_greedy():
                         candidate_random_trials.append([picked_level, picked_x, picked_y])
 			#print"candidate_random_trials contains %s\n"%candidate_random_trials
 
+		utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
+
+                ###############################################
                 ### Evaluate all Candidates
+  		### TODO: PARALLELIZE
+		###		- Transform to a map operation
+		###		- Use the multithreading package
                 ###############################################
 
-                results = {}
-                for candidate in candidate_random_trials:
+                results = []
+                for index in xrange(0,len(candidate_random_trials)):
 
-                        ## WARNING: since each candidate evaluation modifies
-                        ## the layout, they cannot be done by concurrent threads right now
-                        ## We need to implement a "layout copy" method
-                        utils.info(1, "  - Evaluating candidate " + str(candidate))
-
-                        layout.add_new_chip(candidate) 
-                        if(layout.get_diameter() > utils.argv.diameter):
-			    utils.abort("Layout diameter is too big (this should never happen here!)")
-                        result[candidate] = find_maximum_power_budget(layout) 
-                        layout.remove_chip(layout.get_num_chips() - 1)
+			result = evaluate_candidate(layout, candidate_random_trials[index])
+                        results.append(result)
                 
-                print "RESULTS : ", results
 
+                ###############################################
                 ### Pick the best candidate
                 ################################################
 
-		utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
                 picked_candidate_temperature = -1
                 picked_candidate_power = -1
                 picked_candidate_ASPL = -1.0
                 picked_candidate_num_edges = -1
 
                 picked_candidate = None
-                for candidate in results:
-                    
-                        result = results[candidate]
+                for index in xrange(0,len(candidate_random_trials)):
+	
+			candidate = candidate_random_trials[index];
+			result = results[index]
 
                         if (result != None):
                             [power_distribution, temperature] = result
@@ -287,8 +295,6 @@ def optimize_layout_random_greedy():
                                 picked_candidate_ASPL = ASPL
                                 picked_candidate_num_edges = num_edges
 
-                        layout.remove_chip(layout.get_num_chips() - 1)
-                        
                 # Add the candidate 
 		if picked_candidate == None:
 			utils.abort("Could not find a candidate that met the temperature constraint")

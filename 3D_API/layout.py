@@ -143,7 +143,7 @@ class Layout(object):
 	def __init__(self, chip, chip_positions,  medium, overlap):
 
 		self.__chip = chip
-		self.medium = medium
+		self.__medium = medium
 		self.__chip_positions = chip_positions
 		self.__overlap = overlap
 		self.__diameter = 0
@@ -179,7 +179,17 @@ class Layout(object):
 	"""
 	def get_chip(self):
 		return self.__chip
-		
+
+	""" Get the overlap
+	"""
+	def get_overlap(self):
+		return self.__overlap
+			
+	""" Get the medium
+	"""
+	def get_medium(self):
+		return self.__medium
+			
 	""" Get the number of chips in the layout
 	"""
 	def get_num_chips(self):
@@ -235,7 +245,7 @@ class Layout(object):
 		# Rebuild the graph from scratch!
 		try:	
 			self.generate_topology_graph()
-		except e:
+		except Exception as e:
 			raise e
 
 
@@ -495,7 +505,7 @@ class Layout(object):
 		input_file.close()
 
 		# Call hotspot
-		command_line = "./hotspot.py " + input_file_name + " " + layout.medium + " --no_images"
+		command_line = "./hotspot.py " + input_file_name + " " + layout.get_medium() + " --no_images"
                 utils.info(3, "--> " + command_line)
                 #layout.draw_in_3D("./broken2.pdf", False)
 		try:
