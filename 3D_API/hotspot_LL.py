@@ -216,7 +216,7 @@ for i in xrange(0, layer[-1]):
 			#for record in range((5+(3+i*2)*(output_grid_size*output_grid_size+2)-1),( 5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))):
 			read_start = (5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)
 			read_end = (5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
-			print "for loop range is "+str(read_start)+", "+str(read_end)
+			#print "for loop range is "+str(read_start)+", "+str(read_end)
 			for record in itertools.islice(tmp_grid_steady, read_start, read_end):
 				write_to_layer+=record
 				record = record.strip(" \n")
@@ -224,7 +224,7 @@ for i in xrange(0, layer[-1]):
 				record = record.split(' ')
 				#print str(record[1])
 				temps.append(str(record[1]))	#float?
-			print str(i)+" iteration \n"+str(temps)
+			#print str(i)+" iteration \n"+str(temps)
 			maxTemp = str(float(max(temps))-273.15)
 			results_file.write(str(maxTemp+"\n"))
 			results_list.append((maxTemp))	#for check at bottom
