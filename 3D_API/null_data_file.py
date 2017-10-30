@@ -56,10 +56,3 @@ class null_data_file(object):
 			self.__null_x_len += [float(data2[4])]
 			self.__null_y_len += [float(data2[5])]
 			
-	#def write_null_to_test(self, name, null_x, null_y, null_x_len, null_y_len, material_capacity, material_resistance):
-		
-		
-#null_data = null_data_file('null.data')
-#print(null_data.__dict__)
-#print null_data.get_name()[0]
-#print "null_data "+str(input.get_sorted_file())

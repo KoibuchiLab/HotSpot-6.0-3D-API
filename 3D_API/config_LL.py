@@ -50,48 +50,7 @@ def config(sorted_input, material):
 	else:
 		sys.stderr.write("In config(): Invalid material '" + material + "'\n")
 		sys.exit(1)
-	"""
-	#first arg is sorted.data second arg is medium/material
-	if (len(args) != 3):
-		sys.stderr.write("Usage: " + args[0] + " <input file (.dat)> <water | air | oil>\n")
-		sys.exit(1)
-		
-	if args[2] == "water":
-		H_TRANS = WATER_H
-	elif args[2] == "air":
-		H_TRANS = AIR_H
-	elif args[2] == "oil":
-		H_TRANS = OIL_H
-	elif args[2] == "fluori":
-		H_TRANS = FLUORI_H
-	elif args[2] == "novec":
-		H_TRANS = NOVEC_H
-	elif args[2] == "water_pillow":
-		H_TRANS = WATER_PILLOW_H
-	else:
-		sys.stderr.write("Invalid argument '" + args[2] + "'\n")
-		sys.exit(1)
 	
-	input_file = args[1]
-	if not os.access(input_file, os.R_OK):
-		sys.stderr.write("Can't read file '"+input_file+"'\n")
-		sys.exit(1)
-
-
-	f = open(input_file)
-	sorted_input = f.readlines()
-	f.close
-
-	os.system("rm -f test.config")
-	os.system("rm -f testTIM.flp")
-
-	
-	
-	layer_tmp = 0;
-	count_tmp = 0;
-	"""
-	
-	#lay, count, rotate = [], [], []
 	lay = sorted_input.get_layer_array()
 	count = sorted_input.get_ptrace_count()	#make sure pcount() called prior or else empty []
 	rotate = sorted_input.get_chip_rotate()
@@ -123,22 +82,7 @@ def config(sorted_input, material):
 		else:
 			sys.stderr('invalid chip name in input file ' + input_file)
 			sys.exit()
-		"""
-		#handled in input_file class
-		chip_name = str(data[0])
-		lay += [int(data[1])]
-		x += [float(data[2])]
-		y += [float(data[3])]
-		rotate += [int(data[5])]
 		
-		if int(sorted_input.get_layer_array)== layer_tmp:
-			count_tmp +=1
-			layer_tmp = int(data[1])
-		else:	
-			count_tmp = 1
-			layer_tmp = int(data[1])
-		count += [count_tmp]
-		"""	
 	num = len(rotate)
 	system_size = -10.0 
 	for i in xrange(0, num):
@@ -162,13 +106,7 @@ def config(sorted_input, material):
 	heatsink_height = heatsink_size
 	convec_first = 1 / (H_TRANS * (heatsink_size * heatsink_size + heatsink_size * heatsink_height * heatsink_fin_num)) ##Heat convection can be calculated by 1/(H_TRANS * area). area: bottom area + side area
 	convec_second = 1 / (H_TRANS * heatsink_size * heatsink_size)
-	"""
-	#handled above, redundant if check
-	##when water pillow, removing heat sink.
-	if args[2] == "water_pillow":
-		convec_first = 1 / (H_TRANS * heatsink_size * heatsink_size * 2) ## ignoring side area 
-		heatsink_thickness = 0.00001 ##by using tiny thickness, removing heat sink   
-	"""
+	
 	read = open('default.config')
 	default= read.readlines()
 	read.close
@@ -190,32 +128,10 @@ def config(sorted_input, material):
 		
 		file.write(line)	#move out of loop
 	file.close()
-	"""
-	os.system("cat default.config |\
-			   sed s/__SPREAD__/"+str(heat_spread_size)+"/ |\
-			   sed s/__SINK__/"+str(heatsink_size)+"/ |\
-			   sed s/__THICKNESS__/"+str(heatsink_thickness)+"/ |\
-			   sed s/__OUTPUT_GRID_SIZE__/"+str(output_grid_size)+"/ |\
-			   sed s/__CONVEC1__/"+str(convec_first)+"/ |\
-			   sed s/__CONVEC2__/"+str(convec_second)+"/ > test.config")
-	"""
+
 	file_name2 = "testTIM_LL.flp"
 	file2 = open(file_name2,"w+")
 	for line2 in tim:
 		line2 = line2.replace("__TIMSIZE__",str(system_size))
 		file2.write(line2)	#move out of loop?
 	file2.close()
-	"""
-	os.system("cat TIM.flp |\
-			   sed s/__TIMSIZE__/"+str(system_size)+"/ |\
-			   sed s/__TIMSIZE__/"+str(system_size)+"/  > testTIM.flp")  # same call sed?
-	"""
-	
-		 
-
-
-	 
-		
-		
-
-

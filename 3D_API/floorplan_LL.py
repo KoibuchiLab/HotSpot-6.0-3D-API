@@ -325,12 +325,3 @@ class floorplan(object):
 		for lines in floorplan:
 			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(lines[2],'.8f'))+" "+str(format(lines[1],'.8f'))+" "+str(format(chip_ylen-lines[4]-lines[2]+chip_x,'.8f'))+" "+str(format(lines[3]+chip_y,'.8f'))+'\n' )
 		return array_to_write
-		
-"""
-floorplan=floorplan()
-copy = floorplan.get_floorplan('e5-2667v4')
-print "copy[0] is"+str(copy[0])
-print "copy[0][0] is "+str(copy[0][0])
-lines = copy[0]
-print '_'+lines[0]+" "+str(format(lines[1],'.8f'))+" "+str(format(lines[2],'.8f'))+" "+str(format(lines[3]+0.001,'.8f'))+" "+str(format(lines[4]++0.031,'.8f'))+'\n' 
-"""
