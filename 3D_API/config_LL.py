@@ -31,7 +31,7 @@ FLUORI_H = 180 # W/(m^2 K) Heat Transffer Coefficient of FLUORINERT (using natur
 NOVEC_H = 180##caution! this value is not correct.  # W/(m^2 K) Heat Transffer Coefficient of NOVEC (using natural convection)
 WATER_PILLOW_H = 5000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
 
-def config(sorted_input, material):
+def config(sorted_input, material, pid):
 	
 	if material == "water":
 		H_TRANS = WATER_H
@@ -115,7 +115,7 @@ def config(sorted_input, material):
 	tim= read.readlines()
 	read.close
 	
-	file_name = "test_LL.config"
+	file_name = "test_"+str(pid)+".config"
 	file = open(file_name,"w+")
 	for line in default:
 		#line = line.replace("__CONVEC1__",str(convec_first))
@@ -129,7 +129,7 @@ def config(sorted_input, material):
 		file.write(line)	#move out of loop
 	file.close()
 
-	file_name2 = "testTIM_LL.flp"
+	file_name2 = "testTIM_"+str(pid)+".flp"
 	file2 = open(file_name2,"w+")
 	for line2 in tim:
 		line2 = line2.replace("__TIMSIZE__",str(system_size))

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
-import null_data_file
+import nulldata_file
 import floorplan_LL
 
 tulsa_x = 0.02184 #default xeon tulsa chip size 
@@ -36,7 +36,7 @@ def read_null_data(null_dot_data):
 """	
 
 #def floor(sorted_input):
-def floor(sorted_input, null_data):
+def floor(sorted_input, null_data, pid):
 
 	layer_tmp = 0;
 	count_tmp = 0;
@@ -95,8 +95,8 @@ def floor(sorted_input, null_data):
 	nulldatall = null_data
 	floorplan=floorplan_LL.floorplan()
 	for i in xrange(1, layer_num):
-		os.system("touch test" + str(i) + ".flp") #usd in lcf.py
-		file_name = "test" + str(i) + "_LL.flp"
+		#os.system("touch test" + str(i) + ".flp") #usd in lcf.py
+		file_name = "test" + str(i) + "_"+str(pid)+".flp"
 		file = open(file_name,"w+")
 		for j in xrange(0, len(chip_layer)):
 			if chip_layer[j] == i:

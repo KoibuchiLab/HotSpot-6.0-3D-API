@@ -3,7 +3,7 @@ import os
 
 import sys
 
-def ptrace(input, null_data):
+def ptrace(input, null_data, pid):
 	
 	input.ptrace_count()
 
@@ -42,7 +42,7 @@ def ptrace(input, null_data):
 				string2+=("0 ")
 	
 	string1+=("\n"+string2+"\n")
-	file = open("test_LL.ptrace","w+")
+	file = open("test_"+str(pid)+".ptrace","w+")
 	file.write(string1)
 	file.close
 		 

@@ -48,7 +48,7 @@ int main(int argc, char **argv){
 	
 	//printf("start cell\n");
 	FILE *fp, *file, *outfile;
-	char *fname; // input 3-D stacking layout file
+	char *fname, *pid; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
 	char *chip_name;  
@@ -59,13 +59,23 @@ int main(int argc, char **argv){
 	int layer;
 	int rotate;
 	char *freq; 
+	
 
-	if (argc != 2) {
+	/*if (argc != 2) {
 		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
 		exit(1);
 	}
 
+	fname = argv[1];*/
+	
+	if (argc != 3) {
+		fprintf(stderr,"Usage: %s <input file (.dat)>, <python pid>\n", argv[0]);
+		exit(1);
+	}
+
 	fname = argv[1];
+	pid = argv[2];
+	
 
 	float system_size = 0; // system X or Y length of 3D-chip stacking.
 	//float h = 0.02184; //default Xeon Tulsa chip length (m)
@@ -366,8 +376,18 @@ int main(int argc, char **argv){
 	}
 
 	//graph();
+	//printf("===== pid is %s =====\n", pid);
+	//char *null = 'null_';
+	//char *data = '.data';
 	
-	outfile = fopen("null_LL.data","w+");
+	char outputfilename[100];
+	
+	strcpy(outputfilename, "null_");
+	strcat(outputfilename, pid);
+	strcat(outputfilename,".data");
+	
+	//printf("outputfilename is %s\n",outputfilename);
+	outfile = fopen(outputfilename,"w+");
 	for(layer = 1; layer <= layer_num; layer++){//layer starts from 1
 		for(group = 2; group < MAX_GROUP_NUM; group++){//null group stars from 2
 			//this judgement is strange, if those 2 values are 0, that means there are 0 * 0 blocks.

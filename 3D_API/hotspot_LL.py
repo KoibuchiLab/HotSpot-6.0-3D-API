@@ -6,7 +6,7 @@ import itertools
 import threading
 
 import input_file
-import null_data_file
+import nulldata_file
 import floorplan_LL
 import floor_LL
 import ptrace_LL
@@ -16,21 +16,21 @@ import config_LL
 output_grid_size = 128
 args = sys.argv
 
-def call_cell(sorted_file):
-	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file)
+def call_cell(sorted_file, pid):
+	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file+" "+str(pid))
 
-def call_hotspot(material):
+def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
-		os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_LL.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
 	else:
-		os.system("../hotspot -f test1_LL.flp -c test_LL.config -p test_LL.ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_LL.grid.steady -detailed_3D on -grid_layer_file test_LL.lcf")
+		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
 	
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
 
 test_file = args[1]
-sorted_file = 'sorted.data'
+#sorted_file = 'sorted.data'
 
 if not os.access(test_file, os.R_OK):
 	sys.stderr.write("Can't read file '"+test_file+"'\n")
@@ -71,29 +71,32 @@ if (len(args) == 5):
 	 	sys.stderr.write("Invalid argument '" + args[3] + args[4]+"'\n")
 		sys.exit(1)
 
-input = input_file.input_file(test_file)
+pid = os.getpid()
+#print "pid is "+str(pid)
+input = input_file.input_file(test_file, pid)
 sorted_input = input.get_sorted_file()
-input.sorted_to_file()
+sorted_file=input.sorted_to_file()
+#print "sorted file name is "+str(sorted_file)
 layer = input.get_layer_array()
 
-call_cell(sorted_file)
+call_cell(sorted_file, pid)
 
-null_data = null_data_file.null_data_file('null.data') #dont hardcode name
-floor_LL.floor(sorted_input, null_data)	#may have to fix to pass whole object
-ptrace_LL.ptrace(input, null_data)
-lcf_LL.lcf(input)
-config_LL.config(input, str(material))
+null_data = nulldata_file.nulldata_file('null_'+str(pid)+'.data') #dont hardcode name
+floor_LL.floor(sorted_input, null_data, pid)	#may have to fix to pass whole object
+ptrace_LL.ptrace(input, null_data, pid)
+lcf_LL.lcf(input, pid)
+config_LL.config(input, str(material), pid)
 
-call_hotspot(material)
+call_hotspot(material, pid)
 
-results_file = open("tmp_LL.results","w")
+results_file = open("tmp_"+str(pid)+".results","w")
 results_list = []	
 
 
 for i in xrange(0, layer[-1]):
 	if material == "water_pillow": ##the output would be changed whether the second path is used. 
 		#needs to be tested. bug in config.py prevented full testing.
-		with open('tmp_LL.grid.steady', "r") as tmp_grid_steady:
+		with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 			write_to_layer = ""
 			for record in itertools.islice(tmp_grid_steady, (5+i*2*(output_grid_size*output_grid_size+2)-1), (5+i*2*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))):
 				write_to_layer+=record
@@ -104,7 +107,7 @@ for i in xrange(0, layer[-1]):
 				temps.append(str(record[1]))	#float?
 			#print str(i)+" iteration \n"+str(temps)
 			results_file.write(str(float(max(temps))-273.15)+"\n")
-			layer_name = "layer"+str(i+1)+"_LL.grid.steady"
+			layer_name = "layer"+str(i+1)+"_"+str(pid)+".grid.steady"
 			layer_grid_steady = open(layer_name,"w")
 			layer_grid_steady.write(write_to_layer)
 			layer_grid_steady.close()
@@ -115,7 +118,7 @@ for i in xrange(0, layer[-1]):
 		
 		temps = []
 		
-		with open('tmp_LL.grid.steady', "r") as tmp_grid_steady:
+		with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 			write_to_layer = ""
 			
 			read_start = (5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)
@@ -130,7 +133,7 @@ for i in xrange(0, layer[-1]):
 			maxTemp = str(float(max(temps))-273.15)
 			results_file.write(str(maxTemp+"\n"))
 			results_list.append((maxTemp))	#for check at bottom
-			layer_name = "layer"+str(i+1)+"_LL.grid.steady"
+			layer_name = "layer"+str(i+1)+"_"+str(pid)+".grid.steady"
 			layer_grid_steady = open(layer_name,"w")
 			layer_grid_steady.write(write_to_layer)
 			layer_grid_steady.close()
@@ -146,7 +149,7 @@ if(detailed):
 	for i in xrange(0, len(layer)):	
 		os.system("python detailed.py detailed.tmp "+ str(i+1))
 		
-temp = open('tmp.results').readline()
+temp = open("tmp_"+str(pid)+".results").readline()
 if (float(min(results_list)))<0:
 	sys.stderr.write("error occurred\n")
 	sys.exit(1)
@@ -156,4 +159,5 @@ if (detailed):
 else:
 	print str(max(results_list))
 	
+
 	

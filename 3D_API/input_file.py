@@ -9,7 +9,7 @@ import re
 
 class input_file(object):
 
-	def __init__(self, input_file_name):
+	def __init__(self, input_file_name, pid):
 		
 		#self.__input_file_array = []
 		self.__sorted_input = []
@@ -24,6 +24,7 @@ class input_file(object):
 		self.__chip_freq = []
 		self.__chip_rotate = []
 		self.__ptrace_count = []
+		self.__pid = pid
 		#self.test = 1234
 		self.process_file(input_file_name)
 		self.set_all()
@@ -93,7 +94,9 @@ class input_file(object):
 			self.__chip_rotate += [int(data[5])]
 		
 	def sorted_to_file(self):
-		file_name = "sorted_LL.data"
+		#print "input file pid variable is "+str(self.__pid)
+		file_name = "sorted_"+str(self.__pid)+".data"
+		#file_name = "sorted_LL.data"
 		file = open(file_name,"w+")
 		to_write = ""
 		for tup in self.__sorted_input:
@@ -105,6 +108,7 @@ class input_file(object):
 		#print to_write
 		file.write(to_write)
 		file.close()
+		return file_name
 			
 	def ptrace_count(self):
 		layer_tmp = 0;
