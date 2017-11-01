@@ -14,6 +14,8 @@ base1_x = 0.016
 base1_y = 0.016
 base2_x = 0.013
 base2_y = 0.013 
+spreader_x = 0.06
+spreader_y = 0.06 
 
 material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
@@ -71,6 +73,10 @@ def floor(sorted_input, null_data, pid):
 			chip_xlen += [float(base2_x)]
 			chip_ylen += [float(base2_y)]
 			chip_name += ['base2']
+		elif 'spreader' in str(data[0]):
+			chip_xlen += [float(spreader_x)]
+			chip_ylen += [float(spreader_y)]
+			chip_name += ['spreader']
 		elif 'null' == str(data[0]):
 			chip_xlen += [0.00001]
 			chip_ylen += [0.00001]
@@ -96,6 +102,7 @@ def floor(sorted_input, null_data, pid):
 	floorplan=floorplan_LL.floorplan()
 	for i in xrange(1, layer_num):
 		#os.system("touch test" + str(i) + ".flp") #usd in lcf.py
+		#print "+++++++++++++++ here"
 		file_name = "test" + str(i) + "_"+str(pid)+".flp"
 		file = open(file_name,"w+")
 		for j in xrange(0, len(chip_layer)):

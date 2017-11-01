@@ -159,5 +159,5 @@ if (detailed):
 else:
 	print str(max(results_list))
 	
-
-	
+#clean up
+os.system("rm -f *"+str(pid)+"*")

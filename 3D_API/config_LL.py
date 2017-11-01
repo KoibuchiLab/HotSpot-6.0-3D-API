@@ -21,6 +21,9 @@ base1_y = 0.016
 base2_x = 0.013
 base2_y = 0.013
 
+spreader_x = 0.06
+spreader_y = 0.06
+
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
 AIR_H = 14 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
@@ -76,6 +79,9 @@ def config(sorted_input, material, pid):
 		elif 'base2' in chip_name:
 			chip_x += [float (base2_x)]
 			chip_y += [float (base2_y)]
+		elif 'spreader' in chip_name:
+			chip_x += [float (spreader_x)]
+			chip_y += [float (spreader_y)]
 		elif 'null' == chip_name:
 			chip_x += [0.00001]
 			chip_y += [0.00001]

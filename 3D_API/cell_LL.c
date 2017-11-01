@@ -20,6 +20,9 @@
 #define BASE1_Y 0.016
 #define BASE2_X 0.013
 #define BASE2_Y 0.013
+#define SPREADER_X 0.06
+#define SPREADER_Y 0.06
+ 
 
      
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
@@ -166,6 +169,9 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
+		}else if(strstr(chip_name, "spreader") != NULL){
+			chip_xlen = SPREADER_X;
+			chip_ylen = SPREADER_Y;
 		}else if(strstr(chip_name, "null") != NULL){
 			chip_xlen = 0.00001;
 			chip_ylen = 0.00001;
@@ -257,7 +263,10 @@ int main(int argc, char **argv){
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
-			}			
+			}	
+		}else if(strstr(chip_name, "spreader") != NULL){
+			chip_xlen = SPREADER_X;
+			chip_ylen = SPREADER_Y;			
 		}else if(strstr(chip_name, "null") != NULL){
 			chip_xlen = 0.00001;
 			chip_ylen = 0.00001;
