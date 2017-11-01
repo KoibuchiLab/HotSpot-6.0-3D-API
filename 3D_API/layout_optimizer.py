@@ -148,7 +148,8 @@ def optimize_layout_linear_random_greedy():
 	return [layout, power_distribution, temperature]
 
 """ Helper function """
-def evaluate_candidate(layout, candidate):
+def evaluate_candidate(args):
+	[layout, candidate] = args
         utils.info(1, "  - Evaluating candidate " + str(candidate))
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap())
         dummy_layout.add_new_chip(candidate)
@@ -239,11 +240,19 @@ def optimize_layout_random_greedy():
 		###		- Use the multithreading package
                 ###############################################
 
-                results = []
+		list_of_args = []
                 for index in xrange(0,len(candidate_random_trials)):
+			list_of_args.append([layout, candidate_random_trials[index]])
+	
+		print "DOING THE MAP"
+		results = map(evaluate_candidate, list_of_args)
 
-			result = evaluate_candidate(layout, candidate_random_trials[index])
-                        results.append(result)
+		print "RESULTS = ", results
+
+                #for index in xrange(0,len(candidate_random_trials)):
+#
+			#result = evaluate_candidate([layout, candidate_random_trials[index]])
+                        #results.append(result)
                 
 
                 ###############################################
