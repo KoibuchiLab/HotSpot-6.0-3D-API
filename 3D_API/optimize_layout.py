@@ -21,6 +21,8 @@ import utils
 #from scipy.optimize import fmin_slsqp
 #
 from layout import Chip
+from layout_optimizer import LayoutOptimizer
+from layout_optimizer import optimize_layout
 #from layout import Layout
 #
 
@@ -306,8 +308,6 @@ if __name__ == '__main__':
 	
 	
 	
-	
-	from layout_optimizer import *
 	LayoutOptimizer()
 
 	solution = optimize_layout()
