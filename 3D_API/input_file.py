@@ -93,10 +93,11 @@ class input_file(object):
 			self.__chip_freq += [str(data[4])]
 			self.__chip_rotate += [int(data[5])]
 		
-	def sorted_to_file(self):
+	def sorted_to_file(self, pid):
 		#print "input file pid variable is "+str(self.__pid)
-		file_name = "sorted_"+str(self.__pid)+".data"
-		#file_name = "sorted_LL.data"
+		file_name = "sorted_"+str(pid)+".data"
+		#print "input sorted file name is "+ file_name
+		#file_name = "sorted_"+str(pid)+".data"
 		file = open(file_name,"w+")
 		to_write = ""
 		for tup in self.__sorted_input:

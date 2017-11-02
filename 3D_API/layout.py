@@ -505,12 +505,12 @@ class Layout(object):
 		input_file.close()
 
 		# Call hotspot
-		command_line = "./hotspot.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+		command_line = "./hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
                 utils.info(3, "--> " + command_line)
                 #layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
-			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
+			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
 		except Exception, e:
     			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 		
