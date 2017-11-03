@@ -246,9 +246,10 @@ def optimize_layout_random_greedy():
 	
 		print "DOING THE MAP"
 		from multiprocessing import Pool
+		from multiprocessing import Pool
 		
 		#results = map(evaluate_candidate, list_of_args)
-		p = Pool(2)
+		p = Pool(processes=None)
 		results = p.map(evaluate_candidate, list_of_args)
 
 		print "RESULTS = ", results
