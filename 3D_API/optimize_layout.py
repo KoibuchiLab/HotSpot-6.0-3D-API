@@ -304,7 +304,7 @@ if __name__ == '__main__':
 	        utils.abort("Cannot use discrete power distribution optimization method with a fixed power budget")
 	
 	# Recompile cell.c with specified grid size
-	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
+	os.system("gcc -Ofast cell_LL.c -o cell_LL -DGRID_SIZE=" + str(argv.grid_size))
 	
 	
 	
