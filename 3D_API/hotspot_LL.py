@@ -17,7 +17,7 @@ output_grid_size = 128
 args = sys.argv
 
 def call_cell(sorted_file, pid):
-	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL -s; ./cell_LL " + sorted_file+" "+str(pid))
+	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL"+str(pid)+" -s; ./cell_LL"+str(pid)+" " + sorted_file+" "+str(pid))
 
 def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
@@ -26,6 +26,8 @@ def call_hotspot(material, pid):
 		print "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
 		#sys.exit(0)
 		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
+		
+		
 	
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
@@ -77,7 +79,7 @@ pid = os.getpid()
 #print "pid is "+str(pid)
 input = input_file.input_file(test_file, pid)
 sorted_input = input.get_sorted_file()
-sorted_file=input.sorted_to_file()
+sorted_file=input.sorted_to_file(pid)
 #print "sorted file name is "+str(sorted_file)
 layer = input.get_layer_array()
 
