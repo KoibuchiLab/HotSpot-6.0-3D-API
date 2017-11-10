@@ -198,7 +198,7 @@ class Layout(object):
 	""" Get the number of levels in the layout
 	"""
 	def get_num_levels(self):
-		levels = [level for [levels, x, y] in self.__chip_positions]
+		levels = [level for [level, x, y] in self.__chip_positions]
 		return max(levels)
 			
 
