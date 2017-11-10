@@ -29,6 +29,7 @@ def run_experiment(n, medium, diameter, scheme, num_levels, overlap, power_dist_
 
 	results = {}
 	results["scheme"] = scheme
+ 	results["power_dist_opt"] = power_dist_opt
 	results["num_levels"] = int(num_levels)
 	results["overlap"] = float(overlap)
 	results["num_chips"] = float(n)
