@@ -9,8 +9,8 @@ from math import sqrt
 
 import numpy as np
 
-from scipy.optimize import basinhopping
-from scipy.optimize import fmin_slsqp
+#from scipy.optimize import basinhopping
+#from scipy.optimize import fmin_slsqp
 
 from layout import *
 from power_optimizer import *
@@ -244,13 +244,13 @@ def optimize_layout_random_greedy():
                 for index in xrange(0,len(candidate_random_trials)):
 			list_of_args.append([layout, candidate_random_trials[index]])
 	
-		print "DOING THE MAP"
-		from multiprocessing import Pool
-		from multiprocessing import Pool
+		#print "DOING THE MAP"
+		#from multiprocessing import Pool
+		#from multiprocessing import Pool
 		
-		#results = map(evaluate_candidate, list_of_args)
-		p = Pool(processes=None)
-		results = p.map(evaluate_candidate, list_of_args)
+		results = map(evaluate_candidate, list_of_args)
+		#p = Pool(processes=None)
+		#results = p.map(evaluate_candidate, list_of_args)
 
 		print "RESULTS = ", results
 

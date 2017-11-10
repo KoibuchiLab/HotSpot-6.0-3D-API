@@ -14,8 +14,8 @@ from math import sqrt
 
 import numpy as np
 
-from scipy.optimize import basinhopping
-from scipy.optimize import fmin_slsqp
+#from scipy.optimize import basinhopping
+#from scipy.optimize import fmin_slsqp
 
 from layout import Chip
 from layout import Layout
