@@ -325,7 +325,7 @@ if __name__ == '__main__':
 	print "Layout =", layout.get_chip_positions()
 	print "Topology = ", layout.get_topology()
 	print "Number of edges = ", len(layout.get_topology())
-	print "Number of levels = ", int(argv.num_levels)
+	print "Number of levels = ", int(layout.get_num_levels())
 	print "Diameter = ", layout.get_diameter()
 	print "ASPL = ", layout.get_ASPL()
 	print "Power budget = ", float("%.4f" % sum(power_distribution))
