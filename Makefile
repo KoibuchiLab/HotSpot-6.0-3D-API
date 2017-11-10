@@ -15,7 +15,7 @@ endif
 ifeq ($(SUPERLU), 1)
 #Super LU
 SuperLUroot = /usr/lib/x86_64-linux-gnu
-SUPERLULIB      = $(SuperLUroot)/libsuperlu.so.4
+SUPERLULIB      = $(SuperLUroot)/libsuperlu.so
 BLASLIB         = -L $(SuperLUroot) -lblas
 #SLU_HEADER  = /home/koibuchi/compile/SuperLU_4.3/SRC
 SLU_HEADER  = /usr/include/superlu/

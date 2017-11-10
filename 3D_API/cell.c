@@ -56,7 +56,7 @@ int main(int argc, char **argv){
 	int x, y;
 	float chip_x, chip_y;
 	float chip_xlen, chip_ylen;
-	int layer;
+	int layer=0;
 	int rotate;
 	char *freq; 
 

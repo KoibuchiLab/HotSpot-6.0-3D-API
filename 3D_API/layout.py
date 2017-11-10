@@ -510,7 +510,7 @@ class Layout(object):
                 #layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
-			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
+			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
 		except Exception, e:
     			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 		
