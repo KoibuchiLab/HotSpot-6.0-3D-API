@@ -165,7 +165,10 @@ def optimize_layout_random_greedy():
 	#utils.abort("optimize_layout_random_greedy() is not implemented yet")
 
 	# Create an initial layout: For now, a diagonal rectilinear layout
-	layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
+	#layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
+
+	# Create an initial layout: For now, a 3-chip checkboard
+	layout = LayoutBuilder.compute_checkerboard_layout(3)
 
 
 	# While num_chips != desired num_chips

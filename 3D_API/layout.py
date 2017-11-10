@@ -778,14 +778,70 @@ class LayoutBuilder(object):
 	
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
+	"""Function to compute a generalized checkerboard layout (overlap > 0.25) """
+	@staticmethod
+	def compute_generalized_checkerboard_layout(num_chips):
+
+	
+	        positions = []
+
+		if (num_chips < 3):
+			utils.abort("Cannot compute a generalized checkerboard layout with fewer than 3 chips")
+
+		if ((num_chips % 3 != 0) and (num_chips %3 != 1)):
+			utils.abort("Cannot compute a generalized checkerboard layout with a number of chips that's not of the form 3*k or 3*k+1")
+
+		x_dim = utils.argv.chip.x_dimension
+		y_dim = utils.argv.chip.y_dimension
+
+		if (x_dim != y_dim):
+			utils.abort("Cannot compute a generalized checkerboard layout non-square chips")
+	    
+		overlap = utils.argv.overlap
+	        
+		# Add the base structures on top of each other
+		current_level = 1
+		current_orientation = 0
+		for i in xrange(0, num_chips / 3):
+			if current_orientation == 0:
+				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level + 1, 0 * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+			else:
+				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
+				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
+
+			current_level += 2
+			current_orientation = 1 - current_orientation
+
+		# Is there an extra chip?
+		if (num_chips % 3  == 1):
+				positions.append([current_level , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+
+		#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		#layout.draw_in_3D(None, True)
+		#print "---> POSITIONS=", positions
+		
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+	    
+                
 
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
 	def compute_checkerboard_layout(num_chips):
 	
 	
-	        if (utils.argv.overlap > 0.25):
+	        if (utils.argv.overlap > 0.5):
 	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
+		
+		if (utils.argv.overlap > 0.25):
+			utils.info(2, "Computing a generalized checkerboard with more than 1/4-th overlap")
+			return LayoutBuilder.compute_generalized_checkerboard_layout(num_chips)
+
+		if (num_chips == 3):
+			utils.info(2, "Computing a generalized checkerboard with 3 chips")
+			return LayoutBuilder.compute_generalized_checkerboard_layout(num_chips)
 	
 
 	        positions = []
@@ -796,7 +852,7 @@ class LayoutBuilder(object):
 		x_offset = utils.argv.chip.x_dimension - x_overlap
 		y_offset = utils.argv.chip.y_dimension - y_overlap
 	    
-		if ((utils.argv.num_chips == 5) and (utils.argv.num_levels == 2)): 
+		if ((num_chips == 5) and (utils.argv.num_levels == 2)): 
                     # Create level 1
                     positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
@@ -806,7 +862,7 @@ class LayoutBuilder(object):
                     # Create level 2
 	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
 	    
-		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 2)):
+		elif ((num_chips == 9) and (utils.argv.num_levels == 2)):
 		    # Create level 1
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
@@ -820,7 +876,7 @@ class LayoutBuilder(object):
 		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
 		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 
-		elif ((utils.argv.num_chips == 9) and (utils.argv.num_levels == 3)):
+		elif ((num_chips == 9) and (utils.argv.num_levels == 3)):
 
                     # Create level 1
                     positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
@@ -837,7 +893,7 @@ class LayoutBuilder(object):
                     positions.append([3, 0 + 2 * x_offset, y_offset + 0 * y_offset])
                     positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
 
-		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 2)):
+		elif ((num_chips == 13) and (utils.argv.num_levels == 2)):
 		    # Create level 2
                     positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
                     positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
@@ -855,7 +911,7 @@ class LayoutBuilder(object):
 		    positions.append([1, 0 + 4 * x_offset, 2 * y_offset])
 		    positions.append([1, 0 + 4 * x_offset, 4 * y_offset])
 
-		elif ((utils.argv.num_chips == 13) and (utils.argv.num_levels == 3)):
+		elif ((num_chips == 13) and (utils.argv.num_levels == 3)):
 
 		    # Create level 1
                     positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
@@ -876,7 +932,7 @@ class LayoutBuilder(object):
                     positions.append([3, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
                     positions.append([3, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
-		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 2)):
+		elif ((num_chips == 21) and (utils.argv.num_levels == 2)):
 		    # Create level 1
                     positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
                     positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
@@ -905,7 +961,7 @@ class LayoutBuilder(object):
 		    positions.append([2, x_offset + 4 * x_offset, y_offset + 2 * y_offset])
 		    positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
 
-		elif ((utils.argv.num_chips == 21) and (utils.argv.num_levels == 3)):
+		elif ((num_chips == 21) and (utils.argv.num_levels == 3)):
 
 	            # Create level 1
 		    positions.append([1, 0 + 0 * x_offset, 0 + 0 * y_offset])
@@ -987,7 +1043,7 @@ class LayoutBuilder(object):
 	                positions.remove([victim_l, victim_x, victim_y])
 	    
 		else:
-	                utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(utils.argv.num_chips) + " chips")
+	                utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(num_chips) + " chips")
 
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	    

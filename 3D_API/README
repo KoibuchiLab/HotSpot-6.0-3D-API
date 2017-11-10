@@ -62,7 +62,7 @@ Usage: python hotspot.py  <input file (.data)> [water | air | oil ]
 
 For instance, running
 
-python ./hostspot.py test.data water --no_images
+python ./hotspot.py test.data water --no_images
 
 should print out something like: "maximum temp: 36.51"
 
