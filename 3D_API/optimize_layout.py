@@ -11,6 +11,8 @@ import argparse
 from argparse import RawTextHelpFormatter
 
 import utils
+from layout import *
+
 
 #
 #from math import sqrt
@@ -204,11 +206,15 @@ VISUAL PROGRESS OUTPUT:
                             dest='power_benchmark', metavar='<power benchmark>',
                             help='benchmark used to determine available chip power levels (default: overall_max)')
 
-
 	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
 		            type=float, required=False,
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
+
+	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true', 
+                            required=False, 
+                            dest='constrained_overlap_geometry', 
+                            help='Force chip overlap area to be a string or a rectangle with same aspect ratio as the chip')
 
 	parser.add_argument('--power_budget', '-p', action='store',
 		            type=float, required=False,
@@ -244,6 +250,7 @@ VISUAL PROGRESS OUTPUT:
                             required=False, 
                             dest='export_to_PDF', metavar='<PDF file path>',
                             help='Saves a PDF of the final layout viewed from above')
+
 	parser.add_argument('--show_in_3D', '-s', action='store_true', 
                             required=False, 
                             dest='show_in_3D', 
@@ -307,6 +314,7 @@ if __name__ == '__main__':
 	os.system("gcc -Ofast cell_LL.c -o cell_LL -DGRID_SIZE=" + str(argv.grid_size))
 	
 	
+	#LayoutBuilder.plot_custom_layout([[1, 0.04658333333342, 0.04658333333342], [2, 0.039, 0.04658333333342], [2, 0.054166666666839995, 0.04658333333342], [3, 0.06118531404603599, 0.04535603277612142], [2, 0.06844800401714311, 0.04608256902552676], [1, 0.07583789608876314, 0.04653082001026776], [2, 0.08181970413659798, 0.04356426838920758], [3, 0.0880624717912586, 0.046143335222079154], [2, 0.09517271435564352, 0.04509911904430141], [3, 0.04785194584383044, 0.044116426238186304], [3, 0.07466364380329842, 0.042613788179219056], [1, 0.060330541981455606, 0.04928266301122845], [1, 0.08902253255766641, 0.04441754033281321]])
 	
 	LayoutOptimizer()
 

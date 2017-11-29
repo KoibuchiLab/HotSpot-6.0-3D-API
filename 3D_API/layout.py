@@ -231,6 +231,7 @@ class Layout(object):
                         [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
                         [position2[1], position2[2]],
                         [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+		 print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
 
                  if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
 			return False
@@ -313,6 +314,7 @@ class Layout(object):
 				return False
 		#print "   - YES: FITS"
 		return True
+
 
 
 	""" Draw in 3D
@@ -631,23 +633,38 @@ class Layout(object):
         	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
 	        - rectangle_dimensions = [x,y]: size of the rectangle sides
        		- overlap: the fraction of overlap
+		- strip_or_square: True if the overlapping rectangle should be either a strip or
+                                   a square
     	   returns:
         	- [x,y]: bottom left corner of the new rectangle
 	"""
+
 	@staticmethod
-	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap):
+	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap, strip_or_square):
 	
 	         [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
 	         [dim_x, dim_y] = rectangle_dimensions
 	
 	         candidates = []
 	         
-	         # Assume for now that the overlap is in the North-East region
-	         # pick an x value
-	         picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
-	
-	         # compute the y value that makes the right overlap
-	         picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+         	 # Assume for now that the overlap is in the North-East region
+		 if (not strip_or_square):
+	         	# pick an x value
+	         	picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+		
+	         	# compute the y value that makes the right overlap
+	         	picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+		 else:
+			square = (random.uniform(0,1) <= 0.5)
+			print "STRIP OR SQUARE"
+			if (square): # square
+				print "SQUARE"
+				picked_x = rectangle1_x + dim_x - sqrt(overlap) * dim_x
+				picked_y = rectangle1_y + dim_y - sqrt(overlap) * dim_y
+			else: # strip
+				print "STRIP"
+				picked_x = rectangle1_x + (1.0 - overlap) * dim_x
+				picked_y = rectangle1_y
 	
 	         # Add this to the set of candidates
 	         candidates.append([picked_x, picked_y])
@@ -708,7 +725,7 @@ class Layout(object):
 			#utils.info(1,"chip_position %s\n"%chip_position)
                 	picked_level = utils.pick_random_element(possible_levels)
 			#print"picked_level %s\n"%picked_level
-                	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap)
+                	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
                 	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
 				utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
 				return [picked_level, picked_x, picked_y];
@@ -731,6 +748,7 @@ class LayoutBuilder(object):
 	
         	for level in xrange(1, num_chips+1):
                 	positions.append([level, 0.0, 0.0])
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
@@ -844,6 +862,10 @@ class LayoutBuilder(object):
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 	    
                 
+	@staticmethod
+	def plot_custom_layout(positions):
+	        layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		layout.draw_in_3D(None, True)
 
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
