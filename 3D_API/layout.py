@@ -231,7 +231,7 @@ class Layout(object):
                         [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
                         [position2[1], position2[2]],
                         [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-		 print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
 
                  if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
 			return False
@@ -513,9 +513,13 @@ class Layout(object):
 		input_file.close()
 
 		# Call hotspot
-		command_line = "./hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
-                utils.info(3, "--> " + command_line)
-                #layout.draw_in_3D("./broken2.pdf", False)
+		if utils.argv.mpi == 'test':
+			command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+		else:
+			print "calling real hotspot"
+			command_line = "./hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+		utils.info(3, "--> " + command_line)
+		#layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)

@@ -240,6 +240,10 @@ VISUAL PROGRESS OUTPUT:
                             type=int, required=False, default=0,
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
+	parser.add_argument('--mpi', '-M', action='store', 
+                            required=False,
+                            dest='mpi', metavar='<Type of MPI run>',
+                            help='real, calls hotspot_LL.py. test, calls fake_hotspot_LL.py')
 
 #	parser.add_argument('--draw_in_octave', '-D', action='store', 
 #                            required=False, 
@@ -315,6 +319,9 @@ if __name__ == '__main__':
 	
 	
 	#LayoutBuilder.plot_custom_layout([[1, 0.04658333333342, 0.04658333333342], [2, 0.039, 0.04658333333342], [2, 0.054166666666839995, 0.04658333333342], [3, 0.06118531404603599, 0.04535603277612142], [2, 0.06844800401714311, 0.04608256902552676], [1, 0.07583789608876314, 0.04653082001026776], [2, 0.08181970413659798, 0.04356426838920758], [3, 0.0880624717912586, 0.046143335222079154], [2, 0.09517271435564352, 0.04509911904430141], [3, 0.04785194584383044, 0.044116426238186304], [3, 0.07466364380329842, 0.042613788179219056], [1, 0.060330541981455606, 0.04928266301122845], [1, 0.08902253255766641, 0.04441754033281321]])
+	
+	#if argv.mpi:
+	#	print '######Testing MPI w/ FAKE hotspot#######'
 	
 	LayoutOptimizer()
 
