@@ -415,9 +415,9 @@ def optimize_layout_random_greedy_mpi():
 			###		- Use the multithreading package
 			###############################################
 
-			list_of_args = []
-			for index in xrange(0,len(candidate_random_trials)):
-				list_of_args.append([layout, candidate_random_trials[index]])
+			#list_of_args = []
+			#for index in xrange(0,len(candidate_random_trials)):
+			#	list_of_args.append([layout, candidate_random_trials[index]])
 		
 			#print "DOING THE MAP"
 			#from multiprocessing import Pool
@@ -447,10 +447,12 @@ def optimize_layout_random_greedy_mpi():
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
 			#print 'worker list is ', worker_list		
+			"""
 			for k in range(0, len(worker_list)):
 				stop_worker = [0, 0, 0, 0, 1]
 				#print 'sending stop signal to ',k+1,' num chips is ', layout.get_num_chips()
 				comm.send(stop_worker,dest = k+1)
+			"""
 			#print "RESULTS = ", results
 
 			#for index in xrange(0,len(candidate_random_trials)):
@@ -521,6 +523,12 @@ def optimize_layout_random_greedy_mpi():
 
 		[power_distribution, temperature] = result
 		#print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
+		
+		for k in range(0, len(worker_list)):
+				stop_worker = [0, 0, 0, 0, 1]
+				#print 'sending stop signal to ',k+1,' num chips is ', layout.get_num_chips()
+				comm.send(stop_worker,dest = k+1)
+		
 		return [layout, power_distribution, temperature]
 		
 	else:
