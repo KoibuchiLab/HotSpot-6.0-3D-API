@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import time
 
 def load_ars(arg_dict):
 	arguments = " "
@@ -44,7 +45,7 @@ max_allowed_temperature = 59
 verbose = 3
 mpi = 'test'
 
-num_mpi_ranks = 4
+#num_worker_ranks = 4
 """
 ================================================================================================================================================================
 =======CHANGE ONLY ABOVE THIS==============================================================================================================================
@@ -55,6 +56,26 @@ num_mpi_ranks = 4
 arg_dict = {"--medium":medium, "--chip":chip, "--numchips":numchips, "--diameter": diameter, "--layout_scheme":layout_scheme, "--numlevels":numlevels, "--powerdistopt":powerdistopt, "--powerdistopt_num_iterations":powerdistopt_num_iterations, "--powerdistopt_num_trials":powerdistopt_num_trials, "--power_benchmark":power_benchmark, "--overlap":overlap, "power_budget":power_budget, "--overlap":overlap, "--power_binarysearch_epsilon":power_binarysearch_epsilon, "--max_allowed_temperature":max_allowed_temperature, "--grid_size":grid_size, "--verbose":verbose, "--mpi":mpi}
 
 run_string = load_ars(arg_dict)
-
-print "mpirun -np "+str(num_mpi_ranks)+" ./optimize_layout.py"+run_string
-os.system("mpirun -np "+str(num_mpi_ranks)+" ./optimize_layout.py"+run_string)
+test_results = []
+write_string = "num_workers\tavg_runtime"
+import multiprocessing
+max_num_workers = multiprocessing.cpu_count()
+for num_worker_ranks in range(1,max_num_workers+1):
+	avg = -1
+	to_avg = []
+	for trial in range(1,11):
+		start = time.time()
+		print "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string, 'trial ', trial
+		#os.system("mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string)
+		#time.sleep(num_worker_ranks)
+		end = time.time()
+		to_avg.append((end-start))
+	avg = (sum(to_avg)/len(to_avg))
+	write_string +="\n"+str(num_worker_ranks)+"\t"+str(avg)
+try:
+	f = open("mpi_results.txt","w+")
+	f.write(write_string)
+	f.close()
+except IOError:
+	print "IOError!!!"
+	sys.exit(1)
