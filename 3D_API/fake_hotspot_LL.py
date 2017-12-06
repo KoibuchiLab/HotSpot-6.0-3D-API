@@ -24,7 +24,7 @@ def call_cell(sorted_file, pid):
 
 def call_hotspot(material, pid):
 	#print "calling hotspot"
-	#time.sleep(1)
+	time.sleep(1)
 	"""
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
 		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
