@@ -514,19 +514,23 @@ class Layout(object):
 
 		# Call hotspot
 		if utils.argv.mpi == 'test':
-			command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+			#command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+			command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		else:
-			print "calling real hotspot"
+#			print "calling real hotspot"
 			command_line = "./hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		utils.info(3, "--> " + command_line)
 		#layout.draw_in_3D("./broken2.pdf", False)
 		try:
 			devnull = open('/dev/null', 'w')
+#			print "calling FAKE hotspot"
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
+#			print "returning FAKE hotspot"
 		except Exception, e:
     			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 		
 		string_output = proc.stdout.read().rstrip()
+#		print 'STRING OUTPUT ',string_output
 		try:
 			#tokens = string_output.split(" ")
 			#temperature = float(tokens[2])

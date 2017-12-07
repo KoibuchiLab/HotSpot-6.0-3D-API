@@ -334,7 +334,7 @@ def optimize_layout_random_greedy():
 """Random greedy layout optimization with MPI"""
 
 def optimize_layout_random_greedy_mpi():
-	
+#	print "MPI random greedy"	
 	comm =  MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()

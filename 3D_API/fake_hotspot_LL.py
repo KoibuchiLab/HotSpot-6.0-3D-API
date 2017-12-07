@@ -23,7 +23,7 @@ def call_cell(sorted_file, pid):
 	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL"+str(pid)+" -s; ./cell_LL"+str(pid)+" " + sorted_file+" "+str(pid))
 
 def call_hotspot(material, pid):
-	#print "calling hotspot"
+#	print "in fake hotspot"
 	time.sleep(1)
 	"""
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
@@ -175,8 +175,10 @@ else:
 	print str(max(results_list))
 """
 if (detailed):
+#	print "RETURNING HOTSPOT ANSWER"
 	print round(random.uniform(57,59),2)
 else:
+#	print "RETURNING HOTSPOT ANSWER"
 	print round(random.uniform(57,59),2)
 	
 #clean up
