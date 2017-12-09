@@ -68,6 +68,18 @@ for line in data_lines:
 		chip_xlen += [float(base1_x)]
 		chip_ylen += [float(base1_y)]
 		chip_name += ['base1']
+	elif 'base2L2' in str(data[0]):
+		chip_xlen += [float(base2_x)]
+		chip_ylen += [float(base2_y)]
+		chip_name += ['base2L2']
+	elif 'base2CPU' in str(data[0]):
+		chip_xlen += [float(base2_x)]
+		chip_ylen += [float(base2_y)]
+		chip_name += ['base2CPU']
+	elif 'base2DRAM' in str(data[0]):
+		chip_xlen += [float(base2_x)]
+		chip_ylen += [float(base2_y)]
+		chip_name += ['base2DRAM']
 	elif 'base2' in str(data[0]):
 		chip_xlen += [float(base2_x)]
 		chip_ylen += [float(base2_y)]
