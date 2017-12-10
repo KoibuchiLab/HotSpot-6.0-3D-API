@@ -2,7 +2,7 @@
 import os
 import sys
 
-num_of_division = 16 ##base2 default 4
+num_of_division = 4 ##base2 default 4
 
 freq1 = [2000,1900,1800,1700,1600,1500,1400,1300,1200,1100,1000]
 
