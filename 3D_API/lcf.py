@@ -2,8 +2,8 @@
 import os
 import sys
 
-thickness_of_chip = 0.00015 ## (meter)  default:150um
-vertical_distance_between_chips = '2.0e-5' ## (meter) default:20um
+thickness_of_chip = 0.00004 ## (meter)  default:40um
+vertical_distance_between_chips = '1.0e-5' ## (meter) default:10um
 
 
 
