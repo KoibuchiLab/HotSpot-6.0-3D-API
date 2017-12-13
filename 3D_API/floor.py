@@ -88,6 +88,10 @@ for line in data_lines:
 		chip_xlen += [float(base2_x)]
 		chip_ylen += [float(base2_y)]
 		chip_name += ['base2']
+	elif 'base3' in str(data[0]):
+		chip_xlen += [float(base2_x)]
+		chip_ylen += [float(base2_y)]
+		chip_name += ['base2']
 	elif 'spreader' in str(data[0]):
 		chip_xlen += [float(spreader_x)]
 		chip_ylen += [float(spreader_y)]
