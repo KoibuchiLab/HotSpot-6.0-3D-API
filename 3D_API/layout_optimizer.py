@@ -36,7 +36,7 @@ def optimize_layout():
 
         # Compute continuous solution
         layout_scheme = utils.argv.layout_scheme.split(":")[0]
-
+	
 	if (layout_scheme == "stacked"):
                 solution = optimize_layout_stacked()
 	elif (layout_scheme == "rectilinear_straight"):
@@ -48,9 +48,12 @@ def optimize_layout():
 	elif (layout_scheme == "linear_random_greedy"):
 		solution =  optimize_layout_linear_random_greedy()
 	elif (layout_scheme == "random_greedy"):
-		solution =  optimize_layout_random_greedy()
-	elif (layout_scheme == "random_greedy_mpi"):
-		solution =  optimize_layout_random_greedy_mpi()
+		if(utils.argv.mpi):
+			solution =  optimize_layout_random_greedy_mpi()
+			#print "!!!!MPI!!!!!!!!!"
+		else:
+			solution =  optimize_layout_random_greedy()
+			#print "$$$$$$$$$$$regular$$$$$$$$$$"
 	else:
 		utils.abort("Layout scheme '" + utils.argv.layout_scheme + "' is not supported")
 

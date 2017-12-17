@@ -7,7 +7,13 @@ import subprocess
 def load_ars(arg_dict):
 	arguments = " "
 	for x in arg_dict:
-		if arg_dict[x] != None:
+		#print x
+		if x == "--mpi" and arg_dict[x] != None:
+			arguments +=" "+str(x)
+			print x
+		elif x == "--test" and arg_dict[x] != None:
+			arguments +=" "+str(x)
+		elif arg_dict[x] != None:
 			arguments +=" "+str(x)+" "+str(arg_dict[x])
 	return arguments
 
@@ -36,7 +42,7 @@ numchips = 5
 medium = "air"
 chip = "base2"
 diameter = 3
-layout_scheme = "random_greedy_mpi"
+layout_scheme = "random_greedy"
 numlevels = 3
 powerdistopt = "uniform_discrete"
 powerdistopt_num_iterations = 1
@@ -44,8 +50,8 @@ powerdistopt_num_trials = 1
 overlap = .3
 max_allowed_temperature = 59
 verbose = 0
-mpi = 'real'
-
+mpi = True
+test = True
 #num_worker_ranks = 4
 """
 ================================================================================================================================================================
@@ -54,15 +60,17 @@ mpi = 'real'
 """
 
 
-arg_dict = {"--medium":medium, "--chip":chip, "--numchips":numchips, "--diameter": diameter, "--layout_scheme":layout_scheme, "--numlevels":numlevels, "--powerdistopt":powerdistopt, "--powerdistopt_num_iterations":powerdistopt_num_iterations, "--powerdistopt_num_trials":powerdistopt_num_trials, "--power_benchmark":power_benchmark, "--overlap":overlap, "power_budget":power_budget, "--overlap":overlap, "--power_binarysearch_epsilon":power_binarysearch_epsilon, "--max_allowed_temperature":max_allowed_temperature, "--grid_size":grid_size, "--verbose":verbose, "--mpi":mpi}
-
+arg_dict = {"--medium":medium, "--chip":chip, "--numchips":numchips, "--diameter": diameter, "--layout_scheme":layout_scheme, "--numlevels":numlevels, "--powerdistopt":powerdistopt, "--powerdistopt_num_iterations":powerdistopt_num_iterations, "--powerdistopt_num_trials":powerdistopt_num_trials, "--power_benchmark":power_benchmark, "--overlap":overlap, "--power_budget":power_budget, "--overlap":overlap, "--power_binarysearch_epsilon":power_binarysearch_epsilon, "--max_allowed_temperature":max_allowed_temperature, "--grid_size":grid_size, "--verbose":verbose, "--mpi":mpi, "--test":test}
+#print "arg dict is ",arg_dict
 run_string = load_ars(arg_dict)
 test_results = []
 write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
-max_num_workers = multiprocessing.cpu_count()
-#max_num_workers = 4
+#max_num_workers = multiprocessing.cpu_count()
+max_num_workers = 4
+#print run_string
+
 try:
 	for num_worker_ranks in range(1,max_num_workers):
 		avg = -1
@@ -94,12 +102,4 @@ try:
 except IOError:
 	print "IOError!!!"
 	sys.exit(1)
-"""
-try:
-	g = open("mpi_avg_results.txt","w+")
-	g.write(write_string)
-	g.close()
-except IOError:
-	print "IOError!!!"
-	sys.exit(1)
-"""
+

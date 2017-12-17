@@ -513,11 +513,12 @@ class Layout(object):
 		input_file.close()
 
 		# Call hotspot
-		if utils.argv.mpi == 'test':
+		if utils.argv.test:
 			#command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 			command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
+			#print "calling FAKE hotspot"
 		else:
-#			print "calling real hotspot"
+			#print "calling real hotspot"
 			command_line = "./hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		utils.info(3, "--> " + command_line)
 		#layout.draw_in_3D("./broken2.pdf", False)
