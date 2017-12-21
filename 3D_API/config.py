@@ -26,6 +26,7 @@ spreader_y = 0.06
 
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
+#AIR_H = 40 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
 AIR_H = 14 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
 #AIR_H = 13 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
 OIL_H = 160 # W/(m^2 K) Heat Transffer Coefficient of OIL (using natural convection)
@@ -93,6 +94,9 @@ for line in chip_lines:
 		chip_x += [float (base1_x)]
 		chip_y += [float (base1_y)]
 	elif 'base2' in chip_name:
+		chip_x += [float (base2_x)]
+		chip_y += [float (base2_y)]
+	elif 'base3' in chip_name:
 		chip_x += [float (base2_x)]
 		chip_y += [float (base2_y)]
 	elif 'spreader' in chip_name:

@@ -145,7 +145,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}			
-		}else if(strstr(chip_name, "base2") != NULL){
+		}else if(strstr(chip_name, "base2") != NULL || strstr(chip_name, "base3") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = BASE2_X;
 				chip_ylen = BASE2_Y;
@@ -240,7 +240,7 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}			
-		}else if(strstr(chip_name, "base2") != NULL){
+		}else if(strstr(chip_name, "base2") != NULL || strstr(chip_name, "base3") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = BASE2_X;
 				chip_ylen = BASE2_Y;
