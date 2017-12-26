@@ -9,7 +9,8 @@ import operator
 class floorplan(object):
 
 	def __init__(self):
-	
+
+		"""
 		self.__base1 = [
 		('CORE0_0', 0.004, 0.004, 0, 0),
 		('CORE0_1', 0.004, 0.004, 0, 0.004),
@@ -47,7 +48,7 @@ class floorplan(object):
 		('CORE2', 0.00325, 0.00325, 0.0065, 0.00975),
 		('CORE3', 0.00325, 0.00325, 0.00975, 0.00975)
 		]
-		
+
 		self.__e5_2667v4 = [
 		('NULL0', 0.0126307, 0.00343128, 0, 0),
 		('NULL1', 0.0126307, 0.00257346, 0, 0.0115954),
@@ -70,7 +71,7 @@ class floorplan(object):
 		('6_LL', 0.00212976, 0.00204102, 0.00579768, 0.00751332),
 		('7_LL', 0.00212976, 0.00204102, 0.00579768, 0.00955434),
 		]
-		
+
 		self.__phi7250 = [
 		('EDGE_0', 0.031500, 0.001809, 0.000000, 0.000000),
 		('EDGE_1', 0.031500, 0.001809, 0.000000, 0.018691),
@@ -245,7 +246,7 @@ class floorplan(object):
 		('41_CORE_0', 0.001676, 0.001105, 0.025170, 0.017586),
 		('41_CORE_1', 0.001676, 0.001105, 0.028242, 0.017586)
 		]
-		
+
 		self.__tulsa = [
 		('CORE_0', 0.00825244, 0.00487644, 0.000250074, 0.00212563),
 		('CORE_1', 0.00825244, 0.00487644, 0.000250074, 0.0148794),
@@ -259,12 +260,13 @@ class floorplan(object):
 		('AIR_4', 0.0015838, 0.0176302, 0.020256, 0.00212563),
 		('AIR_5', 0.00825244, 0.00345936, 0.000250074, 0.00921106)
 		]
-		
+
 		self.__spreader = [
 		('SPREADER', 0.06, 0.06, 0, 0)
 		]
-	
+		"""
 	def get_floorplan(self, name):
+		"""
 		if (name == 'base1'):
 			return self.__base1
 		elif (name == 'base2'):
@@ -277,35 +279,54 @@ class floorplan(object):
 			return self.__tulsa
 		else:
 			print "Chip Type Not Valid"
-			
+		"""
+		try:
+			floorplan_path = "FLOORPLAN/"+str(name)+".flp"
+			read = open(floorplan_path)
+			floorplan = read.readlines()
+			read.close()
+			#for line in floorplan:
+
+		except IOError:
+			print '\nCould not open FLOORPLAN/',name,'.flp,\nRemoving temp files containing pid = ',pid
+			read.close()
+			os.system("rm -f *"+str(pid)+"*")
+			print '********EXITING floorplan_LL********'
+			sys.exit(1)
+		return floorplan
+
 	def write_rotate_0(self, chip_name, chip_layer, count, chip_x, chip_y):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y
 		string_to_write = ""
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(lines[1],'.8f'))+" "+str(format(lines[2],'.8f'))+" "+str(format(lines[3]+chip_x,'.8f'))+" "+str(format(lines[4]+chip_y,'.8f'))+'\n' )
+			lines = lines.split()
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[3])+chip_x,'.8f'))+" "+str(format(float(lines[4])+chip_y,'.8f'))+'\n' )
 		return string_to_write
-		
+
 	def write_rotate_90(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
 		string_to_write
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(lines[2],'.8f'))+" "+str(format(lines[1],'.8f'))+" "+str(format(lines[4]+chip_x,'.8f'))+" "+str(format(chip_x, '.8f'))+" "+str(format(chip_xlen-lines[3]-lines[1]+chip_y,'.8f'))+"\n" )
+			lines = lines.split()
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(chip_x, '.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_y,'.8f'))+"\n" )
 		return string_to_write
-		
+
 	def write_rotate_180(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
 		array_to_write = []
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
-			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(lines[1],'.8f'))+" "+str(format(lines[2],'.8f'))+" "+str(format(chip_xlen,'.8f'))+" "+str(format(chip_xlen-lines[3]+lines[1]+chip_x,'.8f'))+" "+str(format(chip_ylen-lines[4]-lines[2]+chip_y,'.8f'))+'\n' )
+			lines = lines.split()
+			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(chip_xlen,'.8f'))+" "+str(format(chip_xlen-float(lines[3])+float(lines[1])+chip_x,'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_y,'.8f'))+'\n' )
 		return array_to_write
-		
+
 	def write_rotate_270(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
 		array_to_write = []
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
-			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(lines[2],'.8f'))+" "+str(format(lines[1],'.8f'))+" "+str(format(chip_ylen-lines[4]-lines[2]+chip_x,'.8f'))+" "+str(format(lines[3]+chip_y,'.8f'))+'\n' )
+			lines = lines.split()
+			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_x,'.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
 		return array_to_write

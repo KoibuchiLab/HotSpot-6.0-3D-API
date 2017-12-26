@@ -10,12 +10,12 @@ import re
 class input_file(object):
 
 	def __init__(self, input_file_name, pid):
-		
+
 		#self.__input_file_array = []
 		self.__sorted_input = []
 		#self.__sorted_input = self.process_file(input_file_name);
 		#print "self. sorted input "+str(self.__sorted_input)
-		
+
 		#all the following were populated after main sort
 		self.__chip_name = []
 		self.__layer_array = []
@@ -30,41 +30,41 @@ class input_file(object):
 		self.set_all()
 		#self.sorted_to_file()
 		#*******call a write to file func so cell can use sorted data file
-		
+
 	def get_sorted_file(self):
 		return self.__sorted_input
-		
+
 	def get_chip_name(self):
 		return self.__chip_name
-		
-		
+
+
 	def get_layer_array(self):
 		return self.__layer_array
-		
+
 	def get_chip_x(self):
 		return self.__chip_x
-		
+
 	def get_chip_y(self):
 		return self.__chip_y
-		
+
 	def get_chip_freq(self):
 		return self.__chip_freq
-		
+
 	def get_chip_rotate(self):
 		return self.__chip_rotate
-		
+
 	def get_chip_name(self):
 		return self.__chip_name
-		
+
 	def get_ptrace_count(self):
 		return self.__ptrace_count
-		
-	
+
+
 	def process_file(self, input_file_name):
 		read = open(input_file_name)
 		input_object = read.readlines()
 		read.close
-		
+
 		line_number = 1
 		to_sort = []
 		sortedarray = []
@@ -76,14 +76,14 @@ class input_file(object):
 			line_number += 1
 			to_sort.append(tuple(line))
 			#self.__layer_array.append(int(line[1]))
-		
-		#print"to sort is "+str(to_sort)	
+
+		#print"to sort is "+str(to_sort)
 		self.__layer_array.sort()
 		self.__sorted_input =  sorted(to_sort, key=operator.itemgetter(1,0))
 		#sortedarray = sorted(to_sort, key=operator.itemgetter(1,0))
 		#print "sorted is "+str(sortedarray)
 		#return sorted
-		
+
 	def set_all(self):
 		for data in self.__sorted_input:
 			self.__chip_name += [str(data[0])]
@@ -92,7 +92,7 @@ class input_file(object):
 			self.__chip_y += [float(data[3])]
 			self.__chip_freq += [str(data[4])]
 			self.__chip_rotate += [int(data[5])]
-		
+
 	def sorted_to_file(self, pid):
 		#print "input file pid variable is "+str(self.__pid)
 		file_name = "sorted_"+str(pid)+".data"
@@ -106,11 +106,11 @@ class input_file(object):
 			#s = s.strip(")")
 			#s = s.strip("'")
 			to_write+=re.sub('[()\',]', "", str(tup))+"\n"
-		#print to_write
+		#print 'to write is ',to_write
 		file.write(to_write)
 		file.close()
 		return file_name
-			
+
 	def ptrace_count(self):
 		layer_tmp = 0;
 		count_tmp = 0;
@@ -119,14 +119,15 @@ class input_file(object):
 			if int(data)== layer_tmp:
 				count_tmp +=1
 				layer_tmp = int(data)
-			else:	
+			else:
 				count_tmp = 1
 				layer_tmp = int(data)
 			self.__ptrace_count += [count_tmp]
-		
+
 """
-input = input_file('test.data')
+input = input_file('test.data',3591)
 input.ptrace_count()
-print(input.__dict__)
+#print(input.__dict__)
+
+print "sorted input from test.data is "+str(input.get_sorted_file())
 """
-#print "sorted input from test.data is "+str(input.get_sorted_file())

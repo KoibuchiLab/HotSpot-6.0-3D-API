@@ -25,9 +25,9 @@ def call_hotspot(material, pid):
 		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
 	else:
 		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
-		
-		
-	
+
+
+
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
@@ -54,7 +54,7 @@ elif args[2] == "water_pillow":
 else:
 	sys.stderr.write('Invalid medium argument. Should be [air|water|oil|fluori|novec]\" \n')
 	sys.exit(1)
- 
+
 no_images = False
 detailed = False
 if (len(args) == 4):
@@ -78,13 +78,14 @@ try:
 	#print "pid is "+str(pid)
 	input = input_file.input_file(test_file, pid)
 	sorted_input = input.get_sorted_file()
+	#print 'sorted input is ', sorted_input
 	sorted_file=input.sorted_to_file(pid)
 	#print "sorted file name is "+str(sorted_file)
 	layer = input.get_layer_array()
 
 	call_cell(sorted_file, pid)
 
-	null_data = nulldata_file.nulldata_file('null_'+str(pid)+'.data') #dont hardcode name
+	null_data = nulldata_file.nulldata_file('null_'+str(pid)+'.data') #dont hardcode name?
 	floor_LL.floor(sorted_input, null_data, pid)	#may have to fix to pass whole object
 	ptrace_LL.ptrace(input, null_data, pid)
 	lcf_LL.lcf(input, pid)
@@ -93,11 +94,11 @@ try:
 	call_hotspot(material, pid)
 
 	results_file = open("tmp_"+str(pid)+".results","w")
-	results_list = []	
+	results_list = []
 
 
 	for i in xrange(0, layer[-1]):
-		if material == "water_pillow": ##the output would be changed whether the second path is used. 
+		if material == "water_pillow": ##the output would be changed whether the second path is used.
 			#needs to be tested. bug in config.py prevented full testing.
 			with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 				write_to_layer = ""
@@ -115,18 +116,18 @@ try:
 				layer_grid_steady.write(write_to_layer)
 				layer_grid_steady.close()
 			tmp_grid_steady.close()
-			
-			
+
+
 		else:
-			
+
 			temps = []
-			
+
 			with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 				write_to_layer = ""
-				
+
 				read_start = (5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)
 				read_end = (5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
-				
+
 				for record in itertools.islice(tmp_grid_steady, read_start, read_end):
 					write_to_layer+=record
 					record = record.strip(" \n")
@@ -149,9 +150,9 @@ try:
 	results_file.close()
 	if(detailed):
 		os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
-		for i in xrange(0, len(layer)):	
+		for i in xrange(0, len(layer)):
 			os.system("python detailed.py detailed.tmp "+ str(i+1))
-			
+
 	temp = open("tmp_"+str(pid)+".results").readline()
 	if (float(min(results_list)))<0:
 		sys.stderr.write("error occurred\n")
@@ -161,13 +162,13 @@ try:
 		print "maximum temp: "+str(max(results_list))
 	else:
 		print str(max(results_list))
-		
+
 except IOError:
 	print '\nKeyboardInterrupt, Removing temp files containing pid = ',pid
 	results_file.close()
 	os.system("rm -f *"+str(pid)+"*")
 	print '********EXITING HOTSPOT********'
 	sys.exit(1)
-	
+
 #clean up
-os.system("rm -f *"+str(pid)+"*")
+#os.system("rm -f *"+str(pid)+"*")
