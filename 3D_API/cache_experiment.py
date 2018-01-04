@@ -17,7 +17,7 @@ def parse_perf_data(perf_out,perf_err):
     return [l1_cache, llc_cache, time]
 
 num_cores = multiprocessing.cpu_count()
-num_cores = 4
+#num_cores = 4
 power = int(num_cores**.5)
 try:
     raw_results = open("./results_LL/raw_cache_test_results.txt","w+")
