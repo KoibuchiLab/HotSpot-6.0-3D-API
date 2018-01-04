@@ -68,38 +68,37 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 4
+max_num_workers = 2
 #print run_string
 
 try:
 	for num_worker_ranks in range(1,max_num_workers):
 		avg = -1
 		to_avg = []
-		for trial in range(1,4):
+		for trial in range(1,2):
 			start = time.time()
 			#print "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string, 'trial ', trial
-			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
+			command = "mpirun -np "+str(num_worker_ranks+7)+" ./optimize_layout.py"+run_string
 			print 'command is ',command
 			subprocess.Popen(command, shell=True).wait()
 			#os.system("mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string)
 			#time.sleep(num_worker_ranks)
 			end = time.time()
 			raw_data_string+="\n"+str(num_worker_ranks)+"\t"+str(trial)+"\t"+str((end-start))
-			
+
 			f = open("mpi_raw_results.txt","w+")
-			f.write(raw_data_string)
+			#f.write(raw_data_string)
 			f.close()
-			
+
 			to_avg.append((end-start))
 		avg = (sum(to_avg)/len(to_avg))
 		write_string +="\n"+str(num_worker_ranks)+"\t"+str(avg)
 		print '!!!!!!!!!! num workers done is ', num_worker_ranks
 
 		g = open("mpi_avg_results.txt","w+")
-		g.write(write_string)
+		#g.write(write_string)
 		g.close()
-		
+
 except IOError:
 	print "IOError!!!"
 	sys.exit(1)
-

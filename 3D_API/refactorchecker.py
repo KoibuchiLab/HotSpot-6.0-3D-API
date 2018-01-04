@@ -42,5 +42,13 @@ elif int(argv[1]) == 3:
         import math
         diff = math.fabs(hotspot_LL - hotspot)
         print '!!!difference of ', diff
+        print 'hotspot is ',hotspot
+        print 'hotspot_LL is ', hotspot_LL
     else:
         print "GOOD!!!!!!!!!!!"
+"""
+elif int(arg[1] == 4):
+    try:
+
+    except:
+"""

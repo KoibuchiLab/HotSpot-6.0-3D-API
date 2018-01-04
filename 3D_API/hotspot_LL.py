@@ -171,4 +171,4 @@ except IOError:
 	sys.exit(1)
 
 #clean up
-#os.system("rm -f *"+str(pid)+"*")
+os.system("rm -f *"+str(pid)+"*")
