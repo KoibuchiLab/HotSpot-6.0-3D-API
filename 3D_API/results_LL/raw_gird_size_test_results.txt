@@ -1,0 +1,2 @@
+totoki_version
+trial	grid_size	output	time	L1-dcache-load-misses	LLC-load-misses
