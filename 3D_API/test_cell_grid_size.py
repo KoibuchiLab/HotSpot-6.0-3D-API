@@ -23,7 +23,7 @@ max_expo = 13
 min_expo = -1
 max_trials = 10
 try:
-
+    """
 #Leong
 
     print 'Leong'
@@ -41,7 +41,7 @@ try:
             raw_results.write(str(trial+1)+"\t"+str(grid_size)+"\t"+str(perf_out)+"\t"+str(raw_time)+"\t"+str(raw_l1)+"\t"+str(raw_llc)+"\n")
             print 'expo ',2**expo,' trial ',trial
     raw_results.close()
-
+    """
 #totoki's
     print 'totoki'
     raw_results2 = open("./results_LL/raw_gird_size_test_results.txt","w+")

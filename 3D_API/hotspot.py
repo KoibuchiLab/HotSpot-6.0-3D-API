@@ -75,6 +75,7 @@ for line in lines2:
 	count += 1
 layer_num = layer[len(layer)-1]
 #os.system("make -s; ./cell " + sorted_file + " > null.data")
+os.system("./cell " + sorted_file + " > null.data")
 os.system("python floor.py " + sorted_file)
 os.system("python ptrace.py " + sorted_file)
 os.system("python lcf.py " + sorted_file)
