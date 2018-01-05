@@ -1,10 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<string.h> 
+#include<string.h>
 
 #define MAX_LAYER_NUM 20 ///supporting up to 20 chip stacking
 #ifndef GRID_SIZE
-#define GRID_SIZE 2048//8192
+#define GRID_SIZE 2048//8192 //Warning thrown when <=512
 #endif
 #define OUTPUT_GRID_SIZE 128
 #define MAX_CHAR_SIZE 100 // input file format
@@ -23,24 +23,24 @@
 #define SPREADER_X 0.06
 #define SPREADER_Y 0.06
 
-     
+
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
 //gird_group_label shows, what group the grid belong.
 //if this label is 1, the grid belong chips.
 //if this label is 0, the grid belong null and this hasn't be detected
-//we will find null square, and divided into some groups, then those label would be 2, 3, ...   
+//we will find null square, and divided into some groups, then those label would be 2, 3, ...
 
 
 // for print debugging purpose
 void graph(void){
 	int x, y, layer;
 	int grid_interval = 25;
-	for(layer = 1; layer < MAX_LAYER_NUM; layer++){ 
+	for(layer = 1; layer < MAX_LAYER_NUM; layer++){
 		for(y = 0; y < GRID_SIZE; y += grid_interval){
 			for(x = 0; x < GRID_SIZE; x += grid_interval){
 				printf("%2d ", grid_group_label[layer][x][y]);
 			}
-			printf("\n");	
+			printf("\n");
 		}
 		printf("\n");
 	}
@@ -51,14 +51,14 @@ int main(int argc, char **argv){
 	char *fname; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
-	char *chip_name;  
+	char *chip_name;
 	int i, j, w;
 	int x, y;
 	float chip_x, chip_y;
 	float chip_xlen, chip_ylen;
 	int layer=0;
 	int rotate;
-	char *freq; 
+	char *freq;
 
 	if (argc != 2) {
 		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
@@ -74,24 +74,24 @@ int main(int argc, char **argv){
 	for(w = 0; w < MAX_LAYER_NUM; w++)
 		for(i = 0; i < GRID_SIZE; i++)
 			for(j = 0; j < GRID_SIZE; j++)
-				grid_group_label[w][i][j] = 0;			
+				grid_group_label[w][i][j] = 0;
 
-	//for just reading input file 
+	//for just reading input file
 	fp = fopen(fname, "r");
 	if(fp == NULL){
 		printf("%s cannot read\n", fname);
 		return -1;
 	}
 
-	//for holding chip coodinate 
+	//for holding chip coodinate
 	file = fopen("detailed.tmp", "w");
 	if(file == NULL){
 		fprintf(stderr, "error: cannot open file 'for_detailed.tmp'");
 		exit(1);
 	}
-	
 
-	//Find longest (X or Y-) lenggh of 3-D chip-stacking (including null block). 
+
+	//Find longest (X or Y-) lenggh of 3-D chip-stacking (including null block).
 	while(fgets(s1,MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++) s2[i] = s1[i];
 		chip_name = strtok(s2, " ");
@@ -144,7 +144,7 @@ int main(int argc, char **argv){
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
-			}			
+			}
 		}else if(strstr(chip_name, "base2") != NULL || strstr(chip_name, "base3") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = BASE2_X;
@@ -167,12 +167,12 @@ int main(int argc, char **argv){
 			exit(1);
 		}
 
-		//create the SQUARE that include all chips, the length would be system_size 
+		//create the SQUARE that include all chips, the length would be system_size
 		if(chip_x+chip_xlen > system_size)
 			system_size = chip_x+chip_xlen;
 		if(chip_y+chip_ylen > system_size)
-			system_size = chip_y+chip_ylen; 		
-	}	
+			system_size = chip_y+chip_ylen;
+	}
 	cell = system_size /(float)GRID_SIZE;
 
 	fclose(fp);
@@ -183,7 +183,7 @@ int main(int argc, char **argv){
 	}
 
 	int x_left, x_right, y_top, y_bottom;
-	int rank = 0; 
+	int rank = 0;
 	x_left = x_right = y_top = y_bottom = -1;
 	while(fgets(s1, MAX_CHAR_SIZE, fp) != NULL){
 		for(i = 0; i < MAX_CHAR_SIZE; i++)
@@ -195,7 +195,7 @@ int main(int argc, char **argv){
 		freq = strtok(NULL, " ");
 		rotate = atoi(strtok(NULL, " "));
 		rank = atoi(strtok(NULL, " "));
-		
+
 		if(strstr(chip_name, "tulsa")!= NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = TULSA_X;
@@ -239,7 +239,7 @@ int main(int argc, char **argv){
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
-			}			
+			}
 		}else if(strstr(chip_name, "base2") != NULL || strstr(chip_name, "base3") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = BASE2_X;
@@ -250,7 +250,7 @@ int main(int argc, char **argv){
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
-			}			
+			}
 		}else if(strstr(chip_name, "spreader") != NULL){
 			chip_xlen = SPREADER_X;
 			chip_ylen = SPREADER_Y;
@@ -266,7 +266,7 @@ int main(int argc, char **argv){
 		y_top = chip_y / cell;
 		y_bottom = (chip_y+chip_ylen) /cell;
 		for(i = x_left; i < x_right; i++)
-			for(j = y_top; j < y_bottom; j++)		
+			for(j = y_top; j < y_bottom; j++)
 				grid_group_label[layer][i][j] = 1;
 
 		//for holding chip coordinates at 64 * 64(OUTPUT_GRID_SIZE)
@@ -275,17 +275,17 @@ int main(int argc, char **argv){
 		y_top = (float) y_top * OUTPUT_GRID_SIZE / GRID_SIZE;
 		y_bottom = (float) y_bottom * OUTPUT_GRID_SIZE / GRID_SIZE;
 		fprintf(file,"%s %d %d %d %d %d %f %f %s %d %d\n", chip_name, layer, x_left, x_right, OUTPUT_GRID_SIZE - y_bottom, OUTPUT_GRID_SIZE - y_top, chip_x, chip_y, freq, rotate, rank);
-		 		
+
 	}
 	fclose(fp);
-	
+
 	int len_of_upper, len_of_middle, break_flag;
 	break_flag = 0;
 	int group = 2;
     //this declarement is very verbose
 	//*_in_group means the coordinate, when each layer, group
 	//*len_in_group means the length, when each layer, group
-	//so, unused arrays are always ZERO.     
+	//so, unused arrays are always ZERO.
 	float x_in_group[MAX_LAYER_NUM][MAX_GROUP_NUM];
 	float y_in_group[MAX_LAYER_NUM][MAX_GROUP_NUM];
 	float xlen_in_group[MAX_LAYER_NUM][MAX_GROUP_NUM];
@@ -299,15 +299,15 @@ int main(int argc, char **argv){
 
 		}
 	int layer_num = layer;
-	int tmp_x, tmp_y;	
-			
+	int tmp_x, tmp_y;
+
 
 //gird_group_label shows, what group the grid belong.
 //if this label is 1, the grid belong chips.
 //if this label is 0, the grid belong null and this hasn't be detected
 //we will find null square, and divided into some groups, then those label would be 2, 3, ...
-//if label, grid_group_label(layer,x,y)==0, then serach the null square from the point.     
-	for(layer = 1; layer <= layer_num; layer++){ 
+//if label, grid_group_label(layer,x,y)==0, then serach the null square from the point.
+	for(layer = 1; layer <= layer_num; layer++){
 		for(y = 0; y < GRID_SIZE; y++){
 			for(x = 0; x < GRID_SIZE; x++){
 				if(grid_group_label[layer][x][y] == 0){
@@ -325,8 +325,8 @@ int main(int argc, char **argv){
 						for(tmp_x = x; tmp_x < x + len_of_upper; tmp_x++){
 							if(tmp_y == GRID_SIZE-1 && tmp_x == x + len_of_upper-1 && grid_group_label[layer][tmp_x][tmp_y] == 0){
 								break_flag = 1;
-								
-								//square (x,  x+len_of_upper, y, tmp_y) would be non-zero 
+
+								//square (x,  x+len_of_upper, y, tmp_y) would be non-zero
 								for(i = x; i < x + len_of_upper; i++){
 									for(j = y; j < tmp_y; j++){
 											grid_group_label[layer][i][j] = group;
@@ -338,7 +338,7 @@ int main(int argc, char **argv){
 								}
 								//until here
 								break;
-							}	
+							}
 				    		if(grid_group_label[layer][tmp_x][tmp_y] == 0){
 								len_of_middle++;
 							}else{
@@ -346,7 +346,7 @@ int main(int argc, char **argv){
 									break;
 								}else{
 									break_flag = 1;
-									//square (x,  x+len_of_upper, y, tmp_y) would be non-zero 
+									//square (x,  x+len_of_upper, y, tmp_y) would be non-zero
 									for(i = x; i < x + len_of_upper; i++){
 										for(j = y; j < tmp_y; j++){
 											grid_group_label[layer][i][j] = group;
@@ -362,7 +362,7 @@ int main(int argc, char **argv){
 							}
 						}
 						if(break_flag == 1){
-							group++; 
+							group++;
 							break;
 						}
 					}
@@ -375,13 +375,11 @@ int main(int argc, char **argv){
 	for(layer = 1; layer <= layer_num; layer++){//layer starts from 1
 		for(group = 2; group < MAX_GROUP_NUM; group++){//null group stars from 2
 			//this judgement is strange, if those 2 values are 0, that means there are 0 * 0 blocks.
-			//if used, 2 values would be non-zero.   
+			//if used, 2 values would be non-zero.
 			if(xlen_in_group[layer][group] != 0 &&
-				 ylen_in_group[layer][group] != 0) 
-				 printf("%d NULL%d %0.8f %0.8f %0.8f %0.8f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);		
+				 ylen_in_group[layer][group] != 0)
+				 printf("%d NULL%d %0.8f %0.8f %0.8f %0.8f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);
 		}
-	}	
+	}
 	return 0;
 }
-
-

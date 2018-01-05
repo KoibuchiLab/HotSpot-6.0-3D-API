@@ -3,8 +3,8 @@ import os
 import sys
 import operator
 import itertools
-import threading
-import signal
+#import threading
+#import signal
 
 import input_file
 import nulldata_file
@@ -18,7 +18,8 @@ output_grid_size = 128
 args = sys.argv
 
 def call_cell(sorted_file, pid):
-	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL"+str(pid)+" -s; ./cell_LL"+str(pid)+" " + sorted_file+" "+str(pid))
+	#os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL"+str(pid)+" -s; ./cell_LL"+str(pid)+" " + sorted_file+" "+str(pid))
+	os.system("./cell_LL " + sorted_file+" "+str(pid))
 
 def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
