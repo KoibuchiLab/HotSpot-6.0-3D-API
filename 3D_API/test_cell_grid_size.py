@@ -11,6 +11,7 @@ def parse_perf_data(perf_out,perf_err):
     #remove commas from values if they exist
     #print perf_out
 <<<<<<< HEAD
+<<<<<<< HEAD
     #print 'token 0 is ',tokens[0]
     #print tokens
     l1_cache = float(tokens[-8].replace(",", ""))
@@ -18,6 +19,8 @@ def parse_perf_data(perf_out,perf_err):
     time = float(tokens[-4].replace(",", ""))
     #print l1_cache, llc_cache, time
 =======
+=======
+>>>>>>> 9b5e65d874d4fca568fc4a60520230599b420a9f
     print tokens
     l1_cache = float(tokens[9].replace(",", ""))
     llc_cache = float(tokens[11].replace(",", ""))
@@ -32,6 +35,7 @@ try:
 
 #Leong
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     print 'Leong'
     raw_results = open("./results_LL/raw_gird_size_test_results_LLlocal.txt","w+")
@@ -50,6 +54,8 @@ try:
     raw_results.close()
 
 =======
+=======
+>>>>>>> 9b5e65d874d4fca568fc4a60520230599b420a9f
 #    raw_results = open("./results_LL/raw_gird_size_test_results_LL.txt","w+")
  #   raw_results.write("LL_version\ntrial\tgrid_size\toutput\ttime\tL1-dcache-load-misses\tLLC-load-misses\n")
   #  for expo in range(max_expo,min_expo,-1):
@@ -64,6 +70,9 @@ try:
            # raw_results.write(str(trial+1)+"\t"+str(grid_size)+"\t"+str(perf_out)+"\t"+str(raw_time)+"\t"+str(raw_l1)+"\t"+str(raw_llc)+"\n")
     #raw_results.close()
 #
+<<<<<<< HEAD
+>>>>>>> 9b5e65d874d4fca568fc4a60520230599b420a9f
+=======
 >>>>>>> 9b5e65d874d4fca568fc4a60520230599b420a9f
 #totoki's
     print 'totoki'
