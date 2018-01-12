@@ -5,41 +5,17 @@ import sys
 thickness_of_chip = 0.00004 ## (meter)  default:40um
 vertical_distance_between_chips = '1.0e-5' ## (meter) default:10um
 
+def lcf(input, pid):
 
+	layer = input.get_layer_array()
 
-if (len(sys.argv) != 2):
-        sys.stderr.write("Usage: " + sys.argv[0] + " <input file (.dat)>\n")
-        sys.exit(1)
+	layer_num = layer[len(layer)-1]
+	to_write=""
 
-input_file = sys.argv[1]
-if not os.access(input_file, os.R_OK):
-        sys.stderr.write("Can't read file '"+input_file+"'\n")
-        sys.exit(1)
+	for i in xrange(0, layer_num):
 
+		to_write += str(2*i)+"\nY\nY\n1.75e6\n0.01\n"+str(thickness_of_chip)+"\n"+"test" +str(i+1)+"_"+str(pid)+".flp\n\n"+str(2*i+1)+"\nY\nN\n4e6\n0.25\n"+str(vertical_distance_between_chips)+"\n"+"testTIM_"+str(pid)+".flp\n\n"	#may need to change file  names to add LL
 
-f = open(input_file)
-chip_data = f.readlines()
-f.close
-
-os.system("rm -f test.lcf")
-os.system("touch test.lcf") 
-
-
-layer = []
-for line in chip_data:
-	data = line[:-1].split(' ')
-	layer += [int(data[1])]
-
-layer_num = layer[len(layer)-1]
-
-for i in xrange(0, layer_num):
-	os.system("echo  \"" +str(2*i)+"\"  >> test.lcf")
-	os.system("echo  \"Y\nY\n1.75e6\n0.01\n"+str(thickness_of_chip)+"\"  >> test.lcf")  # default chip config data 
-	os.system("echo  \"test" +str(i+1)+".flp\n\"  >> test.lcf")
-	os.system("echo  \"" +str(2*i+1)+"\"  >> test.lcf")
-	os.system("echo  \"Y\nN\n4e6\n0.25\n"+str(vertical_distance_between_chips)+"\"  >> test.lcf")  # default tim config data 
-	os.system("echo  \"testTIM.flp\n\"  >> test.lcf")
-
-	
-
-
+	file = open("test_"+str(pid)+".lcf","w+")
+	file.write(to_write)
+	file.close

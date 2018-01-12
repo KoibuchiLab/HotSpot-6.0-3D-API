@@ -4,7 +4,7 @@
 
 #define MAX_LAYER_NUM 20 ///supporting up to 20 chip stacking
 #ifndef GRID_SIZE
-#define GRID_SIZE 2048//8192 //Warning thrown when <=512
+#define GRID_SIZE 2048//8192  //Warning thrown when <=512
 #endif
 #define OUTPUT_GRID_SIZE 128
 #define MAX_CHAR_SIZE 100 // input file format
@@ -22,6 +22,7 @@
 #define BASE2_Y 0.013
 #define SPREADER_X 0.06
 #define SPREADER_Y 0.06
+
 
 
 static int grid_group_label[MAX_LAYER_NUM][GRID_SIZE][GRID_SIZE];
@@ -47,8 +48,10 @@ void graph(void){
 }
 
 int main(int argc, char **argv){
-	FILE *fp, *file;
-	char *fname; // input 3-D stacking layout file
+
+	//printf("start cell\n");
+	FILE *fp, *file, *outfile;
+	char *fname, *pid; // input 3-D stacking layout file
 	char s1[MAX_CHAR_SIZE];
 	char s2[MAX_CHAR_SIZE];
 	char *chip_name;
@@ -60,12 +63,22 @@ int main(int argc, char **argv){
 	int rotate;
 	char *freq;
 
-	if (argc != 2) {
+
+	/*if (argc != 2) {
 		fprintf(stderr,"Usage: %s <input file (.dat)>\n", argv[0]);
 		exit(1);
 	}
 
+	fname = argv[1];*/
+
+	if (argc != 3) {
+		fprintf(stderr,"Usage: %s <input file (.dat)>, <python pid>\n", argv[0]);
+		exit(1);
+	}
+
 	fname = argv[1];
+	pid = argv[2];
+
 
 	float system_size = 0; // system X or Y length of 3D-chip stacking.
 	//float h = 0.02184; //default Xeon Tulsa chip length (m)
@@ -372,13 +385,25 @@ int main(int argc, char **argv){
 	}
 
 	//graph();
+	//printf("===== pid is %s =====\n", pid);
+	//char *null = 'null_';
+	//char *data = '.data';
+
+	char outputfilename[100];
+
+	strcpy(outputfilename, "null_");
+	strcat(outputfilename, pid);
+	strcat(outputfilename,".data");
+
+	//printf("outputfilename is %s\n",outputfilename);
+	outfile = fopen(outputfilename,"w+");
 	for(layer = 1; layer <= layer_num; layer++){//layer starts from 1
 		for(group = 2; group < MAX_GROUP_NUM; group++){//null group stars from 2
 			//this judgement is strange, if those 2 values are 0, that means there are 0 * 0 blocks.
 			//if used, 2 values would be non-zero.
 			if(xlen_in_group[layer][group] != 0 &&
 				 ylen_in_group[layer][group] != 0)
-				 printf("%d NULL%d %0.8f %0.8f %0.8f %0.8f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);
+				 fprintf(outfile,"%d NULL%d %0.8f %0.8f %0.8f %0.8f\n",layer, group, xlen_in_group[layer][group], ylen_in_group[layer][group], x_in_group[layer][group], y_in_group[layer][group]);
 		}
 	}
 	return 0;
