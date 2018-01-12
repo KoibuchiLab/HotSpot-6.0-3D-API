@@ -1,4 +1,14 @@
 #!/usr/bin/python
+
+#################################################################################
+#
+#
+#	For testing MPI implementation
+#	All hotspot files generated but Hotspot.c is not called
+#	Program sleeps for a designated time and returns random number as result
+#
+###################################################################################
+
 import os
 import sys
 import operator
