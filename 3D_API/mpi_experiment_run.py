@@ -68,8 +68,8 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 7
-min_num_workers = 6
+max_num_workers = 8
+min_num_workers = 7
 trial_num = 1
 #print run_string
 
@@ -80,7 +80,7 @@ try:
 		for trial in range(trial_num):
 			start = time.time()
 			#print "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string, 'trial ', trial
-			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
+			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string+" --show_in_3D"
 			print 'command is ',command
 			subprocess.Popen(command, shell=True).wait()
 			#os.system("mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string)

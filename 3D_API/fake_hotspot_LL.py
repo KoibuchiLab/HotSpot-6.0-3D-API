@@ -20,17 +20,17 @@ import random
 
 import input_file
 import nulldata_file
-import floorplan_LL
-import floor_LL
-import ptrace_LL
-import lcf_LL
-import config_LL
+import floorplan
+import floor
+import ptrace
+import lcf
+import config
 
 output_grid_size = 128
 args = sys.argv
 
 def call_cell(sorted_file, pid):
-	os.system("gcc -Wall -Ofast cell_LL.c -o cell_LL"+str(pid)+" -s; ./cell_LL"+str(pid)+" " + sorted_file+" "+str(pid))
+	os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
 
 def call_hotspot(material, pid):
 #	print "in fake hotspot"
@@ -42,7 +42,7 @@ def call_hotspot(material, pid):
 		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
 	"""
 	#print "hotspot done"
-	
+
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
 	sys.exit(1)
@@ -69,7 +69,7 @@ elif args[2] == "water_pillow":
 else:
 	sys.stderr.write('Invalid medium argument. Should be [air|water|oil|fluori|novec]\" \n')
 	sys.exit(1)
- 
+
 no_images = False
 detailed = False
 if (len(args) == 4):
@@ -100,19 +100,19 @@ layer = input.get_layer_array()
 call_cell(sorted_file, pid)
 
 null_data = nulldata_file.nulldata_file('null_'+str(pid)+'.data') #dont hardcode name
-floor_LL.floor(sorted_input, null_data, pid)	#may have to fix to pass whole object
-ptrace_LL.ptrace(input, null_data, pid)
-lcf_LL.lcf(input, pid)
-config_LL.config(input, str(material), pid)
+floor.floor(sorted_input, null_data, pid)	#may have to fix to pass whole object
+ptrace.ptrace(input, null_data, pid)
+lcf.lcf(input, pid)
+config.config(input, str(material), pid)
 
 call_hotspot(material, pid)
 
 results_file = open("tmp_"+str(pid)+".results","w")
-results_list = []	
+results_list = []
 
 
 for i in xrange(0, layer[-1]):
-	if material == "water_pillow": ##the output would be changed whether the second path is used. 
+	if material == "water_pillow": ##the output would be changed whether the second path is used.
 		#needs to be tested. bug in config.py prevented full testing.
 		with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 			write_to_layer = ""
@@ -130,17 +130,17 @@ for i in xrange(0, layer[-1]):
 			layer_grid_steady.write(write_to_layer)
 			layer_grid_steady.close()
 		tmp_grid_steady.close()
-		
+
 	else:
 		temps = []
 		"""
 		try:
 			with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 				write_to_layer = ""
-				
+
 				read_start = (5+(3+i*2)*(output_grid_size*output_grid_size+2)-1)
 				read_end = (5+(3+i*2)*(output_grid_size*output_grid_size+2)+(output_grid_size*output_grid_size-1))
-				
+
 				for record in itertools.islice(tmp_grid_steady, read_start, read_end):
 					write_to_layer+=record
 					record = record.strip(" \n")
@@ -171,9 +171,9 @@ for i in xrange(0, layer[-1]):
 results_file.close()
 if(detailed):
 	os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
-	for i in xrange(0, len(layer)):	
+	for i in xrange(0, len(layer)):
 		os.system("python detailed.py detailed.tmp "+ str(i+1))
-"""		
+"""
 temp = open("tmp_"+str(pid)+".results").readline()
 if (float(min(results_list)))<0:
 	sys.stderr.write("error occurred\n")
@@ -190,6 +190,6 @@ if (detailed):
 else:
 #	print "RETURNING HOTSPOT ANSWER"
 	print round(random.uniform(57,59),2)
-	
+
 #clean up
 os.system("rm -f *"+str(pid)+"*")
