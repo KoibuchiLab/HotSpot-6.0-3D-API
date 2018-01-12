@@ -94,6 +94,8 @@ def optimize_layout_rectilinear(mode):
 	else:
 		utils.abort("Unknown rectilinear layout mode '" + mode + "'")
 
+	# layout.draw_in_3D(None, True);
+
 	result = find_maximum_power_budget(layout)
         if (result == None):
             return None
@@ -163,6 +165,27 @@ def evaluate_candidate(args):
 	    utils.abort("Layout diameter is too big (this should never happen here!)")
 
         return find_maximum_power_budget(dummy_layout)
+
+def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts):
+
+	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
+	num_attempts = 0
+	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
+		num_attempts += 1
+		random_chip = utils.pick_random_element(range(0, layout.get_num_chips()))
+		if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
+			#utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
+			continue;
+
+		result = layout.get_random_feasible_neighbor_position(random_chip)
+		if result == None:
+			continue
+
+		[picked_level, picked_x, picked_y] = result
+		utils.info(1, "Candidate random neighbor of chip " + str(random_chip) + " : " + str([picked_level, picked_x, picked_y]))
+		candidate_random_trials.append([picked_level, picked_x, picked_y])
+
+	return candidate_random_trials
 
 def pick_candidates(layout, results, candidate_random_trials):
 	picked_candidate_temperature= -1
@@ -384,7 +407,6 @@ def optimize_layout_random_greedy():
 """Random greedy layout optimization with MPI"""
 
 def optimize_layout_random_greedy_mpi():
-#	print "MPI random greedy"
 	comm =  MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
@@ -392,28 +414,8 @@ def optimize_layout_random_greedy_mpi():
 	if rank == 0:
 		layout = LayoutBuilder.compute_checkerboard_layout(3)
 
-		# While num_chips != desired num_chips
-		#	while num_valid_candidates != NUM_CANDIDATES
-		#		pick a random chip in the layout
-		#		pick a random feasible neigbhor
-		#		add that neighbor to the layout
-		#		compute diameter
-		#		remove chip from the layout
-		#		if diameter not too big:
-		#			add that chip position to the list of valid candidates
-		#
-		#	At this point we have NUM_CANDIDATES candidates
-		#	for each candidate:
-		#		add candidate
-		#		Compute power distribution  (if returns None: temperature is too high)
-		#			- returns   power distribution AND temperature
-		#		remove candidate
-		#	pick the best candidate (highest sum power, breaking ties by temperature)
-		#	add it into the layout for good
-		#
-
-		num_neighbor_candidates = 10#20 			# Default value
-		max_num_neighbor_candidate_attempts = 100#1000      # default value
+		num_neighbor_candidates = 20 			# Default value
+		max_num_neighbor_candidate_attempts = 1000      # default value
 
 		if (len(utils.argv.layout_scheme.split(":")) == 2):
 			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1]);
@@ -430,24 +432,8 @@ def optimize_layout_random_greedy_mpi():
 			### Create Candidates
 			##########################################
 
-			utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
-
 			candidate_random_trials = []
-			num_attempts = 0
-			while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
-				num_attempts += 1
-				random_chip = utils.pick_random_element(range(0, layout.get_num_chips()))
-				if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
-					#utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
-					continue;
-
-				result = layout.get_random_feasible_neighbor_position(random_chip)
-				if result == None:
-					continue
-
-				[picked_level, picked_x, picked_y] = result
-				utils.info(1, "Candidate random neighbor of chip " + str(random_chip) + " : " + str([picked_level, picked_x, picked_y]))
-				candidate_random_trials.append([picked_level, picked_x, picked_y])
+			candidate_random_trials = generate_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts)
 
 			utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
 
@@ -477,74 +463,9 @@ def optimize_layout_random_greedy_mpi():
 					data_from_worker = comm.recv(source = MPI.ANY_SOURCE)
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
-			#print 'worker list is ', worker_list
-			"""
-			for k in range(0, len(worker_list)):
-				stop_worker = [0, 0, 0, 0, 1]
-				#print 'sending stop signal to ',k+1,' num chips is ', layout.get_num_chips()
-				comm.send(stop_worker,dest = k+1)
-			"""
-			print "RESULTS = ", results
 
-			#for index in xrange(0,len(candidate_random_trials)):
+			#print "RESULTS = ", results
 
-			#result = evaluate_candidate([layout, candidate_random_trials[index]])
-			#results.append(result)
-
-			"""
-			###############################################
-			### Pick the best candidate
-			################################################
-
-
-			picked_candidate_temperature = -1
-			picked_candidate_power = -1
-			picked_candidate_ASPL = -1.0
-			picked_candidate_num_edges = -1
-
-			picked_candidate = None
-			for index in xrange(0,len(candidate_random_trials)):
-				candidate = candidate_random_trials[index];
-			#	print 'results is',results
-				result = results[index]
-
-				if (result != None):
-					print 'result is ', result
-					[power_distribution, temperature] = result
-					power = sum(power_distribution)
-					ASPL = layout.get_ASPL()
-					num_edges = layout.get_num_edges()
-					utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(ASPL) + " edges="+str(num_edges))
-
-					new_pick = False
-					if (picked_candidate == None):
-						utils.info(2, "    ** INITIAL PICK **")
-						new_pick = True
-					else:
-						# this is where we implement candidate selection
-						if (power > picked_candidate_power):
-							utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
-							new_pick = True
-						elif (power == picked_candidate_power):
-							if (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
-								new_pick = True
-							elif (num_edges == picked_candidate_num_edges) and (ASPL < picked_candidate_ASPL):
-								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-								new_pick = True
-							elif (num_edges == picked_candidate_num_edges) and (ASPL == picked_candidate_ASPL) and (temperature < picked_candidate_temperature):
-								utils.info(2, "    ** PICKED DUE TO BETTER TEMPERATURE **")
-								new_pick = True
-
-					if new_pick:
-						picked_candidate = candidate
-						picked_candidate_power = power
-						picked_candidate_temperature = temperature
-						picked_candidate_ASPL = ASPL
-						picked_candidate_num_edges = num_edges
-
-			# Add the candidate
-			"""
 			picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			if picked_candidate == None:
 				utils.abort("Could not find a candidate that met the temperature constraint")
@@ -563,7 +484,6 @@ def optimize_layout_random_greedy_mpi():
 		#send stop signal to all worker ranks
 		for k in range(0, len(worker_list)):
 				stop_worker = [0, 0, 0, 0, 1]
-				#print 'sending stop signal to ',k+1,' num chips is ', layout.get_num_chips()
 				comm.send(stop_worker,dest = k+1)
 
 		return [layout, power_distribution, temperature]
@@ -571,19 +491,15 @@ def optimize_layout_random_greedy_mpi():
 	else:
 		while True:
 			data_from_master = comm.recv(source = 0)
-			#print '<<<<<<<< data[4] is ',data_from_master[4]
 			if data_from_master[4] > 0:
 				#print '!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
 				sys.exit(0)
-				#break
 			#print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank
 			layout = data_from_master[0]
 			candidate = data_from_master[1]
 			result_index = data_from_master[2]
 			worker_index = data_from_master[3]
 
-			#print 'RECV layout is ', layout
-			#utils.info(1, "  - Evaluating candidate " + str(candidate))
 			dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap())
 			dummy_layout.add_new_chip(candidate)
 			if (dummy_layout.get_diameter() > utils.argv.diameter):

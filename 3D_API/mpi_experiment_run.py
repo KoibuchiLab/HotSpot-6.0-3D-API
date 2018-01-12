@@ -49,7 +49,7 @@ powerdistopt_num_iterations = 1
 powerdistopt_num_trials = 1
 overlap = .3
 max_allowed_temperature = 59
-verbose = 0
+verbose = 3
 mpi = True
 test = True
 #num_worker_ranks = 4
@@ -68,8 +68,8 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 2
-min_num_workers = 1
+max_num_workers = 7
+min_num_workers = 6
 trial_num = 1
 #print run_string
 
