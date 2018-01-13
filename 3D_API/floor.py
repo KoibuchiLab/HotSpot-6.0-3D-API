@@ -21,22 +21,6 @@ material = 0 # 0:tim 1:metal 2:air
 material_capacity = [0.25, 4e6, 4e6]
 material_resistance = [2e-5, 0.0025, 0.25]
 
-"""
-def read_null_data(null_dot_data):
-	f2 = open('null.data')
-	null_data_lines = f2.readlines()
-	f2.close
-
-	for lines in null_data_lines:
-		data2 = line2[:-1].split(' ')
-		null_layer += [int(data2[0])]
-		name += [str(data2[1])]
-		null_x += [float(data2[2])]
-		null_y += [float(data2[3])]
-		null_x_len += [float(data2[4])]
-		null_y_len += [float(data2[5])]
-"""
-
 #def floor(sorted_input):
 def floor(sorted_input, null_data, pid):
 
@@ -114,15 +98,10 @@ def floor(sorted_input, null_data, pid):
 
 	layer_num = chip_layer[len(chip_layer)-1]+1;
 
-	#######
-	#for debug print
-	#######
-
 	nulldatall = null_data
 	floorplanObject=floorplan.floorplan()
+	#print 'FLOOR layer num is ', layer_num
 	for i in xrange(1, layer_num):
-		#os.system("touch test" + str(i) + ".flp") #usd in lcf.py
-		#print "+++++++++++++++ here"
 		file_name = "test" + str(i) + "_"+str(pid)+".flp"
 		file = open(file_name,"w+")
 		for j in xrange(0, len(chip_layer)):

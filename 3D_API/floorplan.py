@@ -285,7 +285,6 @@ class floorplan(object):
 			read = open(floorplan_path)
 			floorplan = read.readlines()
 			read.close()
-			#for line in floorplan:
 
 		except IOError:
 			print '\nCould not open FLOORPLAN/',name,'.flp,\nRemoving temp files containing pid = ',pid

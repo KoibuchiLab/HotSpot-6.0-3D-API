@@ -2,8 +2,6 @@
 
 import os
 import sys
-import subprocess
-import random
 import operator
 import re
 
@@ -101,10 +99,6 @@ class input_file(object):
 		file = open(file_name,"w+")
 		to_write = ""
 		for tup in self.__sorted_input:
-			#s = str(tup).strip(",")
-			#s = s.strip("(")
-			#s = s.strip(")")
-			#s = s.strip("'")
 			to_write+=re.sub('[()\',]', "", str(tup))+"\n"
 		#print 'to write is ',to_write
 		file.write(to_write)
@@ -123,11 +117,3 @@ class input_file(object):
 				count_tmp = 1
 				layer_tmp = int(data)
 			self.__ptrace_count += [count_tmp]
-
-"""
-input = input_file('test.data',3591)
-input.ptrace_count()
-#print(input.__dict__)
-
-print "sorted input from test.data is "+str(input.get_sorted_file())
-"""

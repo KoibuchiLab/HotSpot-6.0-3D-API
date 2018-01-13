@@ -3,10 +3,9 @@ import os
 import sys
 import operator
 import itertools
-#import threading
-#import signal
+import multiprocessing
 
-import input_file #
+import input_file
 import nulldata_file
 import floorplan
 import floor
@@ -17,9 +16,14 @@ import config
 output_grid_size = 128
 args = sys.argv
 
+def compile_cell(pid):
+	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
+	os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;")
+
 def call_cell(sorted_file, pid):
-	os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
-	#os.system("./cell " + sorted_file+" "+str(pid))
+	#os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
+	#print "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
+	os.system("./cell"+str(pid)+" "+sorted_file+" "+str(pid)) #PID needs to get passed to cell to avoid competition for executibles
 
 def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
@@ -81,22 +85,35 @@ try:
 	sorted_file=input.sorted_to_file(pid)
 	layer = input.get_layer_array()
 
+	#compiles cell
+	compile_cell(pid)
+
+	#call cell to, makes nulldata file
 	call_cell(sorted_file, pid)
 
+	#creates object to store whats in null data
 	null_data = nulldata_file.nulldata_file('null_'+str(pid)+'.data') #dont hardcode name?
+
+	#creates *.flp files for hotspot.c
 	floor.floor(sorted_input, null_data, pid)	#may have to fix to pass whole object
+
+	#creates *.ptrace file for hotspot.c
 	ptrace.ptrace(input, null_data, pid)
+
+	#creates *.lcf files for hotspot.c
 	lcf.lcf(input, pid)
+
+	#creates *.config and *TIM.flp for hotspot.c
 	config.config(input, str(material), pid)
 
+	#calls hotspot.c
 	call_hotspot(material, pid)
-
+	
 	results_file = open("tmp_"+str(pid)+".results","w")
 	results_list = []
 
-
 	for i in xrange(0, layer[-1]):
-		if material == "water_pillow": ##the output would be changed whether the second path is used.
+		if material == "water_pillow": #the output would be changed when the second path is used.
 			#needs to be tested. bug in config.py prevented full testing.
 			with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 				write_to_layer = ""
@@ -115,11 +132,8 @@ try:
 				layer_grid_steady.close()
 			tmp_grid_steady.close()
 
-
 		else:
-
 			temps = []
-
 			with open("tmp_"+str(pid)+".grid.steady", "r") as tmp_grid_steady:
 				write_to_layer = ""
 
