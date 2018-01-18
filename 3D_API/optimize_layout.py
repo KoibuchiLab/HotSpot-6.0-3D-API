@@ -41,15 +41,15 @@ def parse_arguments():
 LAYOUT SCHEMES (--layout, -L):
 
   - stacked:
-       chips are stacked vertically. 
+       chips are stacked vertically.
        (-d flag ignored)
 
-  - rectilinear_straight: 
+  - rectilinear_straight:
        chips are along the x axis in a straight line, using all levels
        in a "bouncing ball" fashion.
        (-d flag ignored)
 
-  - rectilinear_diagonal: 
+  - rectilinear_diagonal:
        chips are along the x-y axis diagonal in a straight line, using
        all levels in a "bouncing ball" fashion.
        (-d flag ignored)
@@ -58,35 +58,35 @@ LAYOUT SCHEMES (--layout, -L):
        a 2-level checkerboard layout, that's built to minimize diameter.
        (-d flag ignored)
 
-  - linear_random_greedy: 
+  - linear_random_greedy:
        a greedy randomized search for a linear but non-rectilinear layout,
        using all levels in a "bouncing ball fashion". The main difference
        with the rectilinear methods is that the overlap between chip n
-       and chip n+1 is arbitrarily shaped. 
+       and chip n+1 is arbitrarily shaped.
        (-d flag ignored)
 
   - random_greedy[:num_neighbor_candidates[:max_num_neighbor_candidate_attempts]]:
 	a greedy randomized search that incrementally adds chips
         to a starting layout. Each iteration, it tries to come up with
-        <num_neighbor_candidates> candidates, and then picks the best one. 
+        <num_neighbor_candidates> candidates, and then picks the best one.
         It gives up if at an iteration, it cannot come up with the required
         number of candidates after <max_num_neighbor_candidate_attempts> attempts
 
 POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 
-  - exhaustive_discrete: 
+  - exhaustive_discrete:
 	given a layout, do and exhaustive search that evaluates all
 	possible discrete power level combinations.  Completely
 	ignores the '--powerdistopt_num_trials', '-T' and the
 	'--powerdistopt_num_iterations', '-I' options.
 
-  - random_discrete: 
+  - random_discrete:
 	given a layout, just do a random search over the discrete power
 	level combinations. For this method there are X trials (as
 	specified with '--powerdistopt_num_trials', '-T').  Completely
 	ignores the '--powerdistopt_num_iterations', '-I' option.
 
-  - greedy_random_discrete: 
+  - greedy_random_discrete:
 	given a layout, do a greedy neighbor search over the discrete
 	power level design space (greedily increase from minimum
 	power levels until no longer possible).  For this method there
@@ -94,7 +94,7 @@ POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 	'-T').	Completely ignores the '--powerdistopt_num_iterations',
 	'-I' option.
 
-  - greedy_not_so_random_discrete: 
+  - greedy_not_so_random_discrete:
 	given a layout, do a neighbor search over the discrete power level
 	design space, looking for the neighbor that achieves the best
 	payoff (largest "increase in power" / "increase in temperature"
@@ -103,9 +103,9 @@ POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 	'--powerdistopt_num_iterations', '-I' option.
 
 
-  - random_continuous: 
+  - random_continuous:
 	given a layout and a power budget, just do a random CONTINOUS
-	search, and then make the solution discrete (i.e., feasible). For 
+	search, and then make the solution discrete (i.e., feasible). For
         this method there are X trials (as specified with '--powerdistopt_num_trials', '-T').
         Completely ignores the '--powerdistopt_num_iterations', '-I' option.
 
@@ -116,7 +116,7 @@ POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
         ignores the '--powerdistopt_num_trials', '-T' and the
         '--powerdistopt_num_iterations', '-I' options.
 
-  - gradient: 
+  - gradient:
 	given a layout and a power budget, just do a CONTINOUS
 	gradient descent (using scipy's fmin_slsqp constrained gradient
 	descent algorithm), and then make the solution discrete (i.e.,
@@ -127,7 +127,7 @@ POWER DISTRIBUTION OPTIMIZATION METHODS ('--powerdistopt', '-t'):
 	each the gradient descent algorithm is invoked. Y is passed to
 	the fmin_slsqp function as its number of iterations.
 
-  - neighbor: 
+  - neighbor:
 	given a layout and a given power budget, just do a CONTINUOUS
 	neighbor search, and then make the solution discrete (i.e.,
 	feasible).  For this method there are X trials (as specified with
@@ -155,15 +155,15 @@ VISUAL PROGRESS OUTPUT:
   'x': a binary search step (searching for highest power)
   '.': a power distribution optimization trial (searching for lower temperature)
 
-	""", 
+	""",
 	formatter_class=RawTextHelpFormatter)
 
-	parser.add_argument('--medium', '-m', action='store', 
-			    required=True, dest='medium', 
+	parser.add_argument('--medium', '-m', action='store',
+			    required=True, dest='medium',
 			    metavar='<cooling medium>',
                             help='"air", "oil", "water"')
 
-	parser.add_argument('--chip', '-c', action='store', 
+	parser.add_argument('--chip', '-c', action='store',
                             dest='chip_name', metavar='<chip name>',
                             required=True, help='options: "e5-2667v4", "phi7250", "base2"')
 
@@ -175,7 +175,7 @@ VISUAL PROGRESS OUTPUT:
                             dest='diameter', metavar='<diameter>',
                             required=True, help='the network diameter (ignored for layouts with known/fixed diameter)')
 
-	parser.add_argument('--layout_scheme', '-L', action='store', 
+	parser.add_argument('--layout_scheme', '-L', action='store',
                             dest='layout_scheme', metavar='<layout scheme>',
                             required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy"')
 
@@ -183,21 +183,21 @@ VISUAL PROGRESS OUTPUT:
                             dest='num_levels', metavar='<# of levels>',
                             required=True, help='the number of vertical levels')
 
-	parser.add_argument('--powerdistopt', '-t', action='store', 
+	parser.add_argument('--powerdistopt', '-t', action='store',
 			    required=True,
-                            dest='powerdistopt', 
+                            dest='powerdistopt',
 			    metavar='<power distribution optimization method>',
                             help='"uniform_discrete", "exhaustive_discrete", "random_discrete", "greedy_random_discrete", "greedy_not_so_random_discrete", \n "uniform", "random", "gradient", "neighbor",\n"simulated_annealing_gradient"')
 
-	parser.add_argument('--powerdistopt_num_iterations', '-I', action='store', 
+	parser.add_argument('--powerdistopt_num_iterations', '-I', action='store',
 			    required=True, type=int,
-                            dest='power_distribution_optimization_num_iterations', 
+                            dest='power_distribution_optimization_num_iterations',
 			    metavar='<# of iterations>',
                             help='number of iterations used for each power distribution optimization trial')
 
-	parser.add_argument('--powerdistopt_num_trials', '-T', action='store', 
+	parser.add_argument('--powerdistopt_num_trials', '-T', action='store',
 			    required=True, type=int,
-                            dest='power_distribution_optimization_num_trials', 
+                            dest='power_distribution_optimization_num_trials',
 			    metavar='<# of trials>',
                             help='number of trials used for power distribution optimization')
 
@@ -211,9 +211,9 @@ VISUAL PROGRESS OUTPUT:
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
 
-	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true', 
-                            required=False, 
-                            dest='constrained_overlap_geometry', 
+	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true',
+                            required=False,
+                            dest='constrained_overlap_geometry',
                             help='Force chip overlap area to be a string or a rectangle with same aspect ratio as the chip')
 
 	parser.add_argument('--power_budget', '-p', action='store',
@@ -236,32 +236,32 @@ VISUAL PROGRESS OUTPUT:
                             dest='grid_size', metavar='<Hotspot temperature map size>',
                             help='the grid size used by Hotspot (larger means more RAM and more CPU; default: 2048)')
 
-	parser.add_argument('--verbose', '-v', action='store', 
+	parser.add_argument('--verbose', '-v', action='store',
                             type=int, required=False, default=0,
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
-	parser.add_argument('--mpi', '-M', action='store_true', 
+	parser.add_argument('--mpi', '-M', action='store_true',
                             required=False,
-                            dest='mpi', 
+                            dest='mpi',
                             help='implements MPI version of Layout algorithm')
-	parser.add_argument('--test', '-z', action='store_true', 
+	parser.add_argument('--test', '-z', action='store_true',
                             required=False,
-                            dest='test', 
+                            dest='test',
                             help='real, calls hotspot_LL.py. test, calls fake_hotspot_LL.py')
 
-#	parser.add_argument('--draw_in_octave', '-D', action='store', 
-#                            required=False, 
+#	parser.add_argument('--draw_in_octave', '-D', action='store',
+#                            required=False,
 #                            dest='draw_in_octave', metavar='<PDF file path>',
 #                            help='generates a PDF of the topology using octave')
 
-	parser.add_argument('--export_to_PDF', '-e', action='store', 
-                            required=False, 
+	parser.add_argument('--export_to_PDF', '-e', action='store',
+                            required=False,
                             dest='export_to_PDF', metavar='<PDF file path>',
                             help='Saves a PDF of the final layout viewed from above')
 
-	parser.add_argument('--show_in_3D', '-s', action='store_true', 
-                            required=False, 
-                            dest='show_in_3D', 
+	parser.add_argument('--show_in_3D', '-s', action='store_true',
+                            required=False,
+                            dest='show_in_3D',
                             help='opens up an interactive matplotlib visualization')
 
 
@@ -273,69 +273,69 @@ if __name__ == '__main__':
 
 	# Parse command-line arguments
 	argv = parse_arguments()
-	
+
 	utils.argv = argv
-	
+
 	if  not (argv.chip_name in ["e5-2667v4", "phi7250", "base2"]):
 		utils.abort("Chip '" + argv.chip_name + "' not supported")
 	else:
 		argv.chip = Chip(argv.chip_name,  argv.power_benchmark)
-	
+
 	if (argv.num_chips < 1):
 		utils.abort("The number of chips (--numchips, -n) should be >0")
-	
+
 	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard"):
 	    argv.diameter = argv.num_chips
-	
+
 	if (argv.diameter < 1):
 		utils.abort("The diameter (--diameter, -d) should be >0")
-	
+
 	if (argv.diameter > argv.num_chips):
 	    utils.abort("The diameter (--diameter, -d) should <= the number of chips")
-	        
+
 	if (argv.num_levels < 2):
 		utils.abort("The number of levels (--numlevels, -d) should be >1")
-	
+
 	if ((argv.overlap < 0.0) or (argv.overlap > 1.0)):
 		utils.abort("The overlap (--overlap, -O) should be between 0.0 and 1.0")
-	
+
 	if (argv.power_distribution_optimization_num_iterations < 0):
 		utils.abort("The number of iterations for power distribution optimization (--powerdistopt_num_iterations, -I) should be between > 0")
-	
+
 	if (argv.power_distribution_optimization_num_trials < 0):
 		utils.abort("The number of trials for power distribution optimization (--powerdistopt_num_trials, -T) should be between > 0")
-	
+
 	if ((argv.medium != "water") and (argv.medium != "oil") and (argv.medium != "air")):
 		utils.abort("Unsupported cooling medium '" + argv.medium + "'")
-	
+
 	if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "random") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
 	        argv.power_distribution_optimization_num_iterations = 1
-	
+
 	if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "uniform") or (argv.powerdistopt == "uniform_discrete"):
-	        argv.power_distribution_optimization_num_trials = 1 
-	
+	        argv.power_distribution_optimization_num_trials = 1
+
 	if argv.power_budget:
 	    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
 	        utils.abort("Cannot use discrete power distribution optimization method with a fixed power budget")
-	
+
 	# Recompile cell.c with specified grid size
-	os.system("gcc -Ofast cell_LL.c -o cell_LL -DGRID_SIZE=" + str(argv.grid_size))
-	
-	
+	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
+
+
 	#LayoutBuilder.plot_custom_layout([[1, 0.04658333333342, 0.04658333333342], [2, 0.039, 0.04658333333342], [2, 0.054166666666839995, 0.04658333333342], [3, 0.06118531404603599, 0.04535603277612142], [2, 0.06844800401714311, 0.04608256902552676], [1, 0.07583789608876314, 0.04653082001026776], [2, 0.08181970413659798, 0.04356426838920758], [3, 0.0880624717912586, 0.046143335222079154], [2, 0.09517271435564352, 0.04509911904430141], [3, 0.04785194584383044, 0.044116426238186304], [3, 0.07466364380329842, 0.042613788179219056], [1, 0.060330541981455606, 0.04928266301122845], [1, 0.08902253255766641, 0.04441754033281321]])
-	
-	
+
+
 	LayoutOptimizer()
 
 	solution = optimize_layout()
-	
+
 	if (solution == None):
 	    print "************* OPTIMIZATION FAILED ***********"
 	    sys.exit(1)
-	
-	
+
+
 	[layout, power_distribution, temperature] = solution
-	    
+
 	print "----------- OPTIMIZATION RESULTS -----------------"
 	print "Chip = ", layout.get_chip().name
 	print "Chip frequencies and power levels = ", [(f, float("%.4f" % power)) for (f, power) in layout.get_chip().get_frequencies_and_power_levels()]
@@ -360,6 +360,5 @@ if __name__ == '__main__':
 
 	if (argv.show_in_3D):
 		layout.draw_in_3D(None, True)
-	
+
 	sys.exit(0)
-	
