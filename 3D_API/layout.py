@@ -757,8 +757,6 @@ class LayoutBuilder(object):
                 	positions.append([level, 0.0, 0.0])
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
-        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
-
 	"""Function to compute a straight linear layout
 	"""
 	@staticmethod
