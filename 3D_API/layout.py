@@ -152,7 +152,7 @@ class Layout(object):
 		self.generate_topology_graph()
 
 
-	""" Genreate a Networkx graph based on chip positions
+	""" Generate a Networkx graph based on chip positions
 	"""
 	def generate_topology_graph(self):
 		#  Greate NetworkX graph
@@ -327,9 +327,9 @@ class Layout(object):
 		from mpl_toolkits.mplot3d import Axes3D
 		import matplotlib.tri as mtri
 
-		################ plot_slab ###################
+		################ plot_cuboid ###################
 
-		def plot_slab(ax, corner, x_dim, y_dim, z_dim, color):
+		def plot_cuboid(ax, corner, x_dim, y_dim, z_dim, color):
         		grid_resolution = z_dim / 4
 
 
@@ -363,7 +363,7 @@ class Layout(object):
 
 
 
-		############ END plot_slab ###################
+		############ END plot_cuboid ###################
 
 
 		level_height = 0.1
@@ -382,7 +382,7 @@ class Layout(object):
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
-        		plot_slab(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
+        		plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
 		ax.azim=+0
