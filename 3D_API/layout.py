@@ -139,8 +139,9 @@ class Layout(object):
 		- chip_positions: [[layer, x, y], ..., [layer, x, y]]
 		- medium: air | oil | water
 		- overlap: fraction of overlap necessary for two chips to be connected
+		- inductor_positions: [[layer to which inductor belongs, x, y]...[layer, x, y]]
 	"""
-	def __init__(self, chip, chip_positions,  medium, overlap):
+	def __init__(self, chip, chip_positions,  medium, overlap,  inductor_positions): #LL* add inductor position to constructor?
 
 		self.__chip = chip
 		self.__medium = medium
@@ -148,7 +149,7 @@ class Layout(object):
 		self.__overlap = overlap
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
-		self.inductor_positions = []
+		self.__inductor_positions = inductor_positions
 
 		self.generate_topology_graph()
 
@@ -247,13 +248,15 @@ class Layout(object):
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 		- new_chip_position: position of the new chip
 	"""
-	def add_new_chip(self, new_chip_position):
+	def add_new_chip(self, new_chip_position): #LL* new_inductor_position arg
 
 		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
 		# Add the new chip
 		self.__chip_positions.append(new_chip_position)
+
+		#Add chip inductor
 
 		# Rebuild the graph from scratch!
 		try:
@@ -374,6 +377,7 @@ class Layout(object):
 
 		level_height = 0.1
 		chip_height = 0.01
+		inductor_level_height = 0.11
 
        		fig = plot.figure()
        		ax = Axes3D(fig)
@@ -389,6 +393,21 @@ class Layout(object):
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
         		plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
+
+		for position in self.__inductor_positions:
+			xyz = [position[1], position[2], position[0] * level_height - chip_height]
+			"""
+			r = random.uniform(0.0, 1.0)
+			g = random.uniform(0.0, 1.0)
+			b = random.uniform(0.0, 1.0)
+			"""
+			r=1
+			g=0
+			b=0
+			color = (r, g, b)
+			if (max_level == -1) or (max_level < position[0]):
+				max_level = position[0]
+        		plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), chip_height, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
 		ax.azim=+0
@@ -790,10 +809,10 @@ class LayoutBuilder(object):
 	"""Function to compute a diagonal linear layout
 	"""
 	@staticmethod
-	def compute_rectilinear_diagonal_layout(num_chips):
+	def compute_rectilinear_diagonal_layout(num_chips): #LL* start adding inductor here
 
         	positions = []
-
+		inductor_positions = []
         	current_level = 1
         	level_direction = 1
 		# HENRI DEBUG
@@ -810,8 +829,9 @@ class LayoutBuilder(object):
                         	level_direction = 1
                 	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
                 	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
+			inductor_positions.append([current_level, current_x_position, current_y_position])
 
-        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_positions)
 
 	"""Function to compute a generalized checkerboard layout (overlap > 0.25) """
 	@staticmethod
