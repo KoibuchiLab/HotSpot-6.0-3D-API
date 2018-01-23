@@ -148,6 +148,7 @@ class Layout(object):
 		self.__overlap = overlap
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
+		self.inductor_positions = []
 
 		self.generate_topology_graph()
 
@@ -212,6 +213,11 @@ class Layout(object):
 	"""
 	def get_chip_positions(self):
 		return list(self.__chip_positions)
+
+	""" Get the list of inductors positions
+	"""
+	def get_inductor_positions(self):
+		return list(self.__inductor_positions)
 
 	""" Get the list of topology edges
 	"""
