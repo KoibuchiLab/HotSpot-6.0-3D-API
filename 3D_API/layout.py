@@ -385,23 +385,25 @@ class Layout(object):
 
 		max_level = -1
 		for position in self.__chip_positions:
+			#print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
-			r = random.uniform(0.0, 1.0)
-			g = random.uniform(0.0, 1.0)
-			b = random.uniform(0.0, 1.0)
+			r = random.uniform(0.1, 1.0)
+			g = random.uniform(0.1, 1.0)
+			b = random.uniform(0.1, 1.0)
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
         		plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
 		for position in self.__inductor_positions:
-			xyz = [position[1], position[2], position[0] * level_height - chip_height]
+			#print 'inductor level is ', position[0]
+			xyz = [position[1], position[2], position[0] * level_height + chip_height]
 			"""
 			r = random.uniform(0.0, 1.0)
 			g = random.uniform(0.0, 1.0)
 			b = random.uniform(0.0, 1.0)
 			"""
-			r=1
+			r=0
 			g=0
 			b=0
 			color = (r, g, b)
@@ -829,7 +831,7 @@ class LayoutBuilder(object):
                         	level_direction = 1
                 	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
                 	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
-			inductor_positions.append([current_level, current_x_position, current_y_position])
+			inductor_positions.append([current_level-1, current_x_position, current_y_position])
 
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_positions)
 
