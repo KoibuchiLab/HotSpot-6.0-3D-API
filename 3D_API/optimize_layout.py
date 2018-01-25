@@ -207,7 +207,7 @@ VISUAL PROGRESS OUTPUT:
                             help='benchmark used to determine available chip power levels (default: overall_max)')
 
 	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
-		            type=float, required=False,
+		            type=float, required=False, #might need to make this reqired = True
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
 

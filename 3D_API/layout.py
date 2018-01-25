@@ -139,9 +139,9 @@ class Layout(object):
 		- chip_positions: [[layer, x, y], ..., [layer, x, y]]
 		- medium: air | oil | water
 		- overlap: fraction of overlap necessary for two chips to be connected
-		- inductor_positions: [[layer to which inductor belongs, x, y]...[layer, x, y]]
+		- inductor_properties: [[layer to which inductor belongs, x, y, x_dim, y_dim]...[layer, x, y, x_dim, y_dim]]
 	"""
-	def __init__(self, chip, chip_positions,  medium, overlap,  inductor_positions): #LL* add inductor position to constructor?
+	def __init__(self, chip, chip_positions,  medium, overlap,  inductor_properties): #LL* add inductor position to constructor?
 
 		self.__chip = chip
 		self.__medium = medium
@@ -149,7 +149,9 @@ class Layout(object):
 		self.__overlap = overlap
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
-		self.__inductor_positions = inductor_positions
+		self.__inductor_properties = inductor_properties
+		#self.__inductor_x_dim = 0
+		#self.__inductor_y_dim = 0
 
 		self.generate_topology_graph()
 
@@ -216,10 +218,10 @@ class Layout(object):
 		return list(self.__chip_positions)
 
 	""" Get the list of inductors positions
-	"""
 	def get_inductor_positions(self):
 		return list(self.__inductor_positions)
 
+	"""
 	""" Get the list of topology edges
 	"""
 	def get_topology(self):
@@ -233,6 +235,7 @@ class Layout(object):
                         return False
 
                  # must have enough overlap
+				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
                  overlap_area = Layout.compute_two_rectangle_overlap_area(
                         [position1[1], position1[2]],
                         [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
@@ -256,7 +259,7 @@ class Layout(object):
 		# Add the new chip
 		self.__chip_positions.append(new_chip_position)
 
-		#Add chip inductor
+		#LL* Add chip inductor
 
 		# Rebuild the graph from scratch!
 		try:
@@ -377,7 +380,7 @@ class Layout(object):
 
 		level_height = 0.1
 		chip_height = 0.01
-		inductor_level_height = 0.11
+		induction_zone = 2*level_height+chip_height
 
        		fig = plot.figure()
        		ax = Axes3D(fig)
@@ -387,29 +390,26 @@ class Layout(object):
 		for position in self.__chip_positions:
 			#print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
-			r = random.uniform(0.1, 1.0)
-			g = random.uniform(0.1, 1.0)
-			b = random.uniform(0.1, 1.0)
+			r = random.uniform(0.1, 0.9)
+			g = random.uniform(0.1, 0.9)
+			b = random.uniform(0.1, 0.9)
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
         		plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
-		for position in self.__inductor_positions:
-			#print 'inductor level is ', position[0]
-			xyz = [position[1], position[2], position[0] * level_height + chip_height]
-			"""
-			r = random.uniform(0.0, 1.0)
-			g = random.uniform(0.0, 1.0)
-			b = random.uniform(0.0, 1.0)
-			"""
+		#Layout.compute_two_rectangle_overlap_area()
+		for position in self.__inductor_properties:
+			xyz = [position[1], position[2],position[0]-( position[0] - level_height)]
+			print 'inductor level is ', position[0],' xyz = ', xyz
 			r=0
 			g=0
 			b=0
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
-        		plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), chip_height, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
+        		#plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
+        		plot_cuboid(ax, xyz, position[3], position[4], induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
 		ax.azim=+0
@@ -777,12 +777,19 @@ class LayoutBuilder(object):
 	"""
 	@staticmethod
 	def compute_stacked_layout(num_chips):
-
+		#utils.abort(" inductor_properties need to be added when building")
+		inductor_properties = []
+		if(utils.argv.overlap is None):
+			utils.abort(" Need to specifiy Overlap")
         	positions = []
-
+		inductor_x_dim = inductor_y_dim  = utils.argv.chip.x_dimension - (utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap)))
         	for level in xrange(1, num_chips+1):
                 	positions.append([level, 0.0, 0.0])
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+			if level%2==0:
+				inductor_properties.append([level, 0, 0, inductor_x_dim, inductor_y_dim])
+			else:
+				inductor_properties.append([level, utils.argv.chip.x_dimension-inductor_x_dim, utils.argv.chip.y_dimension - inductor_y_dim, inductor_x_dim,inductor_y_dim])
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a straight linear layout
 	"""
@@ -790,7 +797,7 @@ class LayoutBuilder(object):
 	def compute_rectilinear_straight_layout(num_chips):
 
         	positions = []
-
+        	inductor_properties = []
         	current_level = 1
         	level_direction = 1
         	current_x_position = 0.0
@@ -805,8 +812,8 @@ class LayoutBuilder(object):
                         	current_level = 2
                         	level_direction = 1
                 	current_x_position += utils.argv.chip.x_dimension * (1 - utils.argv.overlap)
-
-        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+			inductor_properties.append([current_level-level_direction, current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - utils.argv.overlap)),utils.argv.chip.y_dimension])
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a diagonal linear layout
 	"""
@@ -814,7 +821,7 @@ class LayoutBuilder(object):
 	def compute_rectilinear_diagonal_layout(num_chips): #LL* start adding inductor here
 
         	positions = []
-		inductor_positions = []
+		inductor_properties = []
         	current_level = 1
         	level_direction = 1
 		# HENRI DEBUG
@@ -831,13 +838,14 @@ class LayoutBuilder(object):
                         	level_direction = 1
                 	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
                 	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
-			inductor_positions.append([current_level-1, current_x_position, current_y_position])
+			inductor_properties.append([current_level-level_direction, current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
 
-        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_positions)
+        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a generalized checkerboard layout (overlap > 0.25) """
 	@staticmethod
 	def compute_generalized_checkerboard_layout(num_chips):
+		utils.abort("inductor_properties need to be added when building")
 
 
 	        positions = []
@@ -903,7 +911,7 @@ class LayoutBuilder(object):
 	"""Function to compute a checkerboard layout"""
 	@staticmethod
 	def compute_checkerboard_layout(num_chips):
-
+		utils.abort("inductor_properties need to be added when building")
 
 	        if (utils.argv.overlap > 0.5):
 	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
