@@ -1,0 +1,13 @@
+#gitignore
+
+#compiled python
+*.pyc
+
+
+*grid.steady
+
+#swap files
+*.swp
+
+#tmp files
+*tmp*

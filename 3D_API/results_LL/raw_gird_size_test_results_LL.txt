@@ -1,0 +1,282 @@
+LL_version
+trial	grid_size	output	time	L1-dcache-load-misses	LLC-load-misses
+1	8192	54.57	24.074086484	4401990719.0	418044778.0
+2	8192	54.57	23.915425027	4406653975.0	417046384.0
+3	8192	54.57	24.104940831	4408026997.0	416514283.0
+4	8192	54.57	24.098755217	4409400492.0	416275013.0
+5	8192	54.57	24.018073978	4409026924.0	416109576.0
+6	8192	54.57	23.871784643	4406021823.0	416904655.0
+7	8192	54.57	23.876967722	4409386546.0	416652163.0
+8	8192	54.57	24.132755412	4407437657.0	416550646.0
+9	8192	54.57	24.097686326	4412125933.0	415012069.0
+10	8192	54.57	24.258617583	4407595645.0	417258790.0
+1	4096	54.58	20.423426313	4051813343.0	195389639.0
+2	4096	54.58	20.64436866	4053860182.0	195234108.0
+3	4096	54.58	20.672950844	4052970132.0	195659323.0
+4	4096	54.58	20.479605002	4048228119.0	197076505.0
+5	4096	54.58	20.468164139	4048494874.0	197331952.0
+6	4096	54.58	20.501290785	4053901446.0	195299490.0
+7	4096	54.58	20.292625222	4053585999.0	195313932.0
+8	4096	54.58	20.504384318	4053516937.0	195201050.0
+9	4096	54.58	20.66622381	4054311235.0	195139001.0
+10	4096	54.58	20.410876263	4055831956.0	194314940.0
+1	2048	54.6	19.798727002	3964297842.0	137781363.0
+2	2048	54.6	19.613962374	3961865646.0	140236622.0
+3	2048	54.6	20.686771384	3964712239.0	138796722.0
+4	2048	54.6	19.707929277	3965920297.0	138066081.0
+5	2048	54.6	19.599496732	3960951748.0	139841608.0
+6	2048	54.6	19.776175763	3960684742.0	140152905.0
+7	2048	54.6	19.549929032	3960433084.0	140093724.0
+8	2048	54.6	19.943974761	3961863926.0	139461947.0
+9	2048	54.6	19.632232132	3961431451.0	139820895.0
+10	2048	54.6	19.793569731	3964090341.0	138282928.0
+1	1024	54.79	19.522629105	3933606681.0	126631079.0
+2	1024	54.79	19.562650565	3932195285.0	126411414.0
+3	1024	54.79	20.271283069	3938510157.0	124689272.0
+4	1024	54.79	19.482834072	3939457145.0	123741743.0
+5	1024	54.79	19.434356481	3939152851.0	123902659.0
+6	1024	54.79	19.38571386	3934667500.0	126170457.0
+7	1024	54.79	19.407152828	3932982489.0	126547887.0
+8	1024	54.79	20.043545641	3933567793.0	126034445.0
+9	1024	54.79	19.579775124	3937516011.0	124269292.0
+10	1024	54.79	19.457409123	3939233306.0	124588410.0
+1	512	54.85	19.516226598	3930369488.0	125514592.0
+2	512	54.85	19.98260518	3931118642.0	124717860.0
+3	512	54.85	19.484479348	3928319663.0	125537191.0
+4	512	54.85	20.004267366	3930904370.0	124728189.0
+5	512	54.85	19.569078065	3936048766.0	122808128.0
+6	512	54.85	19.833872408	3934160454.0	126087374.0
+7	512	54.85	19.613773896	3930294858.0	125076730.0
+8	512	54.85	19.391893592	3934093346.0	123866164.0
+9	512	54.85	19.584970916	3937961686.0	122452235.0
+10	512	54.85	19.493373122	3927852420.0	127062764.0
+1	256	54.95	20.091307752	3934858028.0	126043315.0
+2	256	54.95	19.815191595	3933402864.0	125511784.0
+3	256	54.95	19.369462104	3929163973.0	127177711.0
+4	256	54.95	19.888067518	3928893364.0	127057883.0
+5	256	54.95	19.452950408	3929403433.0	126746068.0
+6	256	54.95	20.278196806	3935721648.0	125681501.0
+7	256	54.95	19.893652902	3929874317.0	127564668.0
+8	256	54.95	19.470400234	3933865264.0	125211728.0
+9	256	54.95	19.367720013	3933594660.0	125184140.0
+10	256	54.95	20.208694061	3934522153.0	125105351.0
+1	128	55.1	19.408621809	3927480667.0	126710133.0
+2	128	55.1	19.959733045	3927881245.0	126539956.0
+3	128	55.1	19.447079026	3926460521.0	127112345.0
+4	128	55.1	19.888501253	3928032724.0	126041793.0
+5	128	55.1	19.757596914	3931830181.0	123492915.0
+6	128	55.1	19.426795552	3930654151.0	125141322.0
+7	128	55.1	19.854350834	3927213192.0	126214612.0
+8	128	55.1	19.53593871	3931248919.0	124912129.0
+9	128	55.1	19.427566181	3931423922.0	124837266.0
+10	128	55.1	19.909715342	3927141868.0	126305640.0
+1	64	55.09	19.405016491	3931688132.0	124126104.0
+2	64	55.09	20.118731672	3927982786.0	125101673.0
+3	64	55.09	19.502376479	3928713705.0	125321952.0
+4	64	55.09	19.554154337	3928482450.0	125553383.0
+5	64	55.09	19.505640198	3928212300.0	125677204.0
+6	64	55.09	19.291449484	3929015603.0	125809801.0
+7	64	55.09	19.700574344	3926330175.0	125573435.0
+8	64	55.09	19.550184189	3932302965.0	123906567.0
+9	64	55.09	19.487077782	3932993726.0	122949784.0
+10	64	55.09	19.332540263	3929011814.0	124876078.0
+1	32	
+KeyboardInterrupt, Removing temp files containing pid =  18866
+********EXITING HOTSPOT********	0.290516178	1352056.0	71050.0
+2	32	
+KeyboardInterrupt, Removing temp files containing pid =  18878
+********EXITING HOTSPOT********	0.289384493	1346364.0	71503.0
+3	32	
+KeyboardInterrupt, Removing temp files containing pid =  18890
+********EXITING HOTSPOT********	0.290732865	1342658.0	71905.0
+4	32	
+KeyboardInterrupt, Removing temp files containing pid =  18902
+********EXITING HOTSPOT********	0.291705055	1334892.0	74868.0
+5	32	
+KeyboardInterrupt, Removing temp files containing pid =  18914
+********EXITING HOTSPOT********	0.289679066	1345216.0	73569.0
+6	32	
+KeyboardInterrupt, Removing temp files containing pid =  18926
+********EXITING HOTSPOT********	0.289797661	1350902.0	74280.0
+7	32	
+KeyboardInterrupt, Removing temp files containing pid =  18938
+********EXITING HOTSPOT********	0.29048695	1346559.0	72603.0
+8	32	
+KeyboardInterrupt, Removing temp files containing pid =  18950
+********EXITING HOTSPOT********	0.290216203	1342711.0	73798.0
+9	32	
+KeyboardInterrupt, Removing temp files containing pid =  18962
+********EXITING HOTSPOT********	0.289309402	1334385.0	72125.0
+10	32	
+KeyboardInterrupt, Removing temp files containing pid =  18974
+********EXITING HOTSPOT********	0.292132506	1341417.0	78448.0
+1	16	
+KeyboardInterrupt, Removing temp files containing pid =  18992
+********EXITING HOTSPOT********	0.295017446	1363083.0	71222.0
+2	16	
+KeyboardInterrupt, Removing temp files containing pid =  19004
+********EXITING HOTSPOT********	0.295797885	1363532.0	85234.0
+3	16	
+KeyboardInterrupt, Removing temp files containing pid =  19016
+********EXITING HOTSPOT********	0.295735896	1354718.0	70839.0
+4	16	
+KeyboardInterrupt, Removing temp files containing pid =  19028
+********EXITING HOTSPOT********	0.296010358	1360946.0	74044.0
+5	16	
+KeyboardInterrupt, Removing temp files containing pid =  19040
+********EXITING HOTSPOT********	0.300122853	1362561.0	71734.0
+6	16	
+KeyboardInterrupt, Removing temp files containing pid =  19052
+********EXITING HOTSPOT********	0.293616245	1366223.0	72871.0
+7	16	
+KeyboardInterrupt, Removing temp files containing pid =  19064
+********EXITING HOTSPOT********	0.298118782	1357883.0	71071.0
+8	16	
+KeyboardInterrupt, Removing temp files containing pid =  19076
+********EXITING HOTSPOT********	0.29469331	1353874.0	70813.0
+9	16	
+KeyboardInterrupt, Removing temp files containing pid =  19088
+********EXITING HOTSPOT********	0.302385499	1468148.0	72482.0
+10	16	
+KeyboardInterrupt, Removing temp files containing pid =  19100
+********EXITING HOTSPOT********	0.296462941	1367300.0	78556.0
+1	8	
+KeyboardInterrupt, Removing temp files containing pid =  19118
+********EXITING HOTSPOT********	0.312110741	1462395.0	100970.0
+2	8	
+KeyboardInterrupt, Removing temp files containing pid =  19130
+********EXITING HOTSPOT********	0.308320908	1440321.0	72232.0
+3	8	
+KeyboardInterrupt, Removing temp files containing pid =  19142
+********EXITING HOTSPOT********	0.310439125	1425660.0	80119.0
+4	8	
+KeyboardInterrupt, Removing temp files containing pid =  19154
+********EXITING HOTSPOT********	0.310374594	1421652.0	71809.0
+5	8	
+KeyboardInterrupt, Removing temp files containing pid =  19166
+********EXITING HOTSPOT********	0.312442945	1425647.0	74988.0
+6	8	
+KeyboardInterrupt, Removing temp files containing pid =  19178
+********EXITING HOTSPOT********	0.311859918	1428106.0	71608.0
+7	8	
+KeyboardInterrupt, Removing temp files containing pid =  19190
+********EXITING HOTSPOT********	0.312708625	1437062.0	94145.0
+8	8	
+KeyboardInterrupt, Removing temp files containing pid =  19202
+********EXITING HOTSPOT********	0.310611015	1422850.0	72457.0
+9	8	
+KeyboardInterrupt, Removing temp files containing pid =  19214
+********EXITING HOTSPOT********	0.312476012	1419444.0	84455.0
+10	8	
+KeyboardInterrupt, Removing temp files containing pid =  19226
+********EXITING HOTSPOT********	0.311349553	1423775.0	72459.0
+1	4	
+KeyboardInterrupt, Removing temp files containing pid =  19244
+********EXITING HOTSPOT********	0.309157091	1415548.0	74917.0
+2	4	
+KeyboardInterrupt, Removing temp files containing pid =  19256
+********EXITING HOTSPOT********	0.311659701	1417163.0	74459.0
+3	4	
+KeyboardInterrupt, Removing temp files containing pid =  19268
+********EXITING HOTSPOT********	0.310272365	1424508.0	76288.0
+4	4	
+KeyboardInterrupt, Removing temp files containing pid =  19280
+********EXITING HOTSPOT********	0.30987521	1422535.0	73514.0
+5	4	
+KeyboardInterrupt, Removing temp files containing pid =  19292
+********EXITING HOTSPOT********	0.310396206	1416853.0	71289.0
+6	4	
+KeyboardInterrupt, Removing temp files containing pid =  19304
+********EXITING HOTSPOT********	0.31104718	1427844.0	86753.0
+7	4	
+KeyboardInterrupt, Removing temp files containing pid =  19316
+********EXITING HOTSPOT********	0.310916293	1419756.0	74057.0
+8	4	
+KeyboardInterrupt, Removing temp files containing pid =  19328
+********EXITING HOTSPOT********	0.32277546	1584067.0	71995.0
+9	4	
+KeyboardInterrupt, Removing temp files containing pid =  19340
+********EXITING HOTSPOT********	0.310537141	1419547.0	59047.0
+10	4	
+KeyboardInterrupt, Removing temp files containing pid =  19352
+********EXITING HOTSPOT********	0.309743298	1417644.0	72632.0
+1	2	
+KeyboardInterrupt, Removing temp files containing pid =  19370
+********EXITING HOTSPOT********	0.326298894	1472029.0	70862.0
+2	2	
+KeyboardInterrupt, Removing temp files containing pid =  19382
+********EXITING HOTSPOT********	0.323725003	1490298.0	73213.0
+3	2	
+KeyboardInterrupt, Removing temp files containing pid =  19394
+********EXITING HOTSPOT********	0.324278474	1490515.0	73871.0
+4	2	
+KeyboardInterrupt, Removing temp files containing pid =  19406
+********EXITING HOTSPOT********	0.324688983	1485136.0	73065.0
+5	2	
+KeyboardInterrupt, Removing temp files containing pid =  19418
+********EXITING HOTSPOT********	0.322449943	1477421.0	73569.0
+6	2	
+KeyboardInterrupt, Removing temp files containing pid =  19430
+********EXITING HOTSPOT********	0.325619861	1488817.0	88708.0
+7	2	
+KeyboardInterrupt, Removing temp files containing pid =  19442
+********EXITING HOTSPOT********	0.32308309	1491294.0	74808.0
+8	2	
+KeyboardInterrupt, Removing temp files containing pid =  19454
+********EXITING HOTSPOT********	0.322239483	1486400.0	69368.0
+9	2	
+KeyboardInterrupt, Removing temp files containing pid =  19466
+********EXITING HOTSPOT********	0.325058374	1487154.0	76210.0
+10	2	
+KeyboardInterrupt, Removing temp files containing pid =  19479
+********EXITING HOTSPOT********	0.32539433	1504485.0	74461.0
+1	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19497
+********EXITING HOTSPOT********	0.047119233	1066694.0	48842.0
+2	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19508
+********EXITING HOTSPOT********	0.047845999	1068486.0	50128.0
+3	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19519
+********EXITING HOTSPOT********	0.050633586	1070776.0	46162.0
+4	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19530
+********EXITING HOTSPOT********	0.047358074	1061313.0	50529.0
+5	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19541
+********EXITING HOTSPOT********	0.047176601	1056431.0	49522.0
+6	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19552
+********EXITING HOTSPOT********	0.047115394	1064344.0	49615.0
+7	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19563
+********EXITING HOTSPOT********	0.04696388	1062339.0	49204.0
+8	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19574
+********EXITING HOTSPOT********	0.047769503	1065628.0	47717.0
+9	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19585
+********EXITING HOTSPOT********	0.047510331	1061608.0	43061.0
+10	1	width model: 0.061500 sum: 0.061840 
+height model: 0.051840 sum: 0.061840 
+
+KeyboardInterrupt, Removing temp files containing pid =  19596
+********EXITING HOTSPOT********	0.048480509	1065356.0	65858.0

@@ -1,0 +1,3 @@
+num_workers	avg_runtime
+1	827.944000324
+2	454.916896343

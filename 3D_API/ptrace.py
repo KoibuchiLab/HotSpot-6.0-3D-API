@@ -3,74 +3,44 @@ import os
 
 import sys
 
-if (len(sys.argv) != 2):
-        sys.stderr.write("Usage: " + sys.argv[0] + " <input file (.dat)>\n")
-        sys.exit(1)
+def ptrace(input, null_data, pid):
 
-input_file = sys.argv[1]
-if not os.access(input_file, os.R_OK):
-        sys.stderr.write("Can't read file '"+input_file+"'\n")
-        sys.exit(1)
+	input.ptrace_count()
 
+	freqll = input.get_chip_freq()
+	chip_layerll = input.get_layer_array()
+	chip_namell = input.get_chip_name()
+	countll = input.get_ptrace_count()
 
+	null_layerll = null_data.get_null_layer()
+	null_namell = null_data.get_name()
 
+	string1 = ""
+	string2 = ""
 
-f = open(input_file)
-chip_lines = f.readlines()
-f.close
+	for i in xrange(0, len(freqll)):
+		for j in xrange(0, len(chip_layerll)):
+			if i == chip_layerll[j]-1:
+				read = open("PTRACE/"+ str(chip_namell[j]) +"-" + str(freqll[j]) + ".ptrace")
+				ptrace_file = read.readlines()
+				read.close
+				ptrace_file[0] = ptrace_file[0].strip(" \n") #to catch when files have spaces before newline like in e5-2667v4-cg2400.ptrace
+				ptrace_file[1] = ptrace_file[1].strip(" \n")
+				ptrace_file[0] = ptrace_file[0].split(' ')
+				ptrace_file[1] = ptrace_file[1].split(' ')
 
-f2 = open('null.data')
-null_lines = f2.readlines()
-f2.close
+				for k in xrange(0, len(ptrace_file[0])):
+					string1+=(str(chip_layerll[j]) + "_" + str(countll[j]) + ptrace_file[0][k] + " ")
 
-os.system("rm -f test.ptrace")
-os.system("touch test.ptrace") 
+				for stuff in ptrace_file[1]:
+					string2+=(stuff+" ")
 
-layer_tmp = 0;
-count_tmp = 0;
+		for j in xrange(0, len(null_layerll)):
+			if i == null_layerll[j]-1:
+				string1+=(str(null_namell[j])+" ")
+				string2+=("0 ")
 
-chip_layer, count, freq, chip_name = [], [], [], []
-
-for line in chip_lines:
-	data = line[:-1].split(' ')
-	chip_name += [str(data[0])]
-	chip_layer += [int(data[1])]
-	freq += [str(data[4])]
-	if int(data[1])== layer_tmp:
-		count_tmp +=1
-		layer_tmp = int(data[1])
-	else:	
-		count_tmp = 1
-		layer_tmp = int(data[1])
-	count += [count_tmp]
-
-
-null_layer, null_name= [],[] 
-for line3 in null_lines:
-	data2 = line3[:-1].split(' ')
-	null_layer += [int(data2[0])]
-	null_name += [str(data2[1])]
-
-for i in xrange(0, len(freq)):
-	for j in xrange(0, len(chip_layer)):
-		if i == chip_layer[j]-1:
-			os.system("cat PTRACE/"+ str(chip_name[j]) +"-" + str(freq[j]) + ".ptrace | awk 'NR==1{for(i=1;i<=NF;i++){printf \"" +str(chip_layer[j]) + "_" + str(count[j]) + "\"$i\" \" }}' >> test.ptrace")
-	for j in xrange(0, len(null_layer)):
-		if i == null_layer[j]-1:
-			os.system("echo -n \""+ str(null_name[j])+" \" >> test.ptrace")
-os.system("echo '' >> test.ptrace")
-
-for i in xrange(0, len(freq)):	 
-	for j in xrange(0, len(freq)):
-		if i == chip_layer[j]-1:
-			os.system("cat PTRACE/" + str(chip_name[j]) +"-" + str(freq[j]) + ".ptrace | awk 'NR==2{for(i=1;i<=NF;i++){printf $i\" \" }}' >> test.ptrace")
-	for j in xrange(0, len(null_layer)):
-		if i == null_layer[j]-1:
-			os.system("echo -n \"0 \" >> test.ptrace") 
-os.system("echo '' >> test.ptrace")
-
-	 
-		
-		
-
-
+	string1+=("\n"+string2+"\n")
+	file = open("test_"+str(pid)+".ptrace","w+")
+	file.write(string1)
+	file.close
