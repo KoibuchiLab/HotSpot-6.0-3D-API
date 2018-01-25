@@ -214,7 +214,7 @@ VISUAL PROGRESS OUTPUT:
 	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true',
                             required=False,
                             dest='constrained_overlap_geometry',
-                            help='Force chip overlap area to be a string or a rectangle with same aspect ratio as the chip')
+                            help='Force chip overlap area to be a strip or rectangle with same aspect ratio as the chip')
 
 	parser.add_argument('--power_budget', '-p', action='store',
 		            type=float, required=False,
