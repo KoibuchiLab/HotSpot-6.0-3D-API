@@ -90,8 +90,8 @@ def config(sorted_input, material, pid):
 			chip_x += [0.00001]
 			chip_y += [0.00001]
 		else:
-			sys.stderr('invalid chip name in input file ' + input_file)
-			sys.exit()
+			sys.stderr.write('invalid chip name ' + str(",".join(chip_name)) + "\n")
+			sys.exit(1)
 
 	num = len(rotate)
 	system_size = -10.0
@@ -108,7 +108,7 @@ def config(sorted_input, material, pid):
 				system_size = y[i]+chip_x[i]
 		else:
 			sys.stderr('invalid rotation')
-			sys.exit()
+			sys.exit(1)
 	heatsink_fin_num = 20 ## 10(boards) * 2(both sides)
 	heatsink_thickness = 0.0069  ##default heatsink thickness size
 	heat_spread_size = 3.0 * system_size ## I set those ratio(3.0 and 6.0) referring defalut chip ratio.
