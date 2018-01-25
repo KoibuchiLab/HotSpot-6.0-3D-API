@@ -139,7 +139,7 @@ class Layout(object):
 		- chip_positions: [[layer, x, y], ..., [layer, x, y]]
 		- medium: air | oil | water
 		- overlap: fraction of overlap necessary for two chips to be connected
-		- inductor_properties: [[layer to which inductor belongs, x, y, x_dim, y_dim]...[layer, x, y, x_dim, y_dim]]
+		- inductor_properties: [[layer to which inductor belongs, x, y, x_dim, y_dim], ..., [layer, x, y, x_dim, y_dim]]
 	"""
 	def __init__(self, chip, chip_positions,  medium, overlap,  inductor_properties): #LL* add inductor position to constructor?
 
@@ -325,8 +325,8 @@ class Layout(object):
 				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
 		#print "   - YES: FITS"
-		return True
 
+		return True
 
 
 	""" Draw in 3D
