@@ -324,6 +324,14 @@ class Layout(object):
 			if (overlap  > 0.0):
 				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
+			"""
+
+			INSERT check_cross_talk
+			if crosstalk?
+			if (overlap  > 0.0):
+				#print "   - NO: COLLISION! overlap = ", overlap
+				return False
+			"""
 		#print "   - YES: FITS"
 		return True
 
@@ -400,7 +408,7 @@ class Layout(object):
 
 		#Layout.compute_two_rectangle_overlap_area()
 		for position in self.__inductor_properties:
-			xyz = [position[1], position[2],position[0]-( position[0] - level_height)]
+			xyz = [position[1], position[2], position[0] * level_height+.01]
 			print 'inductor level is ', position[0],' xyz = ', xyz
 			r=0
 			g=0
@@ -409,7 +417,7 @@ class Layout(object):
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
         		#plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
-        		plot_cuboid(ax, xyz, position[3], position[4], induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
+        		plot_cuboid(ax, xyz, position[3], position[4], level_height-chip_height, color)
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
 		ax.azim=+0
@@ -420,9 +428,6 @@ class Layout(object):
 
 		if show_plot:
         		plot.show()
-
-
-
 
 	""" Draw the layout using Octave (really rudimentary)
             Will produce amusing ASCI art
@@ -777,6 +782,9 @@ class LayoutBuilder(object):
 	"""
 	@staticmethod
 	def compute_stacked_layout(num_chips):
+		"""
+		MAX num_chips > 9 does not seem to work.  Hotspot.c fails to produce tmp.grid.steady
+		"""
 		#utils.abort(" inductor_properties need to be added when building")
 		inductor_properties = []
 		if(utils.argv.overlap is None):
@@ -800,6 +808,8 @@ class LayoutBuilder(object):
         	inductor_properties = []
         	current_level = 1
         	level_direction = 1
+		inductor_level = 1
+		inductor_direction = 1
         	current_x_position = 0.0
         	current_y_position = 0.0
         	for i in xrange(0, num_chips):
@@ -808,11 +818,17 @@ class LayoutBuilder(object):
                 	if (current_level > utils.argv.num_levels):
                         	current_level = utils.argv.num_levels - 1
                         	level_direction = -1
+				#print 'first if'
                 	if (current_level < 1):
                         	current_level = 2
                         	level_direction = 1
-                	current_x_position += utils.argv.chip.x_dimension * (1 - utils.argv.overlap)
-			inductor_properties.append([current_level-level_direction, current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - utils.argv.overlap)),utils.argv.chip.y_dimension])
+				#print 'second if'
+			#print '\tcurrent level is ', current_level#, '\npositions ',positions
+			current_x_position += utils.argv.chip.x_dimension * (1 - utils.argv.overlap)
+			#print "\t\tinductor level is ", min(current_level,positions[i][0])
+			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - utils.argv.overlap)),utils.argv.chip.y_dimension])
+			#inductor_level = 1
+        	#print 'inductor properites', inductor_properties
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a diagonal linear layout
@@ -838,7 +854,7 @@ class LayoutBuilder(object):
                         	level_direction = 1
                 	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
                 	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
-			inductor_properties.append([current_level-level_direction, current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
+			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
 
         	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 

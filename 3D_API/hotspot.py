@@ -108,10 +108,9 @@ try:
 
 	#calls hotspot.c
 	call_hotspot(material, pid)
-	
+
 	results_file = open("tmp_"+str(pid)+".results","w")
 	results_list = []
-
 	for i in xrange(0, layer[-1]):
 		if material == "water_pillow": #the output would be changed when the second path is used.
 			#needs to be tested. bug in config.py prevented full testing.
