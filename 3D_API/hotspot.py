@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+import subprocess
 import operator
 import itertools
 import multiprocessing
@@ -18,18 +19,18 @@ args = sys.argv
 
 def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
-	os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;")
+	subprocess.call("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;", shell=True)
 
 def call_cell(sorted_file, pid):
-	#os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
+	#subprocess.call("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid), shell=True)
 	#print "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
-	os.system("./cell"+str(pid)+" "+sorted_file+" "+str(pid)) #PID needs to get passed to cell to avoid competition for executibles
+	subprocess.call("./cell"+str(pid)+" "+sorted_file+" "+str(pid), shell=True) #PID needs to get passed to cell to avoid competition for executibles
 
 def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
-		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
+		subprocess.call("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf", shell=True)
 	else:
-		os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
+		subprocess.call("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf", shell=True)
 
 
 
@@ -155,15 +156,15 @@ try:
 				layer_grid_steady.close()
 			tmp_grid_steady.close()
 		if (not no_images):
-			os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
-			os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
-			os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
+			subprocess.call("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png", shell=True)
 
 	results_file.close()
 	if(detailed):
-		os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
+		subprocess.call("sort -n -k11 -u detailed.tmp -o detailed.tmp", shell=True)
 		for i in xrange(0, len(layer)):
-			os.system("python detailed.py detailed.tmp "+ str(i+1))
+			subprocess.call("python detailed.py detailed.tmp "+ str(i+1), shell=True)
 
 	temp = open("tmp_"+str(pid)+".results").readline()
 	if (float(min(results_list)))<0:
@@ -178,9 +179,9 @@ try:
 except IOError:
 	print '\nKeyboardInterrupt, Removing temp files containing pid = ',pid
 	results_file.close()
-	os.system("rm -f *"+str(pid)+"*")
+	subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 	print '********EXITING HOTSPOT********'
 	sys.exit(1)
 
 #clean up
-os.system("rm -f *"+str(pid)+"*")
+subprocess.call("rm -f *"+str(pid)+"*", shell=True)

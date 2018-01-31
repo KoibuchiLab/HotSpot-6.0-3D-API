@@ -428,7 +428,7 @@ class Layout(object):
             file.close()
 
 	    try:
-	    	os.system("octave --silent --no-window-system /tmp/layout.m");
+	    	subprocess.call("octave --silent --no-window-system /tmp/layout.m", shell=True);
 	    except e:
 		utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
 		return
