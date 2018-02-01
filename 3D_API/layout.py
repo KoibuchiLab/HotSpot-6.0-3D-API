@@ -150,8 +150,6 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-		#self.__inductor_x_dim = 0
-		#self.__inductor_y_dim = 0
 
 		self.generate_topology_graph()
 
@@ -163,11 +161,10 @@ class Layout(object):
 		self.__G = nx.Graph()
 		for i in xrange(0, len(self.__chip_positions)):
 			self.__G.add_node(i)
-
 		for i in xrange(1, len(self.__chip_positions)):
 			for j in xrange(0, i):
 				# Should we add an i-j edge?
-				if self.are_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
+				if self.are_connected_neighbors(self.__chip_positions[i], self.__chip_positions[j]):
 					self.__G.add_edge(i, j)
 
 		if not nx.is_connected(self.__G):
@@ -243,11 +240,78 @@ class Layout(object):
                         [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
 		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
 
-                 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
 			return False
-
 	         return True
 
+	""" Determines whether two chips are connected with INDUCTOR in the topology
+	    (based on whether they overlap sufficiently)
+	"""
+	def are_connected_neighbors(self, position1, position2):
+		 if (abs(position1[0] - position2[0]) != 1):  #same level check
+                        return False
+
+                 # must have enough overlap
+                 overlap_area = Layout.compute_two_rectangle_overlap_area(
+                        [position1[1], position1[2]],
+                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
+                        [position2[1], position2[2]],
+                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+
+		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+			 return False
+
+		 for inductor in self.__inductor_properties:
+			 # print 'inductor',inductor
+			 inductor_level = min(position1[0], position2[0])
+			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
+			 if inductor[0] == inductor_level:
+				 if pos2_chip_above > 0:
+					 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
+					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] + inductor[4]])
+					 if inductor_overlap == inductor[3]*inductor[4]:
+						 #if inductor[1] == position2[1] and inductor[2] == position2[2]:
+						 #print 'pos2 above inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+						 print 'inductor_overlap = ',inductor_overlap
+						 return True
+				 if pos2_chip_above < 0:
+					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] +inductor[4]])
+					# if inductor[1] == position2[1] and inductor[2] == position2[2]:
+					 if inductor_overlap == inductor[3]*inductor[4]:
+						 print 'inductor_overlap = ',inductor_overlap
+						 #print 'pos2 below inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+						 return True
+						 #print "Inductor level = ", inductor_level, '\ninductor is ',inductor,'\npos1= ',position1,'\npos2 = ',position2,'\n'
+								 # return False
+		 """
+		 get list of inductors on particular level
+		 loop through and check for inductor overlap
+
+		 """
+		 """
+		 #print 'inductor properties',self.__inductor_properties
+		 print '\npre inductor check\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+		 for inductor in self.__inductor_properties:
+			# print 'inductor',inductor
+		 	 inductor_level = min(position1[0], position2[0])
+			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
+			 if inductor[0] == inductor_level:
+				 if pos2_chip_above > 0:
+					 if inductor[1] == position2[1] and inductor[2] == position2[2]:
+						# print 'HERE above, pos2 level = ',position2[0],' pos1 level = ',position1[0], ' inductor level = ', inductor_level, ' pos2 x=', position2[1], ' pos2 y = ',position2[2]
+						 print 'pos2 above inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+						 return True
+				 if pos2_chip_above < 0:
+					 if inductor[1] == position1[1] and inductor[2] == position1[2]:
+						 print 'pos2 below inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+						 #print 'inductor x= ',inductor[1],' postion1 x= ', position1[1], ' inductor y= ',inductor[2],' postion1 y= ', position1[2]
+						# print 'HERE below, pos2 level = ',position2[0],' pos1 level = ',position1[0], ' inductor level = ', inductor_level, ' pos1 x=', position1[1], ' pos1 y = ',position1[2]
+						 return True
+			 print "Inductor level = ", inductor_level, '\ninductor is ',inductor,'\npos1= ',position1,'\npos2 = ',position2,'\n'
+	        # return False
+		"""
+		 return True
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 		- new_chip_position: position of the new chip
 	"""
@@ -409,7 +473,7 @@ class Layout(object):
 		#Layout.compute_two_rectangle_overlap_area()
 		for position in self.__inductor_properties:
 			xyz = [position[1], position[2], position[0] * level_height+.01]
-			print 'inductor level is ', position[0],' xyz = ', xyz
+			#print 'inductor level is ', position[0],' xyz = ', xyz
 			r=0
 			g=0
 			b=0
