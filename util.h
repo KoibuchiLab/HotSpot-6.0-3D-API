@@ -2,6 +2,7 @@
 #define __UTIL_H
 
 #include <stdio.h>
+#include "omp.h"
 
 #define MAX(x,y)		(((x)>(y))?(x):(y))
 #define MIN(x,y)		(((x)<(y))?(x):(y))

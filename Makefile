@@ -28,7 +28,7 @@ MATHACCEL	= none
 INCDIR		= $(SLU_HEADER)
 LIBDIR		= 
 LIBS  		= -lm $(SUPERLULIB) $(BLASLIB)
-EXTRAFLAGS	= -fopenmp
+EXTRAFLAGS	= -fopenmp 
 else
 # default - no math acceleration
 MATHACCEL	= none

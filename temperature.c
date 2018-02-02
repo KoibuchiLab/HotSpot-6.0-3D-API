@@ -15,6 +15,8 @@
 #include "flp.h"
 #include "util.h"
 
+#include "omp.h"
+
 /* default thermal configuration parameters	*/
 thermal_config_t default_thermal_config(void)
 {
@@ -34,7 +36,7 @@ thermal_config_t default_thermal_config(void)
 	config.t_sink = 6.9e-3; 			/* heatsink thickness  in m	*/
 	config.k_sink = 400.0; /* heatsink thermal conductivity in W/(m-K) */
 	config.p_sink = 3.55e6; /* heatsink specific heat in J/(m^3-K) */
-	
+
 
 	/* heat spreader specs	*/
 	config.s_spreader = 30e-3;			/* spreader side in m	*/
@@ -46,7 +48,7 @@ thermal_config_t default_thermal_config(void)
 	config.t_interface = 20e-6;			/* interface material thickness in m */
 	config.k_interface = 4.0; /* interface material thermal conductivity in W/(m-K) */
 	config.p_interface = 4.0e6; /* interface material specific heat in J/(m^3-K) */
-	
+
 	/* secondary heat transfer path */
 	config.model_secondary = FALSE;
 	config.r_convec_sec = 1.0;
@@ -62,11 +64,11 @@ thermal_config_t default_thermal_config(void)
 	config.t_solder = 0.00094;
 	config.s_pcb = 0.1;
 	config.t_pcb = 0.002;
-	
+
 	/* others	*/
 	config.ambient = 45 + 273.15;		/* in kelvin	*/
 	/* initial temperatures	from file	*/
-	strcpy(config.init_file, NULLFILE);	
+	strcpy(config.init_file, NULLFILE);
 	config.init_temp = 60 + 273.15;		/* in Kelvin	*/
 	/* steady state temperatures to file	*/
 	strcpy(config.steady_file, NULLFILE);
@@ -74,13 +76,13 @@ thermal_config_t default_thermal_config(void)
 	config.sampling_intvl = 3.333e-6;
 	config.base_proc_freq = 3e9;		/* base processor frequency in Hz	*/
 	config.dtm_used = FALSE;			/* set accordingly	*/
-	
+
 	config.leakage_used = 0;
 	config.leakage_mode = 0;
-	
+
 	config.package_model_used = 0;
-	strcpy(config.package_config_file, NULLFILE);	
-	
+	strcpy(config.package_config_file, NULLFILE);
+
 	/* set block model as default	*/
 	strcpy(config.model_type, BLOCK_MODEL_STR);
 
@@ -94,18 +96,18 @@ thermal_config_t default_thermal_config(void)
 	strcpy(config.grid_layer_file, NULLFILE);
 	/* output steady state grid temperatures apart from block temperatures */
 	strcpy(config.grid_steady_file, NULLFILE);
-	/* 
+	/*
 	 * mapping mode between block and grid models.
 	 * default: use the temperature of the center
 	 * grid cell as that of the entire block
 	 */
 	strcpy(config.grid_map_mode, GRID_CENTER_STR);
 
-	config.detailed_3D_used = 0;	//BU_3D: by default detailed 3D modeling is disabled.	
+	config.detailed_3D_used = 0;	//BU_3D: by default detailed 3D modeling is disabled.
 	return config;
 }
 
-/* 
+/*
  * parse a table of name-value string pairs and add the configuration
  * parameters to 'config'
  */
@@ -189,7 +191,7 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 			fatal("invalid format for configuration  parameter n_c4\n");
 	if ((idx = get_str_index(table, size, "s_sub")) >= 0)
 		if(sscanf(table[idx].value, "%lf", &config->s_sub) != 1)
-			fatal("invalid format for configuration  parameter s_sub\n");	
+			fatal("invalid format for configuration  parameter s_sub\n");
 	if ((idx = get_str_index(table, size, "t_sub")) >= 0)
 		if(sscanf(table[idx].value, "%lf", &config->t_sub) != 1)
 			fatal("invalid format for configuration  parameter t_sub\n");
@@ -204,7 +206,7 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 			fatal("invalid format for configuration  parameter s_pcb\n");
 	if ((idx = get_str_index(table, size, "t_pcb")) >= 0)
 		if(sscanf(table[idx].value, "%lf", &config->t_pcb) != 1)
-			fatal("invalid format for configuration  parameter t_pcb\n");		
+			fatal("invalid format for configuration  parameter t_pcb\n");
 	if ((idx = get_str_index(table, size, "ambient")) >= 0)
 		if(sscanf(table[idx].value, "%lf", &config->ambient) != 1)
 			fatal("invalid format for configuration  parameter ambient\n");
@@ -229,13 +231,13 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 	if ((idx = get_str_index(table, size, "model_type")) >= 0)
 		if(sscanf(table[idx].value, "%s", config->model_type) != 1)
 			fatal("invalid format for configuration  parameter model_type\n");
-		if ((idx = get_str_index(table, size, "leakage_used")) >= 0) 
+		if ((idx = get_str_index(table, size, "leakage_used")) >= 0)
 		if(sscanf(table[idx].value, "%d", &config->leakage_used) != 1)
 			fatal("invalid format for configuration  parameter leakage_used\n");
-	if ((idx = get_str_index(table, size, "leakage_mode")) >= 0) 
+	if ((idx = get_str_index(table, size, "leakage_mode")) >= 0)
 		if(sscanf(table[idx].value, "%d", &config->leakage_mode) != 1)
 			fatal("invalid format for configuration  parameter leakage_mode\n");
-	if ((idx = get_str_index(table, size, "package_model_used")) >= 0) 
+	if ((idx = get_str_index(table, size, "package_model_used")) >= 0)
 		if(sscanf(table[idx].value, "%d", &config->package_model_used) != 1)
 			fatal("invalid format for configuration  parameter package_model_used\n");
 	if ((idx = get_str_index(table, size, "package_config_file")) >= 0)
@@ -259,12 +261,12 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 	if ((idx = get_str_index(table, size, "grid_map_mode")) >= 0)
 		if(sscanf(table[idx].value, "%s", config->grid_map_mode) != 1)
 			fatal("invalid format for configuration  parameter grid_map_mode\n");
-	
-	if ((config->t_chip <= 0) || (config->s_sink <= 0) || (config->t_sink <= 0) || 
-		(config->s_spreader <= 0) || (config->t_spreader <= 0) || 
+
+	if ((config->t_chip <= 0) || (config->s_sink <= 0) || (config->t_sink <= 0) ||
+		(config->s_spreader <= 0) || (config->t_spreader <= 0) ||
 		(config->t_interface <= 0))
 		fatal("chip and package dimensions should be greater than zero\n");
-	if ((config->t_metal <= 0) || (config->n_metal <= 0) || (config->t_c4 <= 0) || 
+	if ((config->t_metal <= 0) || (config->n_metal <= 0) || (config->t_c4 <= 0) ||
 		(config->s_c4 <= 0) || (config->n_c4 <= 0) || (config->s_sub <= 0) || (config->t_sub <= 0) ||
 		(config->s_solder <= 0) || (config->t_solder <= 0) || (config->s_pcb <= 0) ||
 		(config->t_solder <= 0) || (config->r_convec_sec <= 0) || (config->c_convec_sec <= 0))
@@ -273,11 +275,11 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 	if (config->leakage_used == 1) {
 		printf("Warning: transient leakage iteration is not supported in this release...\n");
 		printf(" ...all transient results are without thermal-leakage loop.\n");
-	}		
+	}
 	if ((config->model_secondary == 1) && (!strcasecmp(config->model_type, BLOCK_MODEL_STR)))
-		fatal("secondary heat tranfer path is supported only in the grid mode\n");	
-	if ((config->thermal_threshold < 0) || (config->c_convec < 0) || 
-		(config->r_convec < 0) || (config->ambient < 0) || 
+		fatal("secondary heat tranfer path is supported only in the grid mode\n");
+	if ((config->thermal_threshold < 0) || (config->c_convec < 0) ||
+		(config->r_convec < 0) || (config->ambient < 0) ||
 		(config->base_proc_freq <= 0) || (config->sampling_intvl <= 0))
 		fatal("invalid thermal simulation parameters\n");
 	if (strcasecmp(config->model_type, BLOCK_MODEL_STR) &&
@@ -292,7 +294,7 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 		fatal("invalid mapping mode. use 'avg', 'min', 'max' or 'center'\n");
 }
 
-/* 
+/*
  * convert config into a table of name-value pairs. returns the no.
  * of parameters converted
  */
@@ -412,7 +414,7 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	double s_sink = config->s_sink;
 	double t_sink = config->t_sink;
 	double r_convec = config->r_convec;
-	
+
 	double s_sub = config->s_sub;
 	double t_sub = config->t_sub;
 	double s_solder = config->s_solder;
@@ -420,10 +422,10 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	double s_pcb = config->s_pcb;
 	double t_pcb = config->t_pcb;
 	double r_convec_sec = config->r_convec_sec;
-	
+
 	double k_sink = config->k_sink;
 	double k_spreader = config->k_spreader;
- 
+
 
 	/* lateral R's of spreader and sink */
 	p->r_sp1_x = getr(k_spreader, (s_spreader-width)/4.0, (s_spreader+3*height)/4.0 * t_spreader);
@@ -440,12 +442,12 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	p->r_hs_c_per_x = getr(k_sink, t_sink, (s_spreader+height) * (s_spreader-width) / 4.0);
 	p->r_hs_c_per_y = getr(k_sink, t_sink, (s_spreader+width) * (s_spreader-height) / 4.0);
 	p->r_hs_per = getr(k_sink, t_sink, (s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-	
+
 	/* vertical R's to ambient (divide r_convec proportional to area) */
 	p->r_amb_c_per_x = r_convec * (s_sink * s_sink) / ((s_spreader+height) * (s_spreader-width) / 4.0);
 	p->r_amb_c_per_y = r_convec * (s_sink * s_sink) / ((s_spreader+width) * (s_spreader-height) / 4.0);
 	p->r_amb_per = r_convec * (s_sink * s_sink) / ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-	
+
 	/* lateral R's of package substrate, solder and PCB */
 	p->r_sub1_x = getr(K_SUB, (s_sub-width)/4.0, (s_sub+3*height)/4.0 * t_sub);
 	p->r_sub1_y = getr(K_SUB, (s_sub-height)/4.0, (s_sub+3*width)/4.0 * t_sub);
@@ -465,7 +467,7 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	p->r_pcb_c_per_x = getr(K_PCB, t_pcb, (s_solder+height) * (s_solder-width) / 4.0);
 	p->r_pcb_c_per_y = getr(K_PCB, t_pcb, (s_solder+width) * (s_solder-height) / 4.0);
 	p->r_pcb_per = getr(K_PCB, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
-	
+
 	/* vertical R's to ambient at PCB (divide r_convec_sec proportional to area) */
 	p->r_amb_sec_c_per_x = r_convec_sec * (s_pcb * s_pcb) / ((s_solder+height) * (s_solder-width) / 4.0);
 	p->r_amb_sec_c_per_y = r_convec_sec * (s_pcb * s_pcb) / ((s_solder+width) * (s_solder-height) / 4.0);
@@ -479,7 +481,7 @@ void populate_package_C(package_RC_t *p, thermal_config_t *config, double width,
 	double s_sink = config->s_sink;
 	double t_sink = config->t_sink;
 	double c_convec = config->c_convec;
-	
+
 	double s_sub = config->s_sub;
 	double t_sub = config->t_sub;
 	double s_solder = config->s_solder;
@@ -487,9 +489,9 @@ void populate_package_C(package_RC_t *p, thermal_config_t *config, double width,
 	double s_pcb = config->s_pcb;
 	double t_pcb = config->t_pcb;
 	double c_convec_sec = config->c_convec_sec;
-	
+
 	double p_sink = config->p_sink;
-	double p_spreader = config->p_spreader;	
+	double p_spreader = config->p_spreader;
 
 	/* vertical C's of spreader and sink */
 	p->c_sp_per_x = getcap(p_spreader, t_spreader, (s_spreader+height) * (s_spreader-width) / 4.0);
@@ -502,7 +504,7 @@ void populate_package_C(package_RC_t *p, thermal_config_t *config, double width,
 	p->c_amb_c_per_x = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+height) * (s_spreader-width) / 4.0);
 	p->c_amb_c_per_y = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+width) * (s_spreader-height) / 4.0);
 	p->c_amb_per = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-	
+
 	/* vertical C's of package substrate, solder balls, and PCB */
 	p->c_sub_per_x = getcap(SPEC_HEAT_SUB, t_sub, (s_sub+height) * (s_sub-width) / 4.0);
 	p->c_sub_per_y = getcap(SPEC_HEAT_SUB, t_sub, (s_sub+width) * (s_sub-height) / 4.0);
@@ -553,14 +555,14 @@ void debug_print_package_RC(package_RC_t *p)
 	fprintf(stdout, "c_amb_sec_per: %f\n", p->c_amb_sec_per);
 }
 
-/* 
- * wrapper routines interfacing with those of the corresponding 
+/*
+ * wrapper routines interfacing with those of the corresponding
  * thermal model (block or grid)
  */
 
-/* 
- * allocate memory for the matrices. for the block model, placeholder 
- * can be an empty floorplan frame with only the names of the functional 
+/*
+ * allocate memory for the matrices. for the block model, placeholder
+ * can be an empty floorplan frame with only the names of the functional
  * units. for the grid model, it is the default floorplan
  */
 RC_model_t *alloc_RC_model(thermal_config_t *config, flp_t *placeholder, int do_detailed_3D) //BU_3D: do_detailed_3D option added.
@@ -576,9 +578,9 @@ RC_model_t *alloc_RC_model(thermal_config_t *config, flp_t *placeholder, int do_
 		model->type = GRID_MODEL;
 		model->grid = alloc_grid_model(config, placeholder, do_detailed_3D);
 		model->config = &model->grid->config;
-	} else 
+	} else
 		fatal("unknown model type\n");
-	return model;	
+	return model;
 }
 
 /* populate the thermal restistance values */
@@ -586,9 +588,9 @@ void populate_R_model(RC_model_t *model, flp_t *flp)
 {
 	if (model->type == BLOCK_MODEL)
 		populate_R_model_block(model->block, flp);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		populate_R_model_grid(model->grid, flp);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* populate the thermal capacitance values */
@@ -596,19 +598,19 @@ void populate_C_model(RC_model_t *model, flp_t *flp)
 {
 	if (model->type == BLOCK_MODEL)
 		populate_C_model_block(model->block, flp);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		populate_C_model_grid(model->grid, flp);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* steady state temperature	*/
-void steady_state_temp(RC_model_t *model, double *power, double *temp) 
+void steady_state_temp(RC_model_t *model, double *power, double *temp)
 {
 //	if (model->type == BLOCK_MODEL)
 //		steady_state_temp_block(model->block, power, temp);
-//	else if (model->type == GRID_MODEL)	
+//	else if (model->type == GRID_MODEL)
 //		steady_state_temp_grid(model->grid, power, temp);
-//	else fatal("unknown model type\n");	
+//	else fatal("unknown model type\n");
 
 	int leak_convg_true = 0;
 	int leak_iter = 0;
@@ -616,33 +618,45 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 	//int idx=0;
 	double blk_height, blk_width;
 	int i, j, k;
-	
+
 	double *d_temp = NULL;
 	double *temp_old = NULL;
 	double *power_new = NULL;
 	double d_max=0.0;
-	
+
 	if (model->type == BLOCK_MODEL) {
 		n = model->block->flp->n_units;
 		if (model->config->leakage_used) { // if considering leakage-temperature loop
 			d_temp = hotspot_vector(model);
 			temp_old = hotspot_vector(model);
 			power_new = hotspot_vector(model);
+		omp_set_num_threads(8);
+		/*#pragma omp parallel shared(blk_width, blk_height, model, power_new, power, temp_old, temp, d_max, d_temp,leak_convg_true) private(leak_iter, i)
+		{
+			#pragma omp for nowait schedule(static)*/
 			for (leak_iter=0;(!leak_convg_true)&&(leak_iter<=LEAKAGE_MAX_ITER);leak_iter++){
+			#pragma omp parallel shared(blk_width, blk_height, model, power_new, power, temp_old, temp, ) private(i)
+			{
+				#pragma omp for nowait schedule(static)
 				for(i=0; i < n; i++) {
 					blk_height = model->block->flp->units[i].height;
 					blk_width = model->block->flp->units[i].width;
 					power_new[i] = power[i] + calc_leakage(model->config->leakage_mode,blk_height,blk_width,temp[i]);
 					temp_old[i] = temp[i]; //copy temp before update
 				}
+			}
 				steady_state_temp_block(model->block, power_new, temp); // update temperature
 				d_max = 0.0;
+			#pragma omp parallel shared(temp_old, temp, d_max, d_temp,leak_convg_true) private( i)
+			{
+				#pragma omp for nowait schedule(static)
 				for(i=0; i < n; i++) {
 					d_temp[i] = temp[i] - temp_old[i]; //temperature increase due to leakage
 					if (d_temp[i]>d_max) {
 						d_max = d_temp[i];
 					}
 				}
+			}
 				if (d_max < LEAK_TOL) {// check convergence
 					leak_convg_true = 1;
 				}
@@ -650,6 +664,7 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 					fatal("temperature is too high, possible thermal runaway. Double-check power inputs and package settings.\n");
 				}
 			}
+		//}
 			free(d_temp);
 			free(temp_old);
 			free(power_new);
@@ -673,7 +688,7 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 							power_new[base+j] = power[base+j] + calc_leakage(model->config->leakage_mode,blk_height,blk_width,temp[base+j]);
 							temp_old[base+j] = temp[base+j]; //copy temp before update
 						}
-					base += model->grid->layers[k].flp->n_units;	
+					base += model->grid->layers[k].flp->n_units;
 				}
 				steady_state_temp_grid(model->grid, power_new, temp);
 				d_max = 0.0;
@@ -684,7 +699,7 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 							if (d_temp[base+j]>d_max)
 								d_max = d_temp[base+j];
 						}
-					base += model->grid->layers[k].flp->n_units;	
+					base += model->grid->layers[k].flp->n_units;
 				}
 				if (d_max < LEAK_TOL) {// check convergence
 					leak_convg_true = 1;
@@ -698,11 +713,11 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 			free(power_new);
 			/* if no convergence after max number of iterations, thermal runaway */
 			if (!leak_convg_true)
-				fatal("too many iterations before temperature-leakage convergence -- possible thermal runaway\n");			
+				fatal("too many iterations before temperature-leakage convergence -- possible thermal runaway\n");
 		} else // if leakage-temperature loop is not considered
 			steady_state_temp_grid(model->grid, power, temp);
 	}
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* transient (instantaneous) temperature	*/
@@ -710,9 +725,9 @@ void compute_temp(RC_model_t *model, double *power, double *temp, double time_el
 {
 	if (model->type == BLOCK_MODEL)
 		compute_temp_block(model->block, power, temp, time_elapsed);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		compute_temp_grid(model->grid, power, temp, time_elapsed);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* differs from 'dvector()' in that memory for internal nodes is also allocated	*/
@@ -720,9 +735,9 @@ double *hotspot_vector(RC_model_t *model)
 {
 	if (model->type == BLOCK_MODEL)
 		return hotspot_vector_block(model->block);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		return hotspot_vector_grid(model->grid);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 	return NULL;
 }
 
@@ -730,24 +745,24 @@ double *hotspot_vector(RC_model_t *model)
  * elements starting at 'at'. useful in floorplan
  * compaction
  */
-void trim_hotspot_vector(RC_model_t *model, double *dst, double *src, 
+void trim_hotspot_vector(RC_model_t *model, double *dst, double *src,
 						 int at, int size)
 {
 	if (model->type == BLOCK_MODEL)
 		trim_hotspot_vector_block(model->block, dst, src, at, size);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		trim_hotspot_vector_grid(model->grid, dst, src, at, size);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
-/* update the model's node count	*/						 
+/* update the model's node count	*/
 void resize_thermal_model(RC_model_t *model, int n_units)
 {
 	if (model->type == BLOCK_MODEL)
 		resize_thermal_model_block(model->block, n_units);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		resize_thermal_model_grid(model->grid, n_units);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* sets the temperature of a vector 'temp' allocated using 'hotspot_vector'	*/
@@ -755,54 +770,54 @@ void set_temp(RC_model_t *model, double *temp, double val)
 {
 	if (model->type == BLOCK_MODEL)
 		set_temp_block(model->block, temp, val);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		set_temp_grid(model->grid, temp, val);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
-/* dump temperature vector alloced using 'hotspot_vector' to 'file' */ 
+/* dump temperature vector alloced using 'hotspot_vector' to 'file' */
 void dump_temp(RC_model_t *model, double *temp, char *file)
 {
 	if (model->type == BLOCK_MODEL)
 		dump_temp_block(model->block, temp, file);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		dump_temp_grid(model->grid, temp, file);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
-/* calculate average heatsink temperature for natural convection package */ 
+/* calculate average heatsink temperature for natural convection package */
 double calc_sink_temp(RC_model_t *model, double *temp)
 {
 	if (model->type == BLOCK_MODEL)
 		return calc_sink_temp_block(model->block, temp, model->config);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		return calc_sink_temp_grid(model->grid, temp, model->config);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 	return 0.0;
 }
 
-/* copy temperature vector from src to dst */ 
+/* copy temperature vector from src to dst */
 void copy_temp(RC_model_t *model, double *dst, double *src)
 {
 	if (model->type == BLOCK_MODEL)
 		copy_temp_block(model->block, dst, src);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		copy_temp_grid(model->grid, dst, src);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
-/* 
+/*
  * read temperature vector alloced using 'hotspot_vector' from 'file'
  * which was dumped using 'dump_temp'. values are clipped to thermal
  * threshold based on 'clip'
- */ 
+ */
 void read_temp(RC_model_t *model, double *temp, char *file, int clip)
 {
 	if (model->type == BLOCK_MODEL)
 		read_temp_block(model->block, temp, file, clip);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		read_temp_grid(model->grid, temp, file, clip);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* dump power numbers to file	*/
@@ -810,22 +825,22 @@ void dump_power(RC_model_t *model, double *power, char *file)
 {
 	if (model->type == BLOCK_MODEL)
 		dump_power_block(model->block, power, file);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		dump_power_grid(model->grid, power, file);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
-/* 
+/*
  * read power vector alloced using 'hotspot_vector' from 'file'
- * which was dumped using 'dump_power'. 
- */ 
+ * which was dumped using 'dump_power'.
+ */
 void read_power(RC_model_t *model, double *power, char *file)
 {
 	if (model->type == BLOCK_MODEL)
 		read_power_block(model->block, power, file);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		read_power_grid(model->grid, power, file);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* peak temperature on chip	*/
@@ -833,9 +848,9 @@ double find_max_temp(RC_model_t *model, double *temp)
 {
 	if (model->type == BLOCK_MODEL)
 		return find_max_temp_block(model->block, temp);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		return find_max_temp_grid(model->grid, temp);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 	return 0.0;
 }
 
@@ -844,9 +859,9 @@ double find_avg_temp(RC_model_t *model, double *temp)
 {
 	if (model->type == BLOCK_MODEL)
 		return find_avg_temp_block(model->block, temp);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		return find_avg_temp_grid(model->grid, temp);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 	return 0.0;
 }
 
@@ -855,9 +870,9 @@ void debug_print_model(RC_model_t *model)
 {
 	if (model->type == BLOCK_MODEL)
 		debug_print_block(model->block);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		debug_print_grid(model->grid);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 }
 
 /* calculate temperature-dependent leakage power */
@@ -867,18 +882,18 @@ double calc_leakage(int mode, double h, double w, double temp)
 	/* a simple leakage model.
 	 * Be aware -- this model may not be accurate in some cases.
 	 * You may want to use your own temperature-dependent leakage model here.
-	 */ 
+	 */
 	double leak_alpha = 1.5e+4;
 	double leak_beta = 0.036;
 	double leak_Tbase = 383.15; /* 110C according to the above paper */
 
 	double leakage_power;
-	
+
 	if (mode)
 		fatal("HotLeakage currently is not implemented in this release of HotSpot, please check back later.\n");
-		
+
 	leakage_power = leak_alpha*h*w*exp(leak_beta*(temp-leak_Tbase));
-	return leakage_power;	
+	return leakage_power;
 }
 
 /* destructor */
@@ -886,8 +901,8 @@ void delete_RC_model(RC_model_t *model)
 {
 	if (model->type == BLOCK_MODEL)
 		delete_block_model(model->block);
-	else if (model->type == GRID_MODEL)	
+	else if (model->type == GRID_MODEL)
 		delete_grid_model(model->grid);
-	else fatal("unknown model type\n");	
+	else fatal("unknown model type\n");
 	free(model);
 }
