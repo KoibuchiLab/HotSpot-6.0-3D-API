@@ -202,12 +202,10 @@ class Layout(object):
 		levels = [level for [level, x, y] in self.__chip_positions]
 		return max(levels)
 
-
 	""" Get the number of edges in the layout
 	"""
 	def get_num_edges(self):
 		return (self.__G.number_of_edges())
-
 
 	""" Get the list of chip positions
 	"""
@@ -215,99 +213,128 @@ class Layout(object):
 		return list(self.__chip_positions)
 
 	""" Get the list of inductors positions
+        """
 	def get_inductor_positions(self):
 		return list(self.__inductor_positions)
 
-	"""
 	""" Get the list of topology edges
 	"""
 	def get_topology(self):
 		return self.__G.edges()
 
-	""" Determines whether two chips are connected in the topology
-	    (based on whether they overlap sufficiently)
-	"""
-	def are_neighbors(self, position1, position2):
-		 if (abs(position1[0] - position2[0]) != 1):
-                        return False
 
-                 # must have enough overlap
-				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
-                 overlap_area = Layout.compute_two_rectangle_overlap_area(
-                        [position1[1], position1[2]],
-                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
-                        [position2[1], position2[2]],
-                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
-
-		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
-			return False
-	         return True
+#	""" Determines whether two chips are connected in the topology
+#	    (based on whether they overlap sufficiently)
+#	"""
+#	def are_neighbors(self, position1, position2):
+#		 if (abs(position1[0] - position2[0]) != 1):
+#                        return False
+#
+#                 # must have enough overlap
+#				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
+#                 overlap_area = Layout.compute_two_rectangle_overlap_area(
+#                        [position1[1], position1[2]],
+#                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
+#                        [position2[1], position2[2]],
+#                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+#		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+#
+#		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+#			return False
+#	         return True
+#
 
 	""" Determines whether two chips are connected with INDUCTOR in the topology
 	    (based on whether they overlap sufficiently)
 	"""
 	def are_connected_neighbors(self, position1, position2):
+
+		 # Quick check 
 		 if (abs(position1[0] - position2[0]) != 1):  #same level check
                         return False
+#
+#		  # No longer necessary since we can just check for inductors
+#                 # must have enough overlap
+#                 overlap_area = Layout.compute_two_rectangle_overlap_area(
+#                        [position1[1], position1[2]],
+#                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
+#                        [position2[1], position2[2]],
+#                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+#		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+#
+#		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+#			 return False
 
-                 # must have enough overlap
-                 overlap_area = Layout.compute_two_rectangle_overlap_area(
-                        [position1[1], position1[2]],
-                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
-                        [position2[1], position2[2]],
-                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
-
-		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
-			 return False
 
 		 for inductor in self.__inductor_properties:
-			 # print 'inductor',inductor
-			 inductor_level = min(position1[0], position2[0])
-			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
-			 if inductor[0] == inductor_level:
-				 if pos2_chip_above > 0:
-					 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
-					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] + inductor[4]])
-					 if inductor_overlap == inductor[3]*inductor[4]:
-						 #if inductor[1] == position2[1] and inductor[2] == position2[2]:
-						 #print 'pos2 above inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
-						 #print #'inductor_overlap = ',inductor_overlap
-						 return True
-				 if pos2_chip_above < 0:
-					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] +inductor[4]])
-					# if inductor[1] == position2[1] and inductor[2] == position2[2]:
-					 if inductor_overlap == inductor[3]*inductor[4]:
-						 #print 'inductor_overlap = ',inductor_overlap
-						 #print 'pos2 below inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
-						 return True
-						 #print "Inductor level = ", inductor_level, '\ninductor is ',inductor,'\npos1= ',position1,'\npos2 = ',position2,'\n'
-								 # return False
-		 return True
+
+			# Is inductor at the correct level?
+			if inductor[0] != min(position1[0], position2[0]):
+				continue
+			
+			# Is the inductor contained in chip #1?
+			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension]):
+				continue
+
+			# Is the inductor contained in chip #2?
+			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension]):
+				continue
+			
+			return True
+
+		return False
+
+
+#
+#			
+#			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
+#			 if inductor[0] == inductor_level:
+#				 if pos2_chip_above > 0:
+#					 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
+#					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] + inductor[4]])
+#					 if inductor_overlap == inductor[3]*inductor[4]:
+#						 #if inductor[1] == position2[1] and inductor[2] == position2[2]:
+#						 #print 'pos2 above inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+#						 #print #'inductor_overlap = ',inductor_overlap
+#						 return True
+#				 if pos2_chip_above < 0:
+#					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] +inductor[4]])
+#					# if inductor[1] == position2[1] and inductor[2] == position2[2]:
+#					 if inductor_overlap == inductor[3]*inductor[4]:
+#						 #print 'inductor_overlap = ',inductor_overlap
+#						 #print 'pos2 below inductor = ',inductor,'\nposition1 = ',position1,'\nposition2 = ',position2,'\n'
+#						 return True
+#						 #print "Inductor level = ", inductor_level, '\ninductor is ',inductor,'\npos1= ',position1,'\npos2 = ',position2,'\n'
+#								 # return False
+#		 return True
 
 	"""
 	checks for cross talk by checking if any inductors overlap
+		- tentative_inductor: tentative inductor position
+	Returns True if there is crosstalk
 	"""
-	def check_cross_talk(self):
+	def check_cross_talk(self, tentative_inductor):
+
 		utils.info(2, 'Checking for CROSSTALK')
-		inductor_properties = self.__inductor_properties
-		for i in xrange(0, len(inductor_properties)):
-			for j in xrange(0, len(inductor_properties)):
-				if (abs(inductor_properties[i][0] - inductor_properties[j][0]) == 1):  #check they aren't on the same level
-					overlap_area = 0
-					overlap_area = Layout.compute_two_rectangle_overlap_area(
-                           [inductor_properties[i][1], inductor_properties[i][2]],[inductor_properties[i][1] + inductor_properties[i][3], inductor_properties[i][2] + inductor_properties[i][4]],[inductor_properties[j][1], inductor_properties[j][2]],[inductor_properties[j][1] + inductor_properties[j][3], inductor_properties[j][2] + inductor_properties[j][4]])
-					if overlap_area > 0:
-						utils.info(0, "WARNING: CROSSTALK at inductor levels "+str(inductor_properties[i][0])+" and "+str(inductor_properties[j][0]))
-						return True
+
+		existing_inductors = self.__inductor_properties
+		for existing_inductor in existing_inductors:
+			if (not abs(tentative_inductor[0] - existing_inductor[0]) == 1):
+				continue
+			overlap_area = Layout.compute_two_rectangle_overlap_area(
+                           [existing_inductor[1], existing_inductor[2]],[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],[tentative_inductor[1], tentative_inductor[2]],[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
+			if overlap_area > 0:
+				utils.info(0, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
+				return True
 		return False
 
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 		- new_chip_position: position of the new chip
 	"""
-	def add_new_chip(self, new_chip_position): #LL* new_inductor_position arg
+	def add_new_chip(self, new_chip_position, new_inductor_property): 
 
+		# Just a check in case the user decided to add something without
+                # first checking that it was possible
 		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
@@ -315,6 +342,7 @@ class Layout(object):
 		self.__chip_positions.append(new_chip_position)
 
 		#LL* Add chip inductor
+		self.__inductor_properties.append(new_inductor_property)
 
 		# Rebuild the graph from scratch!
 		try:
@@ -326,13 +354,22 @@ class Layout(object):
 	""" Remove a chip (by index) from the layout, updating the topology accordingly
 	"""
 	def remove_chip(self, index):
+
+		# Remove the inductors for that chip
+		chip_position = self.__chip_positions[index]
+		for inductor in list(self.__inductor_properties):
+			if ((inductor[0] != chip_position[0]) and ((inductor[0] != chip_position[0] - 1)):
+				continue
+			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [chip_position[1], chip_position[2]],[chip_position[1] + self.__chip.x_dimension, chip_position[2] + self.__chip.y_dimension]):
+				continue
+			self.__inductor_properties.remove(inductor)
+			
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
 
 		# Check that the graph is still connected (by doing a copy)
-		copy = self.__G.copy()
-		copy.remove_node(index);
-		if not nx.is_connected(copy):
+		self.__G.remove_node(index);
+		if not nx.is_connected(self.__G):
 			raise Exception("Graph would become disconnected");
 
 		# Rebuild the graph from scratch!
@@ -379,14 +416,6 @@ class Layout(object):
 			if (overlap  > 0.0):
 				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
-			"""
-
-			INSERT check_cross_talk
-			if crosstalk?
-			if (overlap  > 0.0):
-				#print "   - NO: COLLISION! overlap = ", overlap
-				return False
-			"""
 		#print "   - YES: FITS"
 
 		return True
@@ -554,6 +583,18 @@ class Layout(object):
 			y_overlap = 0.0
 
 		return x_overlap * y_overlap
+
+
+	"""  Is a rectangle included in another (first one contained in second one)
+        """
+	@staticmethod
+	def rectangle_is_contained_in(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
+
+		if (bottom_left_1[0] < bottom_left_2[0]) or (bottom_left_1[1] < bottom_left_2[1]):
+			return False
+		if (top_right_1[0] > top_right_2[0]) or (top_right_1[1] > top_right_2[1]):
+			return False
+		return True
 
 
 	""" A function that hotspot to find out the max temp of the layout
@@ -727,38 +768,44 @@ class Layout(object):
         	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
 	        - rectangle_dimensions = [x,y]: size of the rectangle sides
        		- overlap: the fraction of overlap
-		- strip_or_square: True if the overlapping rectangle should be either a strip or
-                                   a square
+		- shape: 
+			- "strip"	(full length of the chip)
+			- "square"	(same aspect ratio as the chip)
+			- "strip or square"
+			- "any"
     	   returns:
         	- [x,y]: bottom left corner of the new rectangle
 	"""
 
 	@staticmethod
-	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap, strip_or_square):
+	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap, shape):
 
 	         [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
 	         [dim_x, dim_y] = rectangle_dimensions
 
 	         candidates = []
+		
+		 if shape == "strip or square":
+			if (random.uniform(0,1) < 0.5):
+				shape = "strip"
+			else:
+				shape = "square"
 
          	 # Assume for now that the overlap is in the North-East region
-		 if (not strip_or_square):
+		 if shape == "any":
 	         	# pick an x value
 	         	picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
-
 	         	# compute the y value that makes the right overlap
 	         	picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
-		 else:
-			square = (random.uniform(0,1) <= 0.5)
-			print "STRIP OR SQUARE"
-			if (square): # square
-				print "SQUARE"
-				picked_x = rectangle1_x + dim_x - sqrt(overlap) * dim_x
-				picked_y = rectangle1_y + dim_y - sqrt(overlap) * dim_y
-			else: # strip
-				print "STRIP"
-				picked_x = rectangle1_x + (1.0 - overlap) * dim_x
-				picked_y = rectangle1_y
+		 elif shape == "strip":
+			picked_x = rectangle1_x + (1.0 - overlap) * dim_x
+			picked_y = rectangle1_y
+		 elif shape == "square":
+			picked_x = rectangle1_x + dim_x - sqrt(overlap) * dim_x
+			picked_y = rectangle1_y + dim_y - sqrt(overlap) * dim_y
+		 else: 
+			utils.abort("get_random_overlapping_rectangle(): Invalid shape parameter " + shape)
+			
 
 	         # Add this to the set of candidates
 	         candidates.append([picked_x, picked_y])
@@ -793,7 +840,7 @@ class Layout(object):
 		 picked_candidate = utils.pick_random_element(candidates)
 		 return picked_candidate
 
-	""" Function that returns a feasible, random, neigbhot of specified chip
+	""" Function that returns a feasible, random, neigbhor of specified chip
 		- chip_index
     	   returns:
         	- [level, x, y]
@@ -845,6 +892,10 @@ class Layout(object):
 		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
 		return None
 
+
+##############################################################################################
+### LAYOUT BUILDER CLASS
+##############################################################################################
 
 
 class LayoutBuilder(object):
