@@ -45,6 +45,8 @@ def optimize_layout():
 		solution =  optimize_layout_rectilinear("diagonal")
 	elif (layout_scheme == "checkerboard"):
 		solution =  optimize_layout_checkerboard()
+	elif (layout_scheme == "cradle"):
+		solution =  optimize_layout_cradle()
 	elif (layout_scheme == "linear_random_greedy"):
 		solution =  optimize_layout_linear_random_greedy()
 	elif (layout_scheme == "random_greedy"):
@@ -244,7 +246,7 @@ def optimize_layout_random_greedy():
 	#layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
 
 	# Create an initial layout: For now, a 3-chip checkboard
-	layout = LayoutBuilder.compute_checkerboard_layout(3)
+	layout = LayoutBuilder.compute_checkerboard_layout(3) #LL* change to craddle
 
 
 	# While num_chips != desired num_chips
@@ -580,6 +582,25 @@ def optimize_layout_checkerboard():
 	utils.info(1, "Constructing a checkerboard layout")
 
 	layout = LayoutBuilder.compute_checkerboard_layout(utils.argv.num_chips)
+
+	utils.info(1, "Finding the maximum Power Budget")
+	result = find_maximum_power_budget(layout)
+
+        if result == None:
+            return None
+
+	[power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+"""Cradle layout optimization"""
+
+def optimize_layout_cradle():
+
+	if (utils.argv.verbose == 0):
+		sys.stderr.write("o")
+	utils.info(1, "Constructing a cradle layout")
+
+	layout = LayoutBuilder.compute_cradle_layout(utils.argv.num_chips)
 
 	utils.info(1, "Finding the maximum Power Budget")
 	result = find_maximum_power_budget(layout)
