@@ -211,10 +211,11 @@ VISUAL PROGRESS OUTPUT:
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
 
-	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true',
+	parser.add_argument('--constrained_overlap_geometry', '-C', #action='store_true',  #LL* fix, change to accept strings
                             required=False,
                             dest='constrained_overlap_geometry',
-                            help='Force chip overlap area to be a string or a rectangle with same aspect ratio as the chip')
+							metavar='<overlap shape>',
+                            help='Force chip overlap area to be a strip, a rectangle with same aspect ratio as the chip, either strip or square, or any geometry')
 
 	parser.add_argument('--power_budget', '-p', action='store',
 		            type=float, required=False,

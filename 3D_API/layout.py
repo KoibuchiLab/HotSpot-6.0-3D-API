@@ -214,8 +214,8 @@ class Layout(object):
 
 	""" Get the list of inductors positions
         """
-	def get_inductor_positions(self):
-		return list(self.__inductor_positions)
+	def get_inductor_properties(self):
+		return list(self.__inductor_properties)
 
 	""" Get the list of topology edges
 	"""
@@ -223,26 +223,26 @@ class Layout(object):
 		return self.__G.edges()
 
 
-#	""" Determines whether two chips are connected in the topology
-#	    (based on whether they overlap sufficiently)
-#	"""
-#	def are_neighbors(self, position1, position2):
-#		 if (abs(position1[0] - position2[0]) != 1):
-#                        return False
-#
-#                 # must have enough overlap
-#				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
-#                 overlap_area = Layout.compute_two_rectangle_overlap_area(
-#                        [position1[1], position1[2]],
-#                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
-#                        [position2[1], position2[2]],
-#                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-#		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
-#
-#		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
-#			return False
-#	         return True
-#
+	""" Determines whether two chips are connected in the topology
+	    (based on whether they overlap sufficiently)
+	"""
+	def are_neighbors(self, position1, position2):
+		if (abs(position1[0] - position2[0]) != 1):
+                        return False
+
+                 # must have enough overlap
+				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
+                overlap_area = Layout.compute_two_rectangle_overlap_area(
+                        [position1[1], position1[2]],
+                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
+                        [position2[1], position2[2]],
+                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+
+		if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+			return False
+        	return True
+
 
 	""" Determines whether two chips are connected with INDUCTOR in the topology
 	    (based on whether they overlap sufficiently)
@@ -251,7 +251,7 @@ class Layout(object):
 
 		 # Quick check
 		 if (abs(position1[0] - position2[0]) != 1):  #same level check
-		 	print 'Quick Check'
+		 	#print 'Quick Check'
                         return False
 #
 #		  # No longer necessary since we can just check for inductors
@@ -267,7 +267,7 @@ class Layout(object):
 #			 return False
 
 
-		 print '\ninductor PROP', self.__inductor_properties,'\nposition1 ',position1,'\nposition2 ',position2
+		 #print '\ninductor PROP', self.__inductor_properties,'\nposition1 ',position1,'\nposition2 ',position2
 		 for inductor in self.__inductor_properties:
 
 			# Is inductor at the correct level?
@@ -284,7 +284,7 @@ class Layout(object):
 				#print '\nCHIP 2\n'
 				continue
 
-			print inductor
+			#print inductor
 			return True
 
 		 return False
@@ -328,21 +328,56 @@ class Layout(object):
 				return True
 		return False
 
+	"""
+	Finds x and y for new inductor based off the postion of two chips different chips
+		- position1: [level, x, y]
+		- position2: [level, x, y]
+	Returns [level,x,y, x_dim, y_dim] coordinates for new inductor
+	"""
+	def get_new_inductor_properties(self, position1, position2):
+
+		utils.info(2, 'finding new inductor position')
+
+		if not position1[0] == position2[0]:
+			level = min(position1[0],position2[0])
+			x = max(position1[1],position2[1])
+			#print 'X POS is ', x
+			y = max(position1[2],position2[2])
+			x_dim = (min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - x)
+			#x_dim = abs(max(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - x)
+			#print 'max ',max(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension), ' - ', min(position1[1]+self.__chip.x_dimension,   position2[1]+self.__chip.x_dimension),' - ', x,' = ', x
+			y_dim =(min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension) - y)
+			#y_dim =abs( max(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension) - min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension)  - y)
+
+			#return [min(position1[0],position2[0]), max(position1[1],position2[1]), max(position1[2],position2[2]), min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension), min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension)]
+			return[level, x, y, x_dim, y_dim]
+		utils.abort("New inductor position not possible, Chips are on the same level")
+
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 		- new_chip_position: position of the new chip
 	"""
-	def add_new_chip(self, new_chip_position, new_inductor_property):
+	def add_new_chip(self, new_chip_position):
 
 		# Just a check in case the user decided to add something without
                 # first checking that it was possible
 		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
+		#adds inductors
+		if self.connect_new_chip(new_chip_position):
+			print 'ADDing chip'
+			# Add the new chip
+			self.__chip_positions.append(new_chip_position)
+
+		print 'chip positions \n',self.__chip_positions,'\new_inductor_properties\n',self.__inductor_properties
+
+		self.draw_in_3D(None, True)
+
 		# Add the new chip
-		self.__chip_positions.append(new_chip_position)
+		#self.__chip_positions.append(new_chip_position)
 
 		#LL* Add chip inductor
-		self.__inductor_properties.append(new_inductor_property)
+		#self.__inductor_properties.append(new_inductor_property)
 
 		# Rebuild the graph from scratch!
 		try:
@@ -350,6 +385,34 @@ class Layout(object):
 		except Exception as e:
 			raise e
 
+
+	""" connects new chip by adding inductor(s) where they will fit and appends new inductor to inductor_properties
+			-new_chip_position: position of new chip
+		Returns True if inductors added
+	"""
+	def connect_new_chip(self, new_chip_position):
+		"""
+		check if new chip is on top level or bottom level
+		check if new chips has proper overlap area with any other chip +1 and -1 level
+			if found check for cross talk using get new indcutor postion function
+				add inductor (return inductor properties)
+		"""
+		original_inductor_count = len(self.__inductor_properties)
+		#new_chip_level = new_chip_position[0]
+		for position in self.__chip_positions:
+			new_inductor_property = []
+			if not (position[0] == new_chip_position[0]+1 or position[0] == new_chip_position[0]-1):
+				continue
+			new_inductor_property = self.get_new_inductor_properties(position, new_chip_position)
+			if not self.can_new_inductor_fit(new_inductor_property):
+				continue
+			if self.check_cross_talk(new_inductor_property):
+				continue
+			self.__inductor_properties.append(new_inductor_property)
+			print 'ADDING inductors'
+		if original_inductor_count<len(self.__inductor_properties):
+			return True
+		return False
 
 	""" Remove a chip (by index) from the layout, updating the topology accordingly
 	"""
@@ -413,6 +476,31 @@ class Layout(object):
 					[existing_chip[1] + self.__chip.x_dimension, existing_chip[2] + self.__chip.y_dimension],
 					[x, y],
 					[x + self.__chip.x_dimension, y + self.__chip.y_dimension])
+			if (overlap  > 0.0):
+				#print "   - NO: COLLISION! overlap = ", overlap
+				return False
+		#print "   - YES: FITS"
+
+		return True
+
+	""" Determine whether a new inductor (position) is valid (i.e., no collision)
+		Returns True if can fit
+	"""
+	def can_new_inductor_fit(self, position):
+		[layer, x, y, x_dim, y_dim] = position
+		#print "CAN FIT?:  ", [layer, x, y]
+		for i in xrange(0, len(self.__inductor_properties)):
+			existing_inductor = self.__inductor_properties[i]
+			#print "  Looking at xisting chip ", existing_inductor
+			if (existing_inductor[0] != layer):
+				#print "    Not in same layer so ok"
+				continue
+			#print  " Checking for collision"
+			overlap = Layout.compute_two_rectangle_overlap_area(
+					[existing_inductor[1], existing_inductor[2]],
+					[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],
+					[x, y],
+					[x + x_dim, y + y_dim])
 			if (overlap  > 0.0):
 				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
@@ -780,65 +868,69 @@ class Layout(object):
 	@staticmethod
 	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap, shape):
 
-	         [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
-	         [dim_x, dim_y] = rectangle_dimensions
+		if shape is None:
+			#print 'shape is', None
+			shape = "any"
 
-	         candidates = []
+	        [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
+	        [dim_x, dim_y] = rectangle_dimensions
 
-		 if shape == "strip or square":
+	        candidates = []
+
+		if shape == "strip or square":
 			if (random.uniform(0,1) < 0.5):
 				shape = "strip"
 			else:
 				shape = "square"
 
          	 # Assume for now that the overlap is in the North-East region
-		 if shape == "any":
-	         	# pick an x value
-	         	picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
-	         	# compute the y value that makes the right overlap
-	         	picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
-		 elif shape == "strip":
+		if shape == "any":
+	        	# pick an x value
+	        	picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+	        	# compute the y value that makes the right overlap
+	        	picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+		elif shape == "strip":
 			picked_x = rectangle1_x + (1.0 - overlap) * dim_x
 			picked_y = rectangle1_y
-		 elif shape == "square":
+		elif shape == "square":
 			picked_x = rectangle1_x + dim_x - sqrt(overlap) * dim_x
 			picked_y = rectangle1_y + dim_y - sqrt(overlap) * dim_y
-		 else:
-			utils.abort("get_random_overlapping_rectangle(): Invalid shape parameter " + shape)
+		else:
+			utils.abort("get_random_overlapping_rectangle(): Invalid shape parameter " + str(shape))
 
 
 	         # Add this to the set of candidates
-	         candidates.append([picked_x, picked_y])
+	        candidates.append([picked_x, picked_y])
 
 		 #print "NORTHEAST = ", [picked_x, picked_y]
 
 	         # Consider all other symmetries
 
 	         # South-East
-	         new_picked_x = picked_x
+	        new_picked_x = picked_x
 	         #new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
-	         new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
+	        new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
 		 #print "SOUTHEAST =  ", [new_picked_x, new_picked_y]
-	         if (new_picked_x >= 0) and (new_picked_y >= 0):
-	                candidates.append([new_picked_x, new_picked_y])
+	        if (new_picked_x >= 0) and (new_picked_y >= 0):
+	               candidates.append([new_picked_x, new_picked_y])
 
 	         # North-West
-	         new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
-	         new_picked_y = picked_y
-		 #print "NORTHWEST = ", [new_picked_x, new_picked_y]
-	         if (new_picked_x >= 0) and (new_picked_y >= 0):
-	                candidates.append([new_picked_x, new_picked_y])
+	        new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
+	        new_picked_y = picked_y
+		#print "NORTHWEST = ", [new_picked_x, new_picked_y]
+	        if (new_picked_x >= 0) and (new_picked_y >= 0):
+	               candidates.append([new_picked_x, new_picked_y])
 
-	         # South-West
-	         new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
-	         new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
-		 #print "SOUTHWEST = ", [new_picked_x, new_picked_y]
-	         if (new_picked_x >= 0) and (new_picked_y >= 0):
-	                candidates.append([new_picked_x, new_picked_y])
+	        # South-West
+	        new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
+	        new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
+		#print "SOUTHWEST = ", [new_picked_x, new_picked_y]
+	        if (new_picked_x >= 0) and (new_picked_y >= 0):
+	               candidates.append([new_picked_x, new_picked_y])
 
 	         # At this point, we just pick one of the candidates at random
-		 picked_candidate = utils.pick_random_element(candidates)
-		 return picked_candidate
+		picked_candidate = utils.pick_random_element(candidates)
+		return picked_candidate
 
 	""" Function that returns a feasible, random, neigbhor of specified chip
 		- chip_index
@@ -868,7 +960,8 @@ class Layout(object):
 			#print"picked_level %s\n"%picked_level
                 	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
                 	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
-						if not check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
+						if not self.check_cross_talk(self.get_new_inductor_properties([picked_level, picked_x, picked_y],chip_position)):
+						#if not self.check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
 							utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
 							return [picked_level, picked_x, picked_y];
 

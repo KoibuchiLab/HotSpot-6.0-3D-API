@@ -161,7 +161,7 @@ def optimize_layout_linear_random_greedy():
 def evaluate_candidate(args):
 	[layout, candidate] = args
         utils.info(1, "  - Evaluating candidate " + str(candidate))
-	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap())
+	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap(),layout.get_inductor_properties())
         dummy_layout.add_new_chip(candidate)
         if (dummy_layout.get_diameter() > utils.argv.diameter):
 	    utils.abort("Layout diameter is too big (this should never happen here!)")
@@ -246,7 +246,7 @@ def optimize_layout_random_greedy():
 	#layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
 
 	# Create an initial layout: For now, a 3-chip checkboard
-	layout = LayoutBuilder.compute_checkerboard_layout(3) #LL* change to craddle
+	layout = LayoutBuilder.compute_cradle_layout(3) #LL* change to craddle
 
 
 	# While num_chips != desired num_chips
@@ -269,7 +269,7 @@ def optimize_layout_random_greedy():
 	#	add it into the layout for good
    	#
 
-	num_neighbor_candidates = 20 			# Default value
+	num_neighbor_candidates = 1 			# Default value
         max_num_neighbor_candidate_attempts = 1000      # default value
 
 	if (len(utils.argv.layout_scheme.split(":")) == 2):
