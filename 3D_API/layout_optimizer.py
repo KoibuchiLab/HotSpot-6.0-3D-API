@@ -269,7 +269,7 @@ def optimize_layout_random_greedy():
 	#	add it into the layout for good
    	#
 
-	num_neighbor_candidates = 1 			# Default value
+	num_neighbor_candidates = 20 			# Default value
         max_num_neighbor_candidate_attempts = 1000      # default value
 
 	if (len(utils.argv.layout_scheme.split(":")) == 2):

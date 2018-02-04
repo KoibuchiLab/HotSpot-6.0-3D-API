@@ -324,7 +324,7 @@ class Layout(object):
 			overlap_area = Layout.compute_two_rectangle_overlap_area(
                            [existing_inductor[1], existing_inductor[2]],[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],[tentative_inductor[1], tentative_inductor[2]],[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
 			if overlap_area > 0:
-				utils.info(0, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
+				utils.info(1, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
 				return True
 		return False
 
@@ -341,16 +341,13 @@ class Layout(object):
 		if not position1[0] == position2[0]:
 			level = min(position1[0],position2[0])
 			x = max(position1[1],position2[1])
-			#print 'X POS is ', x
 			y = max(position1[2],position2[2])
-			x_dim = (min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - x)
-			#x_dim = abs(max(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - x)
-			#print 'max ',max(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension), ' - ', min(position1[1]+self.__chip.x_dimension,   position2[1]+self.__chip.x_dimension),' - ', x,' = ', x
-			y_dim =(min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension) - y)
-			#y_dim =abs( max(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension) - min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension)  - y)
+			x_dim = abs(min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension) - x)
+			y_dim =abs(min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.y_dimension) - y)
+			#print 'x_dim\n[',x,', ',y,']\nposition1 x is',position1[1],'\nmin (',position1[1]+self.__chip.x_dimension,',',position2[1]+self.__chip.x_dimension,') is ',min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension),' - ',x,' is ',x_dim,'\nchip x dim ',self.__chip.x_dimension
+			#print 'y_dim\n[',x,', ',y,']\nmin (',position1[2]+self.__chip.y_dimension,',',position2[2]+self.__chip.y_dimension,') is ',min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.y_dimension),' - ',y,' is ',y_dim,'\nchip y dim ',self.__chip.y_dimension,'\n'
 
-			#return [min(position1[0],position2[0]), max(position1[1],position2[1]), max(position1[2],position2[2]), min(position1[1]+self.__chip.x_dimension, position2[1]+self.__chip.x_dimension), min(position1[2]+self.__chip.y_dimension, position2[2]+self.__chip.x_dimension)]
-			return[level, x, y, x_dim, y_dim]
+			return [level, x, y, x_dim, y_dim]
 		utils.abort("New inductor position not possible, Chips are on the same level")
 
 	""" Add a new chip (position) to the layout, updating the topology accordingly
@@ -365,13 +362,13 @@ class Layout(object):
 
 		#adds inductors
 		if self.connect_new_chip(new_chip_position):
-			print 'ADDing chip'
+			#print 'ADDing chip'
 			# Add the new chip
 			self.__chip_positions.append(new_chip_position)
 
-		print 'chip positions \n',self.__chip_positions,'\new_inductor_properties\n',self.__inductor_properties
+		#print 'chip positions \n',self.__chip_positions,'\new_inductor_properties\n',self.__inductor_properties
 
-		self.draw_in_3D(None, True)
+		#self.draw_in_3D(None, True)
 
 		# Add the new chip
 		#self.__chip_positions.append(new_chip_position)
@@ -391,17 +388,10 @@ class Layout(object):
 		Returns True if inductors added
 	"""
 	def connect_new_chip(self, new_chip_position):
-		"""
-		check if new chip is on top level or bottom level
-		check if new chips has proper overlap area with any other chip +1 and -1 level
-			if found check for cross talk using get new indcutor postion function
-				add inductor (return inductor properties)
-		"""
 		original_inductor_count = len(self.__inductor_properties)
-		#new_chip_level = new_chip_position[0]
 		for position in self.__chip_positions:
 			new_inductor_property = []
-			if not (position[0] == new_chip_position[0]+1 or position[0] == new_chip_position[0]-1):
+			if not self.are_neighbors(position, new_chip_position):
 				continue
 			new_inductor_property = self.get_new_inductor_properties(position, new_chip_position)
 			if not self.can_new_inductor_fit(new_inductor_property):
@@ -409,9 +399,10 @@ class Layout(object):
 			if self.check_cross_talk(new_inductor_property):
 				continue
 			self.__inductor_properties.append(new_inductor_property)
-			print 'ADDING inductors'
+			utils.info(3,"Connecting chip by adding inductor")
 		if original_inductor_count<len(self.__inductor_properties):
 			return True
+		utils.info(2, "Could not connect new chip")
 		return False
 
 	""" Remove a chip (by index) from the layout, updating the topology accordingly
@@ -503,6 +494,7 @@ class Layout(object):
 					[x + x_dim, y + y_dim])
 			if (overlap  > 0.0):
 				#print "   - NO: COLLISION! overlap = ", overlap
+				utils.info(0, 'inductor collision, can\'t place here')
 				return False
 		#print "   - YES: FITS"
 
