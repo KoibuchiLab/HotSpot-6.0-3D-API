@@ -150,7 +150,7 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-
+		#self.draw_in_3D(None, True)
 		self.generate_topology_graph()
 
 
@@ -290,23 +290,6 @@ class Layout(object):
 		 return False
 
 
-#
-#
-#			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
-#			 if inductor[0] == inductor_level:
-#				 if pos2_chip_above > 0:
-#					 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
-#					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] + inductor[4]])
-#					 if inductor_overlap == inductor[3]*inductor[4]:
-#						 #if inductor[1] == position2[1] and inductor[2] == position2[2]:
-#						 return True
-#				 if pos2_chip_above < 0:
-#					 inductor_overlap = Layout.compute_two_rectangle_overlap_area([position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension],[inductor[1], inductor[2]],[inductor[1] + inductor[3], inductor[2] +inductor[4]])
-#					# if inductor[1] == position2[1] and inductor[2] == position2[2]:
-#					 if inductor_overlap == inductor[3]*inductor[4]:
-#						 return True
-#								 # return False
-#		 return True
 
 	"""
 	checks for cross talk by checking if any inductors overlap
@@ -1018,37 +1001,37 @@ class LayoutBuilder(object):
 	@staticmethod
 	def compute_rectilinear_straight_layout(num_chips):
 
-        	positions = []
-        	inductor_properties = []
-        	current_level = 1
-        	level_direction = 1
+		positions = []
+		inductor_properties = []
+		current_level = 1
+		level_direction = 1
 		inductor_level = 1
 		inductor_direction = 1
-        	current_x_position = 0.0
-        	current_y_position = 0.0
-        	for i in xrange(0, num_chips):
-                	positions.append([current_level, current_x_position, current_y_position])
-                	current_level += level_direction
-                	if (current_level > utils.argv.num_levels):
-                        	current_level = utils.argv.num_levels - 1
-                        	level_direction = -1
-				#print 'first if'
-                	if (current_level < 1):
-                        	current_level = 2
-                        	level_direction = 1
-				#print 'second if'
-			#print '\tcurrent level is ', current_level#, '\npositions ',positions
+		current_x_position = 0.0
+		current_y_position = 0.0
+		for i in xrange(0, num_chips):
+			positions.append([current_level, current_x_position, current_y_position])
+			current_level += level_direction
+			if (current_level > utils.argv.num_levels):
+				current_level = utils.argv.num_levels - 1
+				level_direction = -1
+			#print 'first if'
+			if (current_level < 1):
+				current_level = 2
+				level_direction = 1
+			#print 'second if'
+		#print '\tcurrent level is ', current_level#, '\npositions ',positions
 			current_x_position += utils.argv.chip.x_dimension * (1 - utils.argv.overlap)
-			#print "\t\tinductor level is ", min(current_level,positions[i][0])
+		#print "\t\tinductor level is ", min(current_level,positions[i][0])
 			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - utils.argv.overlap)),utils.argv.chip.y_dimension])
-			#inductor_level = 1
-        	#print 'inductor properites', inductor_properties
-        	return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+		#inductor_level = 1
+    	#print 'inductor properites', inductor_properties
+    		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a diagonal linear layout
 	"""
 	@staticmethod
-	def compute_rectilinear_diagonal_layout(num_chips): #LL* start adding inductor here
+	def compute_rectilinear_diagonal_layout(num_chips):
 
 		if utils.argv.overlap>.25:
 			utils.info(0, 'WARNING overlap too big\nchips may collide on same level and crosstalk likely')
@@ -1073,19 +1056,19 @@ class LayoutBuilder(object):
 			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
 
 			#Layout.check_cross_talk()
-			layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+			#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 			#layout.check_cross_talk()
 			#if Layout.check_cross_talk:
 				#print "WARNING: CROSSTALK\n"
 
-        	return layout
-        	#return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+    		return  Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+        #	return layout
 
-	"""Function to compute a generalized checkerboard layout (overlap > 0.25) """
+	"""Function to compute a cradle layout """
 	@staticmethod
 	def compute_cradle_layout(num_chips):
 		#utils.abort("inductor_properties need to be added when building")
-
+		#LL* possibly start build off of [0,0]
 
 	        positions = []
 	        inductor_properties = []
@@ -1115,6 +1098,7 @@ class LayoutBuilder(object):
 				inductor_properties.append([current_level,(1 - overlap) * x_dim,(1 - overlap) * y_dim, x_dim*(overlap),y_dim])
 				inductor_properties.append([current_level,2*((1 - overlap) * x_dim), (1 - overlap) * y_dim, x_dim*(overlap),y_dim])
 			else:
+				utils.abort("Inductors need to be added")
 				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
@@ -1125,6 +1109,71 @@ class LayoutBuilder(object):
 		# Is there an extra chip?
 		if (num_chips % 3  == 1):
 				positions.append([current_level , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+
+		"""
+		# Apply some shift for breathing room
+		x_shift = x_dim * 3
+		y_shift = y_dim * 3
+		new_positions = []
+		for [l, x, y] in positions:
+			new_positions.append([l, x+ x_shift, y + y_shift])
+		positions = new_positions
+		"""
+		#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		#layout.draw_in_3D(None, True)
+		#print "---> POSITIONS=", positions
+
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+
+	"""Function to compute a bridge layout """
+	@staticmethod
+	def compute_bridge_layout(num_chips):
+		#utils.abort("inductor_properties need to be added when building")
+		#LL* possibly start build off of [0,0]
+
+	        positions = []
+	        inductor_properties = []
+
+		if (num_chips < 3):
+			utils.abort("Cannot compute bridge layout with fewer than 3 chips")
+
+		if ((num_chips % 3 != 0) and (num_chips %3 != 1)):
+			utils.abort("Cannot compute a bridge layout with a number of chips that's not of the form 3*k or 3*k+1")
+
+		x_dim = utils.argv.chip.x_dimension
+		y_dim = utils.argv.chip.y_dimension
+
+		if (x_dim != y_dim):
+			utils.abort("Cannot compute a bridge layout non-square chips")
+
+		overlap = utils.argv.overlap
+
+		# Add the base structures on top of each other
+		current_level = 1
+		current_orientation = 0
+		for i in xrange(0, num_chips / 3):
+			if current_orientation == 0:
+				positions.append([current_level + 1, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level, 0 * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level, 2 * (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				#inductor_properties.append([current_level,(1 - overlap) * x_dim,(1 - overlap) * y_dim, x_dim*(overlap),y_dim])
+				#inductor_properties.append([current_level,2*((1 - overlap) * x_dim), (1 - overlap) * y_dim, x_dim*(overlap),y_dim])
+			else:
+				utils.abort("Inductors need to be added")
+				positions.append([current_level + 1, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level, (1 -overlap) * x_dim, 0])
+				positions.append([current_level, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
+
+			current_level += 2
+			current_orientation = 1 - current_orientation
+
+		# Is there an extra chip?
+		if (num_chips % 3  == 1):
+				positions.append([current_level , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+
+		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+		for chip in positions:
+			layout.connect_new_chip(chip)
 
 		"""
 		# Apply some shift for breathing room

@@ -47,6 +47,8 @@ def optimize_layout():
 		solution =  optimize_layout_checkerboard()
 	elif (layout_scheme == "cradle"):
 		solution =  optimize_layout_cradle()
+	elif (layout_scheme == "bridge"):
+		solution =  optimize_layout_bridge()
 	elif (layout_scheme == "linear_random_greedy"):
 		solution =  optimize_layout_linear_random_greedy()
 	elif (layout_scheme == "random_greedy"):
@@ -178,7 +180,6 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 		if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
 			#utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
 			continue;
-
 		result = layout.get_random_feasible_neighbor_position(random_chip)
 		if result == None:
 			continue
@@ -246,7 +247,7 @@ def optimize_layout_random_greedy():
 	#layout = LayoutBuilder.compute_rectilinear_diagonal_layout(utils.argv.diameter + 1)
 
 	# Create an initial layout: For now, a 3-chip checkboard
-	layout = LayoutBuilder.compute_cradle_layout(3) #LL* change to craddle
+	layout = LayoutBuilder.compute_cradle_layout(3)
 
 
 	# While num_chips != desired num_chips
@@ -290,6 +291,8 @@ def optimize_layout_random_greedy():
                 utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 
                 candidate_random_trials = []
+		candidate_random_trials = generate_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts)
+		"""
 		num_attempts = 0
 		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 			num_attempts += 1
@@ -313,6 +316,7 @@ def optimize_layout_random_greedy():
 			#print"candidate_random_trials contains %s\n"%candidate_random_trials
 
 		utils.info(1, "Found " + str(len(candidate_random_trials)) + " candidates")
+	"""
 
                 ###############################################
                 ### Evaluate all Candidates
@@ -322,7 +326,7 @@ def optimize_layout_random_greedy():
                 ###############################################
 
 		list_of_args = []
-                for index in xrange(0,len(candidate_random_trials)):
+    		for index in xrange(0,len(candidate_random_trials)):
 			list_of_args.append([layout, candidate_random_trials[index]])
 
 		#print "DOING THE MAP"
@@ -345,6 +349,8 @@ def optimize_layout_random_greedy():
                 ### Pick the best candidate
                 ################################################
 
+		picked_candidate = pick_candidates(layout, results, candidate_random_trials)
+		"""
                 picked_candidate_temperature = -1
                 picked_candidate_power = -1
                 picked_candidate_ASPL = -1.0
@@ -389,13 +395,13 @@ def optimize_layout_random_greedy():
                                 picked_candidate_temperature = temperature
                                 picked_candidate_ASPL = ASPL
                                 picked_candidate_num_edges = num_edges
-
+		"""
                 # Add the candidate
 		if picked_candidate == None:
 			utils.abort("Could not find a candidate that met the temperature constraint")
 
-                utils.info(1, "Picked candidate: " + str(picked_candidate))
-                layout.add_new_chip(picked_candidate)
+		utils.info(1, "Picked candidate: " + str(picked_candidate))
+		layout.add_new_chip(picked_candidate)
 
         # Do the final evaluation (which was already be done, but whatever)
         result = find_maximum_power_budget(layout)
@@ -592,6 +598,7 @@ def optimize_layout_checkerboard():
 	[power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
+
 """Cradle layout optimization"""
 
 def optimize_layout_cradle():
@@ -601,6 +608,26 @@ def optimize_layout_cradle():
 	utils.info(1, "Constructing a cradle layout")
 
 	layout = LayoutBuilder.compute_cradle_layout(utils.argv.num_chips)
+
+	utils.info(1, "Finding the maximum Power Budget")
+	result = find_maximum_power_budget(layout)
+
+        if result == None:
+            return None
+
+	[power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+
+"""bridge layout optimization"""
+
+def optimize_layout_bridge():
+
+	if (utils.argv.verbose == 0):
+		sys.stderr.write("o")
+	utils.info(1, "Constructing a bridge layout")
+
+	layout = LayoutBuilder.compute_bridge_layout(utils.argv.num_chips)
 
 	utils.info(1, "Finding the maximum Power Budget")
 	result = find_maximum_power_budget(layout)
