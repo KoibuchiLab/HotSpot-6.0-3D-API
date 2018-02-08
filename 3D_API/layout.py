@@ -307,7 +307,7 @@ class Layout(object):
 			overlap_area = Layout.compute_two_rectangle_overlap_area(
                            [existing_inductor[1], existing_inductor[2]],[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],[tentative_inductor[1], tentative_inductor[2]],[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
 			if overlap_area > 0:
-				utils.info(1, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
+				utils.info(2, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
 				return True
 		return False
 
@@ -1119,10 +1119,6 @@ class LayoutBuilder(object):
 			new_positions.append([l, x+ x_shift, y + y_shift])
 		positions = new_positions
 		"""
-		#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
-		#layout.draw_in_3D(None, True)
-		#print "---> POSITIONS=", positions
-
 	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
 
 	"""Function to compute a bridge layout """

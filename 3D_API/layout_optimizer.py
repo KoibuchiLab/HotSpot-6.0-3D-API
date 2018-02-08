@@ -170,6 +170,7 @@ def evaluate_candidate(args):
 
         return find_maximum_power_budget(dummy_layout)
 
+""" Function that returns a list of fe """
 def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts):
 
 	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
@@ -300,6 +301,15 @@ def optimize_layout_random_greedy():
 
 	return [layout, power_distribution, temperature]
 
+"""stop workers"""
+
+def send_stop_signals(worker_list, comm):
+	utils.info(2, "Sending stop signal to all workers")
+	for k in range(0, len(worker_list)):
+			stop_worker = [0, 0, 0, 0, 1]
+			utils.info(2, "Sending stop signal to worker rank "+str(k))
+			comm.send(stop_worker,dest = k+1)
+
 """Random greedy layout optimization with MPI"""
 
 def optimize_layout_random_greedy_mpi():
@@ -363,6 +373,7 @@ def optimize_layout_random_greedy_mpi():
 			picked_candidate = pick_candidates(layout, results, candidate_random_trials)
 
 			if picked_candidate == None:
+				send_stop_signals(worker_list, comm)
 				utils.abort("Could not find a candidate that met the temperature constraint")
 
 			utils.info(1, "Picked candidate: " + str(picked_candidate))
@@ -377,9 +388,10 @@ def optimize_layout_random_greedy_mpi():
 		#print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
 
 		#send stop signal to all worker ranks
-		for k in range(0, len(worker_list)):
-				stop_worker = [0, 0, 0, 0, 1]
-				comm.send(stop_worker,dest = k+1)
+		send_stop_signals(worker_list, comm)
+		#for k in range(0, len(worker_list)):
+			#	stop_worker = [0, 0, 0, 0, 1]
+				#comm.send(stop_worker,dest = k+1)
 
 		return [layout, power_distribution, temperature]
 
