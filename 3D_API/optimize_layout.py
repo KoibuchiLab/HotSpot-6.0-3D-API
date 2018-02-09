@@ -206,10 +206,10 @@ VISUAL PROGRESS OUTPUT:
                             dest='power_benchmark', metavar='<power benchmark>',
                             help='benchmark used to determine available chip power levels (default: overall_max)')
 
-	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
-		            type=float, required=False, #might need to make this reqired = True
+	parser.add_argument('--overlap', '-O', action='store',
+		            type=float, required=True,
                             dest='overlap', metavar='<chip area overlap>',
-                            help='the fraction of chip area overlap fraction (default = 1/9)')
+                            help='the fraction of chip area overlap fraction')
 
 	parser.add_argument('--constrained_overlap_geometry', '-C', #action='store_true',  #LL* fix, change to accept strings
                             required=False,
