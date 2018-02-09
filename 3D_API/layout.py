@@ -249,7 +249,7 @@ class Layout(object):
 	"""
 	def are_connected_neighbors(self, position1, position2):
 
-		 # Quick check 
+		 # Quick check
 		 if (abs(position1[0] - position2[0]) != 1):  #same level check
                         return False
 #
@@ -271,7 +271,7 @@ class Layout(object):
 			# Is inductor at the correct level?
 			if inductor[0] != min(position1[0], position2[0]):
 				continue
-			
+
 			# Is the inductor contained in chip #1?
 			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension]):
 				continue
@@ -279,14 +279,14 @@ class Layout(object):
 			# Is the inductor contained in chip #2?
 			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension]):
 				continue
-			
+
 			return True
 
 		return False
 
 
 #
-#			
+#
 #			 pos2_chip_above = position2[0]-position1[0]  #1 if chip @ position2 is above chip @ postion1
 #			 if inductor[0] == inductor_level:
 #				 if pos2_chip_above > 0:
@@ -331,7 +331,7 @@ class Layout(object):
 	""" Add a new chip (position) to the layout, updating the topology accordingly
 		- new_chip_position: position of the new chip
 	"""
-	def add_new_chip(self, new_chip_position, new_inductor_property): 
+	def add_new_chip(self, new_chip_position, new_inductor_property):
 
 		# Just a check in case the user decided to add something without
                 # first checking that it was possible
@@ -363,7 +363,7 @@ class Layout(object):
 			if not Layout.rectangle_is_contained_in([[inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [chip_position[1], chip_position[2]],[chip_position[1] + self.__chip.x_dimension, chip_position[2] + self.__chip.y_dimension]):
 				continue
 			self.__inductor_properties.remove(inductor)
-			
+
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
 
@@ -784,7 +784,7 @@ class Layout(object):
 	         [dim_x, dim_y] = rectangle_dimensions
 
 	         candidates = []
-		
+
 		 if shape == "strip or square":
 			if (random.uniform(0,1) < 0.5):
 				shape = "strip"
@@ -803,9 +803,9 @@ class Layout(object):
 		 elif shape == "square":
 			picked_x = rectangle1_x + dim_x - sqrt(overlap) * dim_x
 			picked_y = rectangle1_y + dim_y - sqrt(overlap) * dim_y
-		 else: 
+		 else:
 			utils.abort("get_random_overlapping_rectangle(): Invalid shape parameter " + shape)
-			
+
 
 	         # Add this to the set of candidates
 	         candidates.append([picked_x, picked_y])
