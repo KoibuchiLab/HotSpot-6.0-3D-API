@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<omp.h>
 
 #define MAX_LAYER_NUM 20 ///supporting up to 20 chip stacking
 #ifndef GRID_SIZE
@@ -84,11 +85,16 @@ int main(int argc, char **argv){
 	//float h = 0.02184; //default Xeon Tulsa chip length (m)
 	float cell = -1; // length of each grid size (m)
 
-	for(w = 0; w < MAX_LAYER_NUM; w++)
-		for(i = 0; i < GRID_SIZE; i++)
-			for(j = 0; j < GRID_SIZE; j++)
-				grid_group_label[w][i][j] = 0;
+#pragma omp parallel shared(grid_group_label) private(w, i, j)
+{
+	//omp_set_num_threads(8);
+	#pragma omp for nowait schedule(static)
+		for(w = 0; w < MAX_LAYER_NUM; w++)
+			for(i = 0; i < GRID_SIZE; i++)
+				for(j = 0; j < GRID_SIZE; j++)
+					grid_group_label[w][i][j] = 0;
 
+}
 	//for just reading input file
 	fp = fopen(fname, "r");
 	if(fp == NULL){

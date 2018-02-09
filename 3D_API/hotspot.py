@@ -18,7 +18,7 @@ args = sys.argv
 
 def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
-	os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;")
+	os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
 
 def call_cell(sorted_file, pid):
 	#os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))

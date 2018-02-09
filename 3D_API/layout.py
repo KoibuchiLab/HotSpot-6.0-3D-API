@@ -284,7 +284,7 @@ class Layout(object):
 				#print '\nCHIP 2\n'
 				continue
 
-			#print inductor
+			print inductor
 			return True
 
 		 return False
@@ -654,8 +654,10 @@ class Layout(object):
 	def rectangle_is_contained_in(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
 
 		if (bottom_left_1[0] < bottom_left_2[0]) or (bottom_left_1[1] < bottom_left_2[1]):
+			#print '\ninductor x = ',bottom_left_1[0],'\nchip x = ',bottom_left_2[0],'\ninductor y = ',bottom_left_1[1],'\nchip y = ',bottom_left_2[1]
 			return False
 		if (top_right_1[0] > top_right_2[0]) or (top_right_1[1] > top_right_2[1]):
+			#print '\ninductor top x = ',top_right_1[0],'\nchip top x = ',top_right_2[0],'\ninductor  top y = ',top_right_1[1],'\nchip top y = ',top_right_2[1],'\n'
 			return False
 		return True
 
@@ -1087,6 +1089,79 @@ class LayoutBuilder(object):
 
 		overlap = utils.argv.overlap
 
+		"""apply shift"""
+		shift = 0
+		x_shift = x_dim * shift
+		y_shift = y_dim * shift
+
+		# Add the base structures on top of each other
+		current_level = 1
+		current_orientation = 0
+		for i in xrange(0, num_chips / 3):
+			if current_orientation == 0:
+				positions.append([current_level    , (1 - overlap) * x_dim +  x_shift, (1 - overlap) * y_dim + y_shift])
+				positions.append([current_level + 1, 0 * x_dim +  x_shift, (1 - overlap) * y_dim + y_shift])
+				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim + y_shift])
+
+				inductor_properties.append([current_level, (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim  + y_shift, x_dim*(overlap), y_dim])
+				inductor_properties.append([current_level, 2*((1 - overlap) * x_dim) + x_shift, (1 - overlap) * y_dim + y_shift, x_dim*(overlap), y_dim])
+			else:
+				utils.abort("Inductors need to be added")
+				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
+				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
+
+			current_level += 2
+			current_orientation = 1 - current_orientation
+
+		# Is there an extra chip?
+		if (num_chips % 3  == 1):
+				positions.append([current_level , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+
+		"""
+		# Apply some shift for breathing room
+		x_shift = x_dim * 3
+		y_shift = y_dim * 3
+		new_positions = []
+		new_inductor_property = []
+
+		for [l, x, y] in positions:
+			new_positions.append([l, x+ x_shift, y + y_shift])
+		positions = new_positions
+
+		for inductor in inductor_properties:
+			new_inductor_property.append([inductor[0],inductor[1]+x_shift,inductor[2]+y_shift,inductor[3],inductor[4]])
+		inductor_properties = new_inductor_property
+		print 'inductors are ', inductor_properties
+		print 'chips are ', positions
+		"""
+	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+
+
+	"""Function to compute a diagonal cradle layout """
+	@staticmethod
+	def compute_diagonal_cradle_layout(num_chips):
+		utils.abort("diagonal cradle not implemented yet")
+			#utils.abort("inductor_properties need to be added when building")
+			#LL* possibly start build off of [0,0]
+
+		positions = []
+		inductor_properties = []
+
+		if (num_chips < 3):
+			utils.abort("Cannot compute cradle layout with fewer than 3 chips")
+
+		if ((num_chips % 3 != 0) and (num_chips %3 != 1)):
+			utils.abort("Cannot compute a cradle layout with a number of chips that's not of the form 3*k or 3*k+1")
+
+		x_dim = utils.argv.chip.x_dimension
+		y_dim = utils.argv.chip.y_dimension
+
+		if (x_dim != y_dim):
+			utils.abort("Cannot compute a cradle layout non-square chips")
+
+		overlap = utils.argv.overlap
+
 		# Add the base structures on top of each other
 		current_level = 1
 		current_orientation = 0
@@ -1119,7 +1194,7 @@ class LayoutBuilder(object):
 			new_positions.append([l, x+ x_shift, y + y_shift])
 		positions = new_positions
 		"""
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
 
 	"""Function to compute a bridge layout """
 	@staticmethod

@@ -159,7 +159,8 @@ def optimize_layout_linear_random_greedy():
 
 	return [layout, power_distribution, temperature]
 
-""" Helper function """
+""" Helper function
+ 	Returns [power_distribution, temperature]"""
 def evaluate_candidate(args):
 	[layout, candidate] = args
         utils.info(1, "  - Evaluating candidate " + str(candidate))
@@ -196,6 +197,7 @@ def pick_candidates(layout, results, candidate_random_trials):
 	picked_candidate_power = -1
 	picked_candidate_ASPL = -1.0
 	picked_candidate_num_edges = -1
+	index_of_result = None
 
 	picked_candidate = None
 	for index in xrange(0,len(candidate_random_trials)):
@@ -219,7 +221,7 @@ def pick_candidates(layout, results, candidate_random_trials):
 					utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 					new_pick = True
 				elif (power == picked_candidate_power):
-					if (num_edges > picked_candidate_num_edges):
+					if (num_edges > picked_candidate_num_edges): #LL* inductors?
 						utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
 						new_pick = True
 					elif (num_edges == picked_candidate_num_edges) and (ASPL < picked_candidate_ASPL):
@@ -235,8 +237,9 @@ def pick_candidates(layout, results, candidate_random_trials):
 				picked_candidate_temperature = temperature
 				picked_candidate_ASPL = ASPL
 				picked_candidate_num_edges = num_edges
+				index_of_result = index
 
-	return picked_candidate
+	return [picked_candidate, index]
 
 """Random greedy layout optimization"""
 
@@ -244,7 +247,7 @@ def optimize_layout_random_greedy():
 
 	layout = LayoutBuilder.compute_cradle_layout(3)
 
-	num_neighbor_candidates = 20 			# Default value
+	num_neighbor_candidates = 20			# Default value
         max_num_neighbor_candidate_attempts = 1000      # default value
 
 	if (len(utils.argv.layout_scheme.split(":")) == 2):
@@ -278,13 +281,13 @@ def optimize_layout_random_greedy():
 
 		results = map(evaluate_candidate, list_of_args)
 
-		print "RESULTS = ", results
+		#print "RESULTS = ", results
 
 		###############################################
 		### Pick the best candidate
 		################################################
 
-		picked_candidate = pick_candidates(layout, results, candidate_random_trials)
+		picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
                 # Add the candidate
 		if picked_candidate == None:
 			utils.abort("Could not find a candidate that met the temperature constraint")
@@ -293,7 +296,8 @@ def optimize_layout_random_greedy():
 		layout.add_new_chip(picked_candidate)
 
         # Do the final evaluation (which was already be done, but whatever)
-        result = find_maximum_power_budget(layout)
+        #result = find_maximum_power_budget(layout)
+        result = results[picked_index]
         if (result == None):
             return None
 
@@ -342,9 +346,6 @@ def optimize_layout_random_greedy_mpi():
 
 			###############################################
 			### Evaluate all Candidates
-			### TODO: PARALLELIZE
-			###		- Transform to a map operation
-			###		- Use the multithreading package
 			###############################################
 
 			worker_list = [False]*(size-1)
@@ -357,6 +358,7 @@ def optimize_layout_random_greedy_mpi():
 						worker = worker_list.index(False)
 						worker_list[worker]=True
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
+						#data_to_worker[layout, candidate, index in results list, index in worker list, worker stop variable]
 						#print 'SENT layout is ', layout
 						comm.send(data_to_worker, dest = worker+1)
 						i+=1
@@ -364,13 +366,14 @@ def optimize_layout_random_greedy_mpi():
 						end = 1 #when no more candidates and workers arent working, and alive
 				else:
 					data_from_worker = comm.recv(source = MPI.ANY_SOURCE)
+					#data_from_worker[[[power_distribution, temperature]], index in results list, index in worker list]
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
 
 			#print "RESULTS = ", results
 
 			#picked_candidate = pick_candidates(layout, results,candidate_random_trials)
-			picked_candidate = pick_candidates(layout, results, candidate_random_trials)
+			picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
 
 			if picked_candidate == None:
 				send_stop_signals(worker_list, comm)
@@ -380,7 +383,11 @@ def optimize_layout_random_greedy_mpi():
 			layout.add_new_chip(picked_candidate)
 
 		# Do the final evaluation (which was already be done, but whatever)
-		result = find_maximum_power_budget(layout)
+		#result = find_maximum_power_budget(layout)
+		#saved_result = results[picked_index]
+		#print '\n\result is ',result,'\nsaved_result is ',saved_result
+		result = results[picked_index]
+
 		if (result == None):
 			return None
 
@@ -398,21 +405,21 @@ def optimize_layout_random_greedy_mpi():
 	else:
 		while True:
 			data_from_master = comm.recv(source = 0)
+			#data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
 				#print '!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
 				sys.exit(0)
 			#print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank
-			layout = data_from_master[0]
-			candidate = data_from_master[1]
-			result_index = data_from_master[2]
-			worker_index = data_from_master[3]
+			#layout = data_from_master[0]
+			#candidate = data_from_master[1]
+			#result_index = data_from_master[2]
+			#worker_index = data_from_master[3]
 
-			dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(),  layout.get_medium(), layout.get_overlap(),layout.get_inductor_properties())
-			dummy_layout.add_new_chip(candidate)
-			if (dummy_layout.get_diameter() > utils.argv.diameter):
-				utils.abort("Layout diameter is too big (this should never happen here!)")
-			powerdisNtemp = find_maximum_power_budget(dummy_layout)
-			data_to_master = [powerdisNtemp,result_index,worker_index]
+			powerdisNtemp = evaluate_candidate(data_from_master[:2])
+
+			#data_to_master = [powerdisNtemp,result_index,worker_index]
+			data_to_master = [powerdisNtemp,data_from_master[2],data_from_master[3]]
+			#data_to_master[[power_distribution, temperature], candidate,index of restult, index of worker,stop worker variable]
 			comm.send(data_to_master, dest = 0)
 
 
