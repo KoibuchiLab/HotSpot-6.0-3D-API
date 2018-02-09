@@ -12,7 +12,7 @@ import networkx as nx
 
 import utils
 
-FLOATING_POINT_EPSILON = 0.000001
+FLOATING_POINT_EPSILON = 0.000000001
 
 
 ##############################################################################################
@@ -31,7 +31,7 @@ class Chip(object):
 		- name: chip name
 		- benchmark_name: name of benchmark for power levels
 	"""
-        def __init__(self, name, benchmark_name):
+	def __init__(self, name, benchmark_name):
 
 		self.name = name
 		[self.x_dimension, self.y_dimension] = self.chip_dimensions_db[name]
@@ -65,28 +65,28 @@ class Chip(object):
 	@staticmethod
 	def __find_available_power_levels(chip_name, benchmark_name):
 
-        	power_levels = {}
+		power_levels = {}
 		power_level_ptrace_files = {}
 
 		if (chip_name == "base2" or chip_name == "base3"):
 			benchmarks = [""]
 			benchmark_name = ""
 		else:
-        		benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
+			benchmarks = ["bc", "cg", "dc", "ep", "is", "lu", "mg", "sp", "ua", "stress"]
 
-       		power_levels_frequency_file = {}
+		power_levels_frequency_file = {}
 
-        	# Get all the benchmark, frequency, power, file info
-        	for benchmark in benchmarks:
+		# Get all the benchmark, frequency, power, file info
+		for benchmark in benchmarks:
 
-            		power_levels_frequency_file[benchmark] = []
+			power_levels_frequency_file[benchmark] = []
 
-            		filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
+			filenames = glob("./PTRACE/" + chip_name + "-" +  benchmark + "*.ptrace")
 
-            		for filename in filenames:
-                    		f = open(filename, "r")
-                    		lines = f.readlines()
-                    		f.close()
+			for filename in filenames:
+				f = open(filename, "r")
+				lines = f.readlines()
+				f.close()
 				sum_power = sum([float(x) for x in lines[1].rstrip().split(" ")])
 				tokens = filename.split('.')
 				tokens = tokens[1].split('-')
@@ -95,22 +95,22 @@ class Chip(object):
 				from string import ascii_letters
 				last_part = last_part.replace(' ', '')
 				for i in ascii_letters:
-    					last_part = last_part.replace(i, '')
+					last_part = last_part.replace(i, '')
 				frequency = float(last_part)
 				power_levels_frequency_file[benchmark].append((frequency, sum_power, filename))
 
 			power_levels_frequency_file[benchmark] = sorted(power_levels_frequency_file[benchmark])
 
 		# Select the relevant data
-      		if (benchmark_name in benchmarks):
-       			return power_levels_frequency_file[benchmark]
+		if (benchmark_name in benchmarks):
+			return power_levels_frequency_file[benchmark]
 
-      		elif (benchmark_name == "overall_max"):  # Do the "max" stuff
-              		lengths = [len(power_levels_frequency_file[x]) for x in power_levels_frequency_file]
-              		if (max(lengths) != min(lengths)):
-                      		utils.abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
+		elif (benchmark_name == "overall_max"):  # Do the "max" stuff
+			lengths = [len(power_levels_frequency_file[x]) for x in power_levels_frequency_file]
+			if (max(lengths) != min(lengths)):
+				utils.abort("Cannot use the \"overall_max\" benchmark mode for power levels because some benchmarks have more power measurements than others")
 			maxima_power_levels_frequency_file = []
-              		for i in xrange(0, min(lengths)):
+			for i in xrange(0, min(lengths)):
 				max_benchmark = None
 				max_power = None
 				for benchmark in benchmarks:
@@ -120,10 +120,10 @@ class Chip(object):
 						max_benchmark = benchmark
 				maxima_power_levels_frequency_file.append(power_levels_frequency_file[max_benchmark][i])
 
-              		return maxima_power_levels_frequency_file
+			return maxima_power_levels_frequency_file
 
-      		else:
-              		utils.abort("Unknown benchmark " + benchmark_name + " for computing power levels")
+		else:
+			utils.abort("Unknown benchmark " + benchmark_name + " for computing power levels")
 
 ##############################################################################################
 ### LAYOUT CLASS
@@ -150,7 +150,7 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-		#self.draw_in_3D(None, True)
+		self.draw_in_3D(None, True)
 		self.generate_topology_graph()
 
 
@@ -213,7 +213,7 @@ class Layout(object):
 		return list(self.__chip_positions)
 
 	""" Get the list of inductors positions
-        """
+		"""
 	def get_inductor_properties(self):
 		return list(self.__inductor_properties)
 
@@ -224,51 +224,47 @@ class Layout(object):
 
 
 	""" Determines whether two chips are connected in the topology
-	    (based on whether they overlap sufficiently)
+		(based on whether they overlap sufficiently)
 	"""
 	def are_neighbors(self, position1, position2):
 		if (abs(position1[0] - position2[0]) != 1):
-                        return False
+						return False
 
-                 # must have enough overlap
+		# must have enough overlap
 				 #LL* args(bottom_left_1, top_right_1, bottom_left_2, top_right_2) bottom_left_1 = [x,y]
-                overlap_area = Layout.compute_two_rectangle_overlap_area(
-                        [position1[1], position1[2]],
-                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
-                        [position2[1], position2[2]],
-                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+		overlap_area = Layout.compute_two_rectangle_overlap_area([position1[1], position1[2]],[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],[position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+		#print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
 
 		if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
 			return False
-        	return True
+		return True
 
 
 	""" Determines whether two chips are connected with INDUCTOR in the topology
-	    (based on whether they overlap sufficiently)
+		(based on whether they overlap sufficiently)
 	"""
 	def are_connected_neighbors(self, position1, position2):
 
-		 # Quick check
-		 if (abs(position1[0] - position2[0]) != 1):  #same level check
-		 	#print 'Quick Check'
-                        return False
-#
-#		  # No longer necessary since we can just check for inductors
-#                 # must have enough overlap
-#                 overlap_area = Layout.compute_two_rectangle_overlap_area(
-#                        [position1[1], position1[2]],
-#                        [position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
-#                        [position2[1], position2[2]],
-#                        [position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
-#		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
-#
-#		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
-#			 return False
+		# Quick check
+		if (abs(position1[0] - position2[0]) != 1):  #same level check
+			#print 'Quick Check'
+			return False
+		#
+		#		  # No longer necessary since we can just check for inductors
+		#				 # must have enough overlap
+		#				 overlap_area = Layout.compute_two_rectangle_overlap_area(
+		#						[position1[1], position1[2]],
+		#						[position1[1] + self.__chip.x_dimension, position1[2] + self.__chip.y_dimension],
+		#						[position2[1], position2[2]],
+		#						[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension])
+		#		 #print "-->", position1, position2, "overlap=", overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension)
+		#
+		#		 if (overlap_area / (self.__chip.x_dimension * self.__chip.y_dimension) < self.__overlap - FLOATING_POINT_EPSILON):
+		#			 return False
 
 
-		 #print '\ninductor PROP', self.__inductor_properties,'\nposition1 ',position1,'\nposition2 ',position2
-		 for inductor in self.__inductor_properties:
+		#print '\ninductor PROP', self.__inductor_properties,'\nposition1 ',position1,'\nposition2 ',position2
+		for inductor in self.__inductor_properties:
 
 			# Is inductor at the correct level?
 			if inductor[0] != min(position1[0], position2[0]):
@@ -283,18 +279,18 @@ class Layout(object):
 			if not Layout.rectangle_is_contained_in([inductor[1], inductor[2]], [inductor[1] + inductor[3], inductor[2] + inductor[4]], [position2[1], position2[2]],[position2[1] + self.__chip.x_dimension, position2[2] + self.__chip.y_dimension]):
 				#print '\nCHIP 2\n'
 				continue
-
-			print inductor
+		#print inductor
 			return True
 
-		 return False
+		return False
 
 
 	"""
 	checks for cross talk by checking if any inductors overlap
-		- tentative_inductor: tentative inductor position
+	- tentative_inductor: tentative inductor position
 	Returns True if there is crosstalk
 	"""
+
 	def check_cross_talk(self, tentative_inductor):
 
 		utils.info(2, 'Checking for CROSSTALK')
@@ -304,7 +300,7 @@ class Layout(object):
 			if (not abs(tentative_inductor[0] - existing_inductor[0]) == 1):
 				continue
 			overlap_area = Layout.compute_two_rectangle_overlap_area(
-                           [existing_inductor[1], existing_inductor[2]],[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],[tentative_inductor[1], tentative_inductor[2]],[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
+						   [existing_inductor[1], existing_inductor[2]],[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],[tentative_inductor[1], tentative_inductor[2]],[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
 			if overlap_area > 0:
 				utils.info(2, "WARNING: CROSSTALK at inductor levels "+str(existing_inductor[0])+" and "+str(tentative_inductor[0]))
 				return True
@@ -338,7 +334,7 @@ class Layout(object):
 	def add_new_chip(self, new_chip_position):
 
 		# Just a check in case the user decided to add something without
-                # first checking that it was possible
+				# first checking that it was possible
 		if not self.can_new_chip_fit(new_chip_position):
 			utils.abort("Cannot add chip")
 
@@ -441,7 +437,7 @@ class Layout(object):
 			existing_chip = self.__chip_positions[i]
 			#print "  Looking at xisting chip ", existing_chip
 			if (existing_chip[0] != layer):
-				#print "    Not in same layer so ok"
+				#print "	Not in same layer so ok"
 				continue
 			#print  " Checking for collision"
 			overlap = Layout.compute_two_rectangle_overlap_area(
@@ -466,7 +462,7 @@ class Layout(object):
 			existing_inductor = self.__inductor_properties[i]
 			#print "  Looking at xisting chip ", existing_inductor
 			if (existing_inductor[0] != layer):
-				#print "    Not in same layer so ok"
+				#print "	Not in same layer so ok"
 				continue
 			#print  " Checking for collision"
 			overlap = Layout.compute_two_rectangle_overlap_area(
@@ -496,53 +492,48 @@ class Layout(object):
 		################ plot_cuboid ###################
 
 		def plot_cuboid(ax, corner, x_dim, y_dim, z_dim, color):
-        		grid_resolution = z_dim / 4
+			grid_resolution = z_dim / 4
 
-
-        		other_corner = [corner[0] + x_dim, corner[1] + y_dim, corner[2] + z_dim]
+			other_corner = [corner[0] + x_dim, corner[1] + y_dim, corner[2] + z_dim]
 
 			num = 10
 
-        		# Plot horizontal faces
-        		x_range = numpy.linspace(corner[0], other_corner[0], num = num)
-        		y_range = numpy.linspace(corner[1], other_corner[1], num = num)
+			# Plot horizontal faces
+			x_range = numpy.linspace(corner[0], other_corner[0], num=num)
+			y_range = numpy.linspace(corner[1], other_corner[1], num=num)
 
-        		X, Y = numpy.meshgrid(x_range, y_range)
-        		for z in [corner[2], other_corner[2]]:
-                		Z = numpy.ones_like( X ) * z
-                		ax.plot_wireframe(X, Y, Z, color=color)
+			X, Y = numpy.meshgrid(x_range, y_range)
+			for z in [corner[2], other_corner[2]]:
+				Z = numpy.ones_like(X) * z
+				ax.plot_wireframe(X, Y, Z, color=color)
 
-        		# Plot side faces
-        		for y in [corner[1], other_corner[1]]:
-                		x_range = numpy.linspace(corner[0], other_corner[0], num = num)
-                		z_range = numpy.linspace(corner[2], other_corner[2], num = num)
-                		X, Z = numpy.meshgrid(x_range, z_range)
-                		Y = numpy.ones_like( 1 ) * y
-                		ax.plot_wireframe(X, Y, Z, color=color)
+			# Plot side faces
+			for y in [corner[1], other_corner[1]]:
+				x_range = numpy.linspace(corner[0], other_corner[0], num=num)
+				z_range = numpy.linspace(corner[2], other_corner[2], num=num)
+				X, Z = numpy.meshgrid(x_range, z_range)
+				Y = numpy.ones_like(1) * y
+				ax.plot_wireframe(X, Y, Z, color=color)
 
-        		for x in [corner[0], other_corner[0]]:
-                		y_range = numpy.linspace(corner[1], other_corner[1], num = num)
-                		z_range = numpy.linspace(corner[2], other_corner[2], num = num)
-                		Y, Z = numpy.meshgrid(y_range, z_range)
-                		X = numpy.ones_like( 1 ) * x
-                		ax.plot_wireframe(X, Y, Z, color=color)
-
-
+			for x in [corner[0], other_corner[0]]:
+				y_range = numpy.linspace(corner[1], other_corner[1], num=num)
+				z_range = numpy.linspace(corner[2], other_corner[2], num=num)
+				Y, Z = numpy.meshgrid(y_range, z_range)
+				X = numpy.ones_like(1) * x
+				ax.plot_wireframe(X, Y, Z, color=color)
 
 		############ END plot_cuboid ###################
 
-
 		level_height = 0.1
 		chip_height = 0.01
-		induction_zone = 2*level_height+chip_height
+		induction_zone = 2 * level_height + chip_height
 
-       		fig = plot.figure()
-       		ax = Axes3D(fig)
-
+		fig = plot.figure()
+		ax = Axes3D(fig)
 
 		max_level = -1
 		for position in self.__chip_positions:
-			#print 'chip level is ', position[0]
+			# print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
@@ -550,87 +541,87 @@ class Layout(object):
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
-        		plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
+			plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
-		#Layout.compute_two_rectangle_overlap_area()
+		# Layout.compute_two_rectangle_overlap_area()
 		for position in self.__inductor_properties:
-			xyz = [position[1], position[2], position[0] * level_height+.01]
-			#print 'inductor level is ', position[0],' xyz = ', xyz
-			r=0
-			g=0
-			b=0
+			xyz = [position[1], position[2], position[0] * level_height + .01]
+			# print 'inductor level is ', position[0],' xyz = ', xyz
+			r = 0
+			g = 0
+			b = 0
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
-        		#plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
-        		plot_cuboid(ax, xyz, position[3], position[4], level_height-chip_height, color)
+			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
+			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim=+0
-		ax.elev=90
+		ax.azim = +0
+		ax.elev = 90
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')
 
 		if show_plot:
-        		plot.show()
+			plot.show()
 
 	""" Draw the layout using Octave (really rudimentary)
-            Will produce amusing ASCI art
+			Will produce amusing ASCI art
 		(DEPRECATED)
 	"""
-        def draw_in_octave(self, filename):
-            file = open("/tmp/layout.m","w")
-            file.write("figure\n")
-            file.write("hold on\n")
+	def draw_in_octave(self, filename):
+		file = open("/tmp/layout.m","w")
+		file.write("figure\n")
+		file.write("hold on\n")
 
-	    max_x = 0
-	    max_y = 0
-            for pos in self.__chip_positions:
-		[l,x,y] = pos
+		max_x = 0
+		max_y = 0
+		for pos in self.__chip_positions:
+			[l,x,y] = pos
 		max_x = max(max_x, x + self.get_chip().x_dimension)
 		max_y = max(max_y, y + self.get_chip().y_dimension)
 
-	    file.write("axis([0, " + str(max(max_x, max_y)) + ", 0 , " + str(max(max_x, max_y)) + "])\n");
+		file.write("axis([0, " + str(max(max_x, max_y)) + ", 0 , " + str(max(max_x, max_y)) + "])\n");
 
 
-            for rect in self.__chip_positions:
-                [l,x,y] = rect
-                w = self.get_chip().x_dimension
-                h = self.get_chip().y_dimension
-                colors = ["b", "r", "g", "c", "k", "m"]
-                color = colors[l % len(colors)]
+		for rect in self.__chip_positions:
+			[l,x,y] = rect
+			w = self.get_chip().x_dimension
+			h = self.get_chip().y_dimension
+			colors = ["b", "r", "g", "c", "k", "m"]
+			color = colors[l % len(colors)]
 
-                file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n")
-            file.write("print " + filename +"\n")
-            file.close()
+			file.write("plot([" + str(x) + ", " + str(x + w) + "," + str(x + w) + "," + str(x) + "," + str(x) + "]" +  ", [" + str(y) + ", " + str(y) + ", "+ str(y + h) + ", " + str(y + h) +", " + str(y) +  "], " + "'" + color + "-'" + ")\n")
+			file.write("print " + filename +"\n")
+			file.close()
 
-	    try:
-	    	os.system("octave --silent --no-window-system /tmp/layout.m");
-	    except e:
-		utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
+		try:
+			os.system("octave --silent --no-window-system /tmp/layout.m");
+		except e:
+			utils.info(0, "WARNING: couldn't run octave to produce layout visualizaton")
 		return
 
-            utils.info(0, "File '" + filename + "' created")
-            return
+		utils.info(0, "File '" + filename + "' created")
+		return
 
 
 	"""  Compute the overlap area between two rectangles
-        """
+		"""
 	@staticmethod
 	def compute_two_rectangle_overlap_area(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
 
-        	# They don't overlap in X
-        	if (top_right_1[0] < bottom_left_2[0]):
-	        	return 0.0
-        	if (top_right_2[0] < bottom_left_1[0]):
-	        	return 0.0
+		# They don't overlap in X
+		if (top_right_1[0] < bottom_left_2[0]):
+			return 0.0
+		if (top_right_2[0] < bottom_left_1[0]):
+			return 0.0
 
-        	# They don't overlap in Y
-        	if (top_right_1[1] < bottom_left_2[1]):
-	        	return 0.0
-        	if (top_right_2[1] < bottom_left_1[1]):
-	        	return 0.0
+		# They don't overlap in Y
+		if (top_right_1[1] < bottom_left_2[1]):
+			return 0.0
+		if (top_right_2[1] < bottom_left_1[1]):
+			return 0.0
 
 		# Compute the overlap in X
 		if max(bottom_left_1[0], bottom_left_2[0]) < min(top_right_1[0], top_right_2[0]):
@@ -648,14 +639,14 @@ class Layout(object):
 
 
 	"""  Is a rectangle included in another (first one contained in second one)
-        """
+		"""
 	@staticmethod
 	def rectangle_is_contained_in(bottom_left_1, top_right_1, bottom_left_2, top_right_2):
 
-		if (bottom_left_1[0] < bottom_left_2[0]) or (bottom_left_1[1] < bottom_left_2[1]):
+		if (bottom_left_1[0] < bottom_left_2[0]-FLOATING_POINT_EPSILON) or (bottom_left_1[1] < bottom_left_2[1])-FLOATING_POINT_EPSILON:
 			#print '\ninductor x = ',bottom_left_1[0],'\nchip x = ',bottom_left_2[0],'\ninductor y = ',bottom_left_1[1],'\nchip y = ',bottom_left_2[1]
 			return False
-		if (top_right_1[0] > top_right_2[0]) or (top_right_1[1] > top_right_2[1]):
+		if (top_right_1[0] > top_right_2[0]+FLOATING_POINT_EPSILON) or (top_right_1[1] > top_right_2[1]+FLOATING_POINT_EPSILON):
 			#print '\ninductor top x = ',top_right_1[0],'\nchip top x = ',top_right_2[0],'\ninductor  top y = ',top_right_1[1],'\nchip top y = ',top_right_2[1],'\n'
 			return False
 		return True
@@ -669,7 +660,7 @@ class Layout(object):
 	def compute_layout_temperature(layout, power_distribution):
 
 		# This is a hack because it seems the scipy library ignores the bounds and will go into
-        	# unallowed values, so instead we return a very high temperature (lame)
+			# unallowed values, so instead we return a very high temperature (lame)
 		for i in range(0, layout.get_num_chips()):
 			if ((power_distribution[i] < layout.get_chip().get_power_levels()[0]) or (power_distribution[i] > layout.get_chip().get_power_levels()[-1])):
 				return 100000
@@ -718,7 +709,7 @@ class Layout(object):
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
 		except Exception, e:
-    			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
+				utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 
 		string_output = proc.stdout.read().rstrip()
 #		print 'STRING OUTPUT ',string_output
@@ -745,10 +736,10 @@ class Layout(object):
 
 
 	""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
-    	    stuff, but it's simpler than trying to come up with a programmatic solution. This uses models
-            in case the power is a continuous power that does not correspond to an available power level
+			stuff, but it's simpler than trying to come up with a programmatic solution. This uses models
+			in case the power is a continuous power that does not correspond to an available power level
 
-            HOWEVER: if we're doing a known power, then it uses the real trace file without any modeling
+			HOWEVER: if we're doing a known power, then it uses the real trace file without any modeling
 	"""
 	@staticmethod
 	def create_ptrace_file(directory, chip, suffix, power):
@@ -828,17 +819,17 @@ class Layout(object):
 
 
 	"""Helper function that returns a randomly placed rectangle that overlaps
-    	   with another rectangle by a fixed amount, avoiding all negative coordinates
-        	- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
-	        - rectangle_dimensions = [x,y]: size of the rectangle sides
-       		- overlap: the fraction of overlap
+		   with another rectangle by a fixed amount, avoiding all negative coordinates
+			- rectangle1_bottom_left = [x,y]: bottom left corner of the initial rectangle
+			- rectangle_dimensions = [x,y]: size of the rectangle sides
+	   		- overlap: the fraction of overlap
 		- shape:
 			- "strip"	(full length of the chip)
 			- "square"	(same aspect ratio as the chip)
 			- "strip or square"
 			- "any"
-    	   returns:
-        	- [x,y]: bottom left corner of the new rectangle
+		   returns:
+			- [x,y]: bottom left corner of the new rectangle
 	"""
 
 	@staticmethod
@@ -847,24 +838,23 @@ class Layout(object):
 		if shape is None:
 			#print 'shape is', None
 			shape = "any"
+			[rectangle1_x, rectangle1_y] = rectangle1_bottom_left
+			[dim_x, dim_y] = rectangle_dimensions
 
-	        [rectangle1_x, rectangle1_y] = rectangle1_bottom_left
-	        [dim_x, dim_y] = rectangle_dimensions
+			candidates = []
 
-	        candidates = []
-
-		 if shape == "strip or square":
+		if shape == "strip or square":
 			if (random.uniform(0,1) < 0.5):
 				shape = "strip"
 			else:
 				shape = "square"
 
-         	 # Assume for now that the overlap is in the North-East region
+		# Assume for now that the overlap is in the North-East region
 		if shape == "any":
-	        	# pick an x value
-	        	picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
-	        	# compute the y value that makes the right overlap
-	        	picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
+			# pick an x value
+			picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+				# compute the y value that makes the right overlap
+			picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x  + dim_x - picked_x)
 		elif shape == "strip":
 			picked_x = rectangle1_x + (1.0 - overlap) * dim_x
 			picked_y = rectangle1_y
@@ -875,91 +865,91 @@ class Layout(object):
 			utils.abort("get_random_overlapping_rectangle(): Invalid shape parameter " + str(shape))
 
 
-	         # Add this to the set of candidates
-	        candidates.append([picked_x, picked_y])
+		# Add this to the set of candidates
+		candidates.append([picked_x, picked_y])
 
-		 #print "NORTHEAST = ", [picked_x, picked_y]
+		#print "NORTHEAST = ", [picked_x, picked_y]
 
-	         # Consider all other symmetries
+			 # Consider all other symmetries
 
-	         # South-East
-	        new_picked_x = picked_x
-	         #new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
-	        new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
-		 #print "SOUTHEAST =  ", [new_picked_x, new_picked_y]
-	        if (new_picked_x >= 0) and (new_picked_y >= 0):
-	               candidates.append([new_picked_x, new_picked_y])
+			 # South-East
+		new_picked_x = picked_x
+		#new_picked_y = (rectangle1_y  + dim_y) - picked_y - dim_y
+		new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
+		#print "SOUTHEAST =  ", [new_picked_x, new_picked_y]
+		if (new_picked_x >= 0) and (new_picked_y >= 0):
+			candidates.append([new_picked_x, new_picked_y])
 
-	         # North-West
-	        new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
-	        new_picked_y = picked_y
-		#print "NORTHWEST = ", [new_picked_x, new_picked_y]
-	        if (new_picked_x >= 0) and (new_picked_y >= 0):
-	               candidates.append([new_picked_x, new_picked_y])
+		# North-West
+		new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
+		new_picked_y = picked_y
+	#print "NORTHWEST = ", [new_picked_x, new_picked_y]
+		if (new_picked_x >= 0) and (new_picked_y >= 0):
+			candidates.append([new_picked_x, new_picked_y])
 
-	        # South-West
-	        new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
-	        new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
-		#print "SOUTHWEST = ", [new_picked_x, new_picked_y]
-	        if (new_picked_x >= 0) and (new_picked_y >= 0):
-	               candidates.append([new_picked_x, new_picked_y])
+		# South-West
+		new_picked_x = (rectangle1_x + dim_x - picked_x)  + rectangle1_x - dim_x
+		new_picked_y = (rectangle1_y  + dim_y - picked_y) + rectangle1_y - dim_y
+	#print "SOUTHWEST = ", [new_picked_x, new_picked_y]
+		if (new_picked_x >= 0) and (new_picked_y >= 0):
+			candidates.append([new_picked_x, new_picked_y])
 
-	         # At this point, we just pick one of the candidates at random
+		# At this point, we just pick one of the candidates at random
 		picked_candidate = utils.pick_random_element(candidates)
 		return picked_candidate
 
 	""" Function that returns a feasible, random, neigbhor of specified chip
 		- chip_index
-    	   returns:
-        	- [level, x, y]
+		   returns:
+			- [level, x, y]
 	"""
 	def get_random_feasible_neighbor_position(self, chip_index):
 
 		chip_position = self.__chip_positions[chip_index]
 
-                # Pick a random location relative to the last chip
+				# Pick a random location relative to the last chip
 		#getout = 0 #program hanging, cant find a valid random overlapping rectangle
 		max_num_trials = 100
 		num_trials = 0
 		while (num_trials < max_num_trials):
 			num_trials += 1
-                	# pick a random level
-                	possible_levels = []
-                	if (chip_position[0] == 1):
-                        	possible_levels = [2]
-                	elif (chip_position[0] == utils.argv.num_levels):
-                        	possible_levels = [utils.argv.num_levels - 1]
-                	else:
-                        	possible_levels = [chip_position[0]-1, chip_position[0]+1]
+			# pick a random level
+			possible_levels = []
+			if (chip_position[0] == 1):
+					possible_levels = [2]
+			elif (chip_position[0] == utils.argv.num_levels):
+					possible_levels = [utils.argv.num_levels - 1]
+			else:
+					possible_levels = [chip_position[0]-1, chip_position[0]+1]
 			#utils.info(1,"chip_position %s\n"%chip_position)
-                	picked_level = utils.pick_random_element(possible_levels)
+			picked_level = utils.pick_random_element(possible_levels)
 			#print"picked_level %s\n"%picked_level
-                	[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
-                	if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
-						if not self.check_cross_talk(self.get_new_inductor_properties([picked_level, picked_x, picked_y],chip_position)):
-						#if not self.check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
-							utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
-							return [picked_level, picked_x, picked_y];
+			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
+			if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
+				if not self.check_cross_talk(self.get_new_inductor_properties([picked_level, picked_x, picked_y],chip_position)):
+				#if not self.check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
+					utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
+					return [picked_level, picked_x, picked_y];
 
-						"""
-						if picked_level-chip_position[0]>0:
-							for inductor in inductor_properties:
-								if inductor[0] == chip_position[0]-1:
-									#bottom_left_1, top_right_1, bottom_left_2, top_right_2
-									overlap_area = Layout.compute_two_rectangle_overlap_area([inductor[1],inductor[2]], [inductor[1]+inductor[3],inductor[2]+inductor[4]],[picked_x, picked_y],[picked_x+self.__chip.x_dimension, picked_y+self.__chip.y_dimension])
-									if overlap_area == 0.0:
-										return [picked_level, picked_x, picked_y];
-						else:
-							for inductor in inductor_properties:
-								if inductor[0] == chip_position[0]+1:
-									#bottom_left_1, top_right_1, bottom_left_2, top_right_2
-									overlap_area = Layout.compute_two_rectangle_overlap_area([inductor[1],inductor[2]], [inductor[1]+inductor[3],inductor[2]+inductor[4]],[picked_x, picked_y],[picked_x+self.__chip.x_dimension, picked_y+self.__chip.y_dimension])
-									if overlap_area == 0.0:
-										return [picked_level, picked_x, picked_y];
-							#inductior_properties[i][0]== chip_position-1
-						else:
-							#inductior_properties[i][0]== chip_position+1
-						"""
+				"""
+				if picked_level-chip_position[0]>0:
+					for inductor in inductor_properties:
+						if inductor[0] == chip_position[0]-1:
+							#bottom_left_1, top_right_1, bottom_left_2, top_right_2
+							overlap_area = Layout.compute_two_rectangle_overlap_area([inductor[1],inductor[2]], [inductor[1]+inductor[3],inductor[2]+inductor[4]],[picked_x, picked_y],[picked_x+self.__chip.x_dimension, picked_y+self.__chip.y_dimension])
+							if overlap_area == 0.0:
+								return [picked_level, picked_x, picked_y];
+				else:
+					for inductor in inductor_properties:
+						if inductor[0] == chip_position[0]+1:
+							#bottom_left_1, top_right_1, bottom_left_2, top_right_2
+							overlap_area = Layout.compute_two_rectangle_overlap_area([inductor[1],inductor[2]], [inductor[1]+inductor[3],inductor[2]+inductor[4]],[picked_x, picked_y],[picked_x+self.__chip.x_dimension, picked_y+self.__chip.y_dimension])
+							if overlap_area == 0.0:
+								return [picked_level, picked_x, picked_y];
+					#inductior_properties[i][0]== chip_position-1
+				else:
+					#inductior_properties[i][0]== chip_position+1
+				"""
 				#if not check_cross_talk():
 				#return [picked_level, picked_x, picked_y];
 		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
@@ -987,15 +977,15 @@ class LayoutBuilder(object):
 		inductor_properties = []
 		if(utils.argv.overlap is None):
 			utils.abort(" Need to specifiy Overlap")
-        	positions = []
+		positions = []
 		inductor_x_dim = inductor_y_dim  = utils.argv.chip.x_dimension - (utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap)))
-        	for level in xrange(1, num_chips+1):
-                	positions.append([level, 0.0, 0.0])
-			if level%2==0:
-				inductor_properties.append([level, 0, 0, inductor_x_dim, inductor_y_dim])
-			else:
-				inductor_properties.append([level, utils.argv.chip.x_dimension-inductor_x_dim, utils.argv.chip.y_dimension - inductor_y_dim, inductor_x_dim,inductor_y_dim])
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+		for level in xrange(1, num_chips+1):
+				positions.append([level, 0.0, 0.0])
+		if level%2==0:
+			inductor_properties.append([level, 0, 0, inductor_x_dim, inductor_y_dim])
+		else:
+			inductor_properties.append([level, utils.argv.chip.x_dimension-inductor_x_dim, utils.argv.chip.y_dimension - inductor_y_dim, inductor_x_dim,inductor_y_dim])
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a straight linear layout
 	"""
@@ -1026,8 +1016,8 @@ class LayoutBuilder(object):
 		#print "\t\tinductor level is ", min(current_level,positions[i][0])
 			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - utils.argv.overlap)),utils.argv.chip.y_dimension])
 		#inductor_level = 1
-    	#print 'inductor properites', inductor_properties
-    		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+		#print 'inductor properites', inductor_properties
+			return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	"""Function to compute a diagonal linear layout
 	"""
@@ -1036,34 +1026,34 @@ class LayoutBuilder(object):
 
 		if utils.argv.overlap>.25:
 			utils.info(0, 'WARNING overlap too big\nchips may collide on same level and crosstalk likely')
-        	positions = []
+		positions = []
 		inductor_properties = []
-        	current_level = 1
-        	level_direction = 1
+		current_level = 1
+		level_direction = 1
 		# HENRI DEBUG
-        	current_x_position = 0
-        	current_y_position = 0
-        	for i in xrange(0, num_chips):
-                	positions.append([current_level, current_x_position, current_y_position])
-                	current_level += level_direction
-                	if (current_level > utils.argv.num_levels):
-                        	current_level = utils.argv.num_levels - 1
-                        	level_direction = -1
-                	if (current_level < 1):
-                        	current_level = 2
-                        	level_direction = 1
-                	current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
-                	current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
-			inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
+		current_x_position = 0
+		current_y_position = 0
+		for i in xrange(0, num_chips):
+				positions.append([current_level, current_x_position, current_y_position])
+				current_level += level_direction
+				if (current_level > utils.argv.num_levels):
+						current_level = utils.argv.num_levels - 1
+						level_direction = -1
+				if (current_level < 1):
+						current_level = 2
+						level_direction = 1
+				current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
+				current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
+		inductor_properties.append([min(current_level,positions[i][0]), current_x_position, current_y_position, utils.argv.chip.x_dimension-(utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))), utils.argv.chip.y_dimension-(utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
 
-			#Layout.check_cross_talk()
-			#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
-			#layout.check_cross_talk()
-			#if Layout.check_cross_talk:
-				#print "WARNING: CROSSTALK\n"
+		#Layout.check_cross_talk()
+		#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+		#layout.check_cross_talk()
+		#if Layout.check_cross_talk:
+			#print "WARNING: CROSSTALK\n"
 
-    		return  Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
-        #	return layout
+		return  Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
+	#	return layout
 
 	"""Function to compute a cradle layout """
 	@staticmethod
@@ -1071,8 +1061,8 @@ class LayoutBuilder(object):
 		#utils.abort("inductor_properties need to be added when building")
 		#LL* possibly start build off of [0,0]
 
-	        positions = []
-	        inductor_properties = []
+		positions = []
+		inductor_properties = []
 
 		if (num_chips < 3):
 			utils.abort("Cannot compute cradle layout with fewer than 3 chips")
@@ -1098,7 +1088,7 @@ class LayoutBuilder(object):
 		current_orientation = 0
 		for i in xrange(0, num_chips / 3):
 			if current_orientation == 0:
-				positions.append([current_level    , (1 - overlap) * x_dim +  x_shift, (1 - overlap) * y_dim + y_shift])
+				positions.append([current_level	, (1 - overlap) * x_dim +  x_shift, (1 - overlap) * y_dim + y_shift])
 				positions.append([current_level + 1, 0 * x_dim +  x_shift, (1 - overlap) * y_dim + y_shift])
 				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim + y_shift])
 
@@ -1106,7 +1096,7 @@ class LayoutBuilder(object):
 				inductor_properties.append([current_level, 2*((1 - overlap) * x_dim) + x_shift, (1 - overlap) * y_dim + y_shift, x_dim*(overlap), y_dim])
 			else:
 				utils.abort("Inductors need to be added")
-				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level	, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
 
@@ -1134,7 +1124,7 @@ class LayoutBuilder(object):
 		print 'inductors are ', inductor_properties
 		print 'chips are ', positions
 		"""
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
 
 
 	"""Function to compute a diagonal cradle layout """
@@ -1166,14 +1156,14 @@ class LayoutBuilder(object):
 		current_orientation = 0
 		for i in xrange(0, num_chips / 3):
 			if current_orientation == 0:
-				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level	, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, 0 * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				inductor_properties.append([current_level,(1 - overlap) * x_dim,(1 - overlap) * y_dim, x_dim*(overlap),y_dim])
 				inductor_properties.append([current_level,2*((1 - overlap) * x_dim), (1 - overlap) * y_dim, x_dim*(overlap),y_dim])
 			else:
 				utils.abort("Inductors need to be added")
-				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level	, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
 
@@ -1201,8 +1191,8 @@ class LayoutBuilder(object):
 		#utils.abort("inductor_properties need to be added when building")
 		#LL* possibly start build off of [0,0]
 
-	        positions = []
-	        inductor_properties = []
+		positions = []
+		inductor_properties = []
 
 		if (num_chips < 3):
 			utils.abort("Cannot compute bridge layout with fewer than 3 chips")
@@ -1258,7 +1248,7 @@ class LayoutBuilder(object):
 		#layout.draw_in_3D(None, True)
 		#print "---> POSITIONS=", positions
 
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,inductor_properties)
 
 	"""Function to compute a generalized checkerboard layout (overlap > 0.25) """
 	@staticmethod
@@ -1266,7 +1256,7 @@ class LayoutBuilder(object):
 		utils.abort("inductor_properties need to be added when building")
 
 
-	        positions = []
+		positions = []
 
 		if (num_chips < 3):
 			utils.abort("Cannot compute a generalized checkerboard layout with fewer than 3 chips")
@@ -1290,11 +1280,11 @@ class LayoutBuilder(object):
 		current_orientation = 0
 		for i in xrange(0, num_chips / 3):
 			if current_orientation == 0:
-				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level	, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, 0 * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 			else:
-				positions.append([current_level    , (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+				positions.append([current_level	, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 0])
 				positions.append([current_level + 1, (1 -overlap) * x_dim, 2 * (1 - overlap) * y_dim])
 
@@ -1318,12 +1308,12 @@ class LayoutBuilder(object):
 		#layout.draw_in_3D(None, True)
 		#print "---> POSITIONS=", positions
 
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
 
 	@staticmethod
 	def plot_custom_layout(positions):
-	        layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 		layout.draw_in_3D(None, True)
 
 	"""Function to compute a checkerboard layout"""
@@ -1331,8 +1321,8 @@ class LayoutBuilder(object):
 	def compute_checkerboard_layout(num_chips):
 		utils.abort("inductor_properties need to be added when building")
 
-	        if (utils.argv.overlap > 0.5):
-	                utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
+		if (utils.argv.overlap > 0.5):
+				utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 
 		if (utils.argv.overlap > 0.25):
 			utils.info(2, "Computing a generalized checkerboard with more than 1/4-th overlap")
@@ -1343,205 +1333,205 @@ class LayoutBuilder(object):
 			return LayoutBuilder.compute_generalized_checkerboard_layout(num_chips)
 
 
-	        positions = []
-	        alpha = sqrt(utils.argv.overlap)
-	        x_overlap = alpha * utils.argv.chip.x_dimension
-	        y_overlap = alpha * utils.argv.chip.y_dimension
+		positions = []
+		alpha = sqrt(utils.argv.overlap)
+		x_overlap = alpha * utils.argv.chip.x_dimension
+		y_overlap = alpha * utils.argv.chip.y_dimension
 
 		x_offset = utils.argv.chip.x_dimension - x_overlap
 		y_offset = utils.argv.chip.y_dimension - y_overlap
 
 		if ((num_chips == 5) and (utils.argv.num_levels == 2)):
-                    # Create level 1
-                    positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 1
+			positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
 
-                    # Create level 2
-	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
+			# Create level 2
+			positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
 
 		elif ((num_chips == 9) and (utils.argv.num_levels == 2)):
-		    # Create level 1
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 1
+			positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
-	            # Create level 2
-		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
-		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
+				# Create level 2
+			positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
+			positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 
 		elif ((num_chips == 9) and (utils.argv.num_levels == 3)):
 
-                    # Create level 1
-                    positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 1
+			positions.append([1, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, y_offset + 2 * y_offset])
 
-                    # Create level 2
-	     	    positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
+			# Create level 2
+			positions.append([2, x_offset + 0 * x_offset , 2 * y_offset])
 
-	            # Create level 3
-                    positions.append([3, 0 + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([3, 0 + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([3, 0 + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 3
+			positions.append([3, 0 + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([3, 0 + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([3, 0 + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([3, 0 + 2 * x_offset, y_offset + 2 * y_offset])
 
 		elif ((num_chips == 13) and (utils.argv.num_levels == 2)):
-		    # Create level 2
-                    positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 2
+			positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
-	            # Create level 2
-		    positions.append([1, 0 + 0 * x_offset, 0 * y_offset])
-		    positions.append([1, 0 + 0 * x_offset, 2 * y_offset])
-		    positions.append([1, 0 + 0 * x_offset, 4 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 0 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 2 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 4 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 0 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 2 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 4 * y_offset])
+			# Create level 2
+			positions.append([1, 0 + 0 * x_offset, 0 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, 2 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, 4 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 2 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 4 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 2 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 4 * y_offset])
 
 		elif ((num_chips == 13) and (utils.argv.num_levels == 3)):
 
-		    # Create level 1
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 1
+			positions.append([1, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([1, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([1, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
-	            # Create level 2
-		    positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
-		    positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
-		    positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
+			# Create level 2
+			positions.append([2, 0 + 0 * x_offset, 2 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 0 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 2 * y_offset])
+			positions.append([2, 0 + 2 * x_offset, 4 * y_offset])
+			positions.append([2, 0 + 4 * x_offset, 2 * y_offset])
 
-		    # Create level 3
-                    positions.append([3, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([3, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-                    positions.append([3, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-                    positions.append([3, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+			# Create level 3
+			positions.append([3, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([3, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([3, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([3, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
 
 		elif ((num_chips == 21) and (utils.argv.num_levels == 2)):
-		    # Create level 1
-                    positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
-                    positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
+			# Create level 1
+			positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
 
-                    positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
-                    positions.append([1, 0 + 2 * x_offset, 0 + 6 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 6 * y_offset])
 
-                    positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
-                    positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
-                    positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
-                    positions.append([1, 0 + 4 * x_offset, 0 + 6 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 6 * y_offset])
 
-                    positions.append([1, 0 + 6 * x_offset, 0 + 2 * y_offset])
-                    positions.append([1, 0 + 6 * x_offset, 0 + 4 * y_offset])
+			positions.append([1, 0 + 6 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 6 * x_offset, 0 + 4 * y_offset])
 
-	            # Create level 2
-		    positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
-		    positions.append([2, x_offset + 0 * x_offset, y_offset + 4 * y_offset])
-		    positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
-		    positions.append([2, x_offset + 2 * x_offset, y_offset + 4 * y_offset])
-		    positions.append([2, x_offset + 4 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([2, x_offset + 4 * x_offset, y_offset + 2 * y_offset])
-		    positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
+				# Create level 2
+			positions.append([2, x_offset + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([2, x_offset + 0 * x_offset, y_offset + 4 * y_offset])
+			positions.append([2, x_offset + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset + 2 * x_offset, y_offset + 2 * y_offset])
+			positions.append([2, x_offset + 2 * x_offset, y_offset + 4 * y_offset])
+			positions.append([2, x_offset + 4 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset + 4 * x_offset, y_offset + 2 * y_offset])
+			positions.append([2, x_offset + 4 * x_offset, y_offset + 4 * y_offset])
 
 		elif ((num_chips == 21) and (utils.argv.num_levels == 3)):
 
-	            # Create level 1
-		    positions.append([1, 0 + 0 * x_offset, 0 + 0 * y_offset])
-		    positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
-		    positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
-		    positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
-		    positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
+				# Create level 1
+			positions.append([1, 0 + 0 * x_offset, 0 + 0 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 0 * x_offset, 0 + 4 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 0 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 2 * x_offset, 0 + 4 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 0 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 2 * y_offset])
+			positions.append([1, 0 + 4 * x_offset, 0 + 4 * y_offset])
 
-                    # Create level 2
-		    positions.append([2, x_offset  + 0 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([2, x_offset  + 2 * x_offset, y_offset + 0 * y_offset])
-		    positions.append([2, x_offset  + 0 * x_offset, y_offset + 2 * y_offset])
-		    positions.append([2, x_offset  + 2 * x_offset, y_offset + 2 * y_offset])
+					# Create level 2
+			positions.append([2, x_offset  + 0 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset  + 2 * x_offset, y_offset + 0 * y_offset])
+			positions.append([2, x_offset  + 0 * x_offset, y_offset + 2 * y_offset])
+			positions.append([2, x_offset  + 2 * x_offset, y_offset + 2 * y_offset])
 
-	            # Create level 3
-		    positions.append([3, 0 + 0 * x_offset, 0 + 0 * y_offset])
-		    positions.append([3, 0 + 0 * x_offset, 0 + 2 * y_offset])
-		    positions.append([3, 0 + 0 * x_offset, 0 + 4 * y_offset])
-		    positions.append([3, 0 + 2 * x_offset, 0 + 0 * y_offset])
-		    #positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
-		    positions.append([3, 0 + 2 * x_offset, 0 + 4 * y_offset])
-		    positions.append([3, 0 + 4 * x_offset, 0 + 0 * y_offset])
-		    positions.append([3, 0 + 4 * x_offset, 0 + 2 * y_offset])
-		    positions.append([3, 0 + 4 * x_offset, 0 + 4 * y_offset])
+				# Create level 3
+			positions.append([3, 0 + 0 * x_offset, 0 + 0 * y_offset])
+			positions.append([3, 0 + 0 * x_offset, 0 + 2 * y_offset])
+			positions.append([3, 0 + 0 * x_offset, 0 + 4 * y_offset])
+			positions.append([3, 0 + 2 * x_offset, 0 + 0 * y_offset])
+			#positions.append([3, 0 + 2 * x_offset, 0 + 2 * y_offset])
+			positions.append([3, 0 + 2 * x_offset, 0 + 4 * y_offset])
+			positions.append([3, 0 + 4 * x_offset, 0 + 0 * y_offset])
+			positions.append([3, 0 + 4 * x_offset, 0 + 2 * y_offset])
+			positions.append([3, 0 + 4 * x_offset, 0 + 4 * y_offset])
 
 
 		elif (utils.argv.num_levels == 2):
 
-	            # Rather than do annoying discrete math to compute the layout in an
-	            # incremental fashion, we compute a large layout and then remove
-	            # non-needed chips
+			# Rather than do annoying discrete math to compute the layout in an
+			# incremental fashion, we compute a large layout and then remove
+			# non-needed chips
 
-	            # Compute x and y overlap assuming an overlap area with the same aspect
-	            # ratio as the chip
-	            # x_overlap * y_overlap =  overlap *  dim_x * dim_y
-	            # x_overlap = alpha * dim_x
-	            # y_overlap = alpha * dim_y
-	                #
-	            #  ====> alpha^2  = overlap
-	            # Create level 1
-	            for x in xrange(0,num_chips):
-	                for y in xrange(0,num_chips):
-	                    positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
+			# Compute x and y overlap assuming an overlap area with the same aspect
+			# ratio as the chip
+			# x_overlap * y_overlap =  overlap *  dim_x * dim_y
+			# x_overlap = alpha * dim_x
+			# y_overlap = alpha * dim_y
+				#
+			#  ====> alpha^2  = overlap
+			# Create level 1
+			for x in xrange(0,num_chips):
+				for y in xrange(0,num_chips):
+					positions.append([1, x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
 
-	            # Create level 2
-	            for x in xrange(0,num_chips):
-	                for y in xrange(0,num_chips):
-	                    positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
+			# Create level 2
+			for x in xrange(0,num_chips):
+				for y in xrange(0,num_chips):
+					positions.append([2, utils.argv.chip.x_dimension - x_overlap + x * (2 * utils.argv.chip.x_dimension - 2 * x_overlap), utils.argv.chip.y_dimension - y_overlap + y * (2 * utils.argv.chip.y_dimension - 2 * y_overlap)])
 
-	            while(len(positions) > num_chips):
-	                max_x = max([x for [l,x,y] in positions])
-	                max_y = max([y for [l,x,y] in positions])
-	                if (max_x > max_y):
-	                    # remove chip with x = max_x and largest y
-	                    victim_x = max_x
-	                    candidate_y = []
-	                    for position in positions:
-	                        if (position[1] == victim_x):
-	                            candidate_y.append(position[2])
-	                    victim_y = max(candidate_y)
-	                elif (max_y >= max_x):
-	                    # remove a chip with y = max_y and largest x
-	                    victim_y = max_y
-	                    candidate_x = []
-	                    for position in positions:
-	                        if (position[2] == victim_y):
-	                            candidate_x.append(position[1])
-	                    victim_x = max(candidate_x)
+			while(len(positions) > num_chips):
+				max_x = max([x for [l,x,y] in positions])
+				max_y = max([y for [l,x,y] in positions])
+				if (max_x > max_y):
+					# remove chip with x = max_x and largest y
+					victim_x = max_x
+					candidate_y = []
+					for position in positions:
+						if (position[1] == victim_x):
+							candidate_y.append(position[2])
+					victim_y = max(candidate_y)
+				elif (max_y >= max_x):
+					# remove a chip with y = max_y and largest x
+					victim_y = max_y
+					candidate_x = []
+					for position in positions:
+						if (position[2] == victim_y):
+							candidate_x.append(position[1])
+					victim_x = max(candidate_x)
 
-	                for position in positions:
-	                    if (position[1] == victim_x) and (position[2] == victim_y):
-	                        victim_l = position[0]
-	                        break
+				for position in positions:
+					if (position[1] == victim_x) and (position[2] == victim_y):
+						victim_l = position[0]
+						break
 
-	                positions.remove([victim_l, victim_x, victim_y])
+				positions.remove([victim_l, victim_x, victim_y])
 
 		else:
-	                utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(num_chips) + " chips")
+					utils.abort("Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(num_chips) + " chips")
 
-	        return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)

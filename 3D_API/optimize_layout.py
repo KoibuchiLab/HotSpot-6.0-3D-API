@@ -286,13 +286,13 @@ if __name__ == '__main__':
 		utils.abort("The number of chips (--numchips, -n) should be >0")
 
 	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard") or (argv.layout_scheme == "cradle") or (argv.layout_scheme == "bridge"):
-	    argv.diameter = argv.num_chips
+		argv.diameter = argv.num_chips
 
 	if (argv.diameter < 1):
 		utils.abort("The diameter (--diameter, -d) should be >0")
 
 	if (argv.diameter > argv.num_chips):
-	    utils.abort("The diameter (--diameter, -d) should <= the number of chips")
+		utils.abort("The diameter (--diameter, -d) should <= the number of chips")
 
 	if (argv.num_levels < 2):
 		utils.abort("The number of levels (--numlevels, -d) should be >1")
