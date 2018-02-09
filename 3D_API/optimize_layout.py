@@ -177,7 +177,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store',
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","cradle","bridge"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',
@@ -211,10 +211,11 @@ VISUAL PROGRESS OUTPUT:
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
 
-	parser.add_argument('--constrained_overlap_geometry', '-C', action='store_true',
+	parser.add_argument('--constrained_overlap_geometry', '-C', #action='store_true',  #LL* fix, change to accept strings
                             required=False,
                             dest='constrained_overlap_geometry',
-                            help='Force chip overlap area to be a string or a rectangle with same aspect ratio as the chip')
+							metavar='<overlap shape>',
+                            help='Force chip overlap area to be a strip, a rectangle with same aspect ratio as the chip, either strip or square, or any geometry')
 
 	parser.add_argument('--power_budget', '-p', action='store',
 		            type=float, required=False,
@@ -284,7 +285,7 @@ if __name__ == '__main__':
 	if (argv.num_chips < 1):
 		utils.abort("The number of chips (--numchips, -n) should be >0")
 
-	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard"):
+	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard") or (argv.layout_scheme == "cradle") or (argv.layout_scheme == "bridge"):
 	    argv.diameter = argv.num_chips
 
 	if (argv.diameter < 1):
