@@ -170,7 +170,7 @@ def evaluate_candidate(args):
 	[layout, candidate] = args
 	utils.info(1, "  - Evaluating candidate " + str(candidate))
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(),
-	                      layout.get_inductor_properties())
+						  layout.get_inductor_properties())
 	dummy_layout.add_new_chip(candidate)
 	if (dummy_layout.get_diameter() > utils.argv.diameter):
 		utils.abort("Layout diameter is too big (this should never happen here!)")
@@ -221,8 +221,7 @@ def pick_candidates(layout, results, candidate_random_trials):
 			power = sum(power_distribution)
 			ASPL = layout.get_ASPL()
 			num_edges = layout.get_num_edges()
-			utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(
-				ASPL) + " edges=" + str(num_edges))
+			utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(ASPL) + " edges=" + str(num_edges))
 
 			new_pick = False
 			if (picked_candidate == None):
@@ -240,8 +239,7 @@ def pick_candidates(layout, results, candidate_random_trials):
 					elif (num_edges == picked_candidate_num_edges) and (ASPL < picked_candidate_ASPL):
 						utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
 						new_pick = True
-					elif (num_edges == picked_candidate_num_edges) and (ASPL == picked_candidate_ASPL) and (
-							temperature < picked_candidate_temperature):
+					elif (num_edges == picked_candidate_num_edges) and (ASPL == picked_candidate_ASPL) and (temperature < picked_candidate_temperature):
 						utils.info(2, "    ** PICKED DUE TO BETTER TEMPERATURE **")
 						new_pick = True
 
@@ -254,7 +252,6 @@ def pick_candidates(layout, results, candidate_random_trials):
 				index_of_result = index
 
 	return [picked_candidate, index_of_result]
-
 
 """Random greedy layout optimization"""
 
@@ -285,7 +282,7 @@ def optimize_layout_random_greedy():
 			1 + layout.get_num_chips()) + " in the layout")
 
 		candidate_random_trials = generate_candidates(layout, [], num_neighbor_candidates,
-		                                              max_num_neighbor_candidate_attempts)
+													  max_num_neighbor_candidate_attempts)
 
 		###############################################
 		### Evaluate all Candidates
@@ -314,7 +311,7 @@ def optimize_layout_random_greedy():
 
 		utils.info(1, "Picked candidate: " + str(picked_candidate))
 		layout.add_new_chip(picked_candidate)
-		print "---> ", layout.get_num_chips(), utils.argv.num_chips
+		#print "---> ", layout.get_num_chips(), utils.argv.num_chips
 
 	# Do the final evaluation (which was already be done, but whatever)
 	# result = find_maximum_power_budget(layout)
@@ -369,7 +366,7 @@ def optimize_layout_random_greedy_mpi():
 
 			candidate_random_trials = []
 			candidate_random_trials = generate_candidates(layout, candidate_random_trials, num_neighbor_candidates,
-			                                              max_num_neighbor_candidate_attempts)
+														  max_num_neighbor_candidate_attempts)
 
 			###############################################
 			### Evaluate all Candidates

@@ -206,10 +206,10 @@ VISUAL PROGRESS OUTPUT:
                             dest='power_benchmark', metavar='<power benchmark>',
                             help='benchmark used to determine available chip power levels (default: overall_max)')
 
-	parser.add_argument('--overlap', '-O', action='store',
-		            type=float, required=True,
+	parser.add_argument('--overlap', '-O', action='store', default = 1.0 / 9.0,
+		            type=float, required=False, #might need to make this reqired = True
                             dest='overlap', metavar='<chip area overlap>',
-                            help='the fraction of chip area overlap fraction')
+                            help='the fraction of chip area overlap fraction (default = 1/9)')
 
 	parser.add_argument('--constrained_overlap_geometry', '-C', #action='store_true',  #LL* fix, change to accept strings
                             required=False,
@@ -286,13 +286,13 @@ if __name__ == '__main__':
 		utils.abort("The number of chips (--numchips, -n) should be >0")
 
 	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard") or (argv.layout_scheme == "cradle") or (argv.layout_scheme == "bridge"):
-	    argv.diameter = argv.num_chips
+		argv.diameter = argv.num_chips
 
 	if (argv.diameter < 1):
 		utils.abort("The diameter (--diameter, -d) should be >0")
 
 	if (argv.diameter > argv.num_chips):
-	    utils.abort("The diameter (--diameter, -d) should <= the number of chips")
+		utils.abort("The diameter (--diameter, -d) should <= the number of chips")
 
 	if (argv.num_levels < 2):
 		utils.abort("The number of levels (--numlevels, -d) should be >1")
