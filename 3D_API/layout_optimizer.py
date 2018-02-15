@@ -275,7 +275,6 @@ def pick_candidates(layout, results, candidate_random_trials):
 				picked_candidate_num_edges = num_edges
 				index_of_result = index
 
-
 	return [picked_candidate, index_of_result]
 
 """Random greedy layout optimization"""
