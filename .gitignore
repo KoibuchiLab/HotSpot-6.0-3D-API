@@ -1,3 +1,8 @@
+#Executibles
+hotfloorplan
+hotspot
+libhotspot.a
+
 # Prerequisites
 *.d
 

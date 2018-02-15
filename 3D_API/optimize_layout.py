@@ -1,32 +1,20 @@
 #!/usr/bin/python
 
-#import math
-#import random
 import os
 import sys
-#import itertools
-#
-#
 import argparse
 from argparse import RawTextHelpFormatter
-
-import utils
-from layout import *
-
-
-#
-#from math import sqrt
-#
-#import numpy as np
-#
-#from scipy.optimize import basinhopping
-#from scipy.optimize import fmin_slsqp
-#
-from layout import Chip
+from chip import Chip
 from layout_optimizer import LayoutOptimizer
 from layout_optimizer import optimize_layout
-#from layout import Layout
-#
+import utils
+from layout import *
+from math import sqrt
+import numpy as np
+from scipy.optimize import basinhopping
+from scipy.optimize import fmin_slsqp
+from layout import Layout
+
 
 
 

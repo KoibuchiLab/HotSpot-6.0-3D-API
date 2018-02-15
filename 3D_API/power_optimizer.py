@@ -17,7 +17,7 @@ import numpy as np
 #from scipy.optimize import basinhopping
 #from scipy.optimize import fmin_slsqp
 
-from layout import Chip
+from chip import Chip
 from layout import Layout
 
 import utils
