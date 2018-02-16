@@ -39,7 +39,7 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-		# self.draw_in_3D(None, True)
+		#self.draw_in_3D(None, True) # for debugging
 		self.generate_topology_graph()
 
 	""" Generate a Networkx graph based on chip positions
@@ -256,7 +256,6 @@ class Layout(object):
 
 		# adds inductors
 		if self.connect_new_chip(new_chip_position):
-			# print 'ADDing chip'
 			# Add the new chip
 			self.__chip_positions.append(new_chip_position)
 
@@ -283,9 +282,9 @@ class Layout(object):
 	#@jit
 	def connect_new_chip(self, new_chip_position):
 		original_inductor_count = len(self.__inductor_properties)
+		num_inductor = 0
 		for position in self.__chip_positions:
 			new_inductor_property = []
-			num_inductor = 0
 			if not self.are_neighbors(position, new_chip_position):
 				continue
 			new_inductor_property = self.get_new_inductor_properties(position, new_chip_position)
@@ -297,8 +296,8 @@ class Layout(object):
 			utils.info(3, "Connecting chip by adding inductor")
 			num_inductor +=1
 			if num_inductor>1:
-				utils.info(0,"BRIDGE!!!")
-				self.draw_in_3D(None, True)
+				utils.info(0,"\nBRIDGE!!!\n")
+				#self.draw_in_3D(None, True)
 		if original_inductor_count < len(self.__inductor_properties):
 			return True
 		utils.info(2, "Could not connect new chip")
@@ -987,11 +986,7 @@ class LayoutBuilder(object):
 				level_direction = 1
 			current_x_position += utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))
 			current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
-			inductor_properties.append([min(current_level, positions[i][0]), current_x_position, current_y_position,
-										utils.argv.chip.x_dimension - (
-												utils.argv.chip.x_dimension * (1 - sqrt(utils.argv.overlap))),
-										utils.argv.chip.y_dimension - (
-												utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap)))])
+			inductor_properties.append([min(current_level, positions[i][0]), current_x_position, current_y_position, (utils.argv.chip.x_dimension * sqrt(utils.argv.overlap)), (utils.argv.chip.y_dimension * sqrt(utils.argv.overlap))])
 
 		# Layout.check_cross_talk()
 		# layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
@@ -1007,8 +1002,12 @@ class LayoutBuilder(object):
 
 	@staticmethod
 	def compute_craddle_layout(num_chips):
-		# utils.abort("inductor_properties need to be added when building")
 		# LL* possibly start build off of [0,0]
+		###################################
+		### TODO
+		###	- correct collision when diagonal craddle overlap >.25
+		### - check on -C options, both???
+		###################################
 
 		positions = []
 		inductor_properties = []
@@ -1021,8 +1020,12 @@ class LayoutBuilder(object):
 
 		if x_dim != y_dim:
 			utils.abort("Cannot compute a craddle layout non-square chips (to be implemented)")
+		#print 'shape ',utils.argv.constrained_overlap_geometry
 
 		overlap = utils.argv.overlap
+		overlap_shape = utils.argv.constrained_overlap_geometry
+		if overlap_shape is None:
+			overlap_shape = 'any'
 
 		"""apply shift"""
 		shift = 5
@@ -1032,47 +1035,62 @@ class LayoutBuilder(object):
 		# Add the base structures on top of each other
 		current_level = 1
 		current_orientation = 0
-		for i in xrange(num_chips / 3):
-			if current_orientation == 0:
-				positions.append([current_level, (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim + y_shift])
-				positions.append([current_level + 1, 0 * x_dim + x_shift, (1 - overlap) * y_dim + y_shift])
-				positions.append(
-					[current_level + 1, 2 * (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim + y_shift])
+		if 'strip' in overlap_shape or 'any' in  overlap_shape:
+			chip1_level = chip3_level = current_level+1
+			chip2_level = current_level
 
-				inductor_properties.append(
-					[current_level, (1 - overlap) * x_dim + x_shift, (1 - overlap) * y_dim + y_shift, x_dim * (overlap),
-					 y_dim])
-				inductor_properties.append(
-					[current_level, 2 * ((1 - overlap) * x_dim) + x_shift, (1 - overlap) * y_dim + y_shift,
-					 x_dim * (overlap), y_dim])
-			else:
-				utils.abort("Inductors need to be added")
-				positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
-				positions.append([current_level + 1, (1 - overlap) * x_dim, 0])
-				positions.append([current_level + 1, (1 - overlap) * x_dim, 2 * (1 - overlap) * y_dim])
+			chip1_x = 0 * x_dim
+			chip1_y = chip2_y = chip3_y = (1 - overlap) * y_dim
 
-			current_level += 2
-			current_orientation = 1 - current_orientation
+			chip2_x = chip1_x + (1 - overlap) * x_dim
 
-		# # Is there an extra chip?
+			chip3_x = chip2_x + (1 - overlap) * x_dim
+
+			inductor1_level = inductor2_level = current_level
+			inductor1_x = chip2_x
+			inductor1_y = chip2_y
+			inductor1_xdim = inductor2_xdim = x_dim * (overlap)
+			inductor1_ydim = inductor2_ydim = y_dim
+
+			inductor2_x = chip3_x
+			inductor2_y = chip3_y
+		elif 'square' in overlap_shape:
+			if overlap > .25:
+				utils.abort("\nCan't build craddle with overlap greater than .25 and square overlap\nCollisions occur\nChange overlap or shape contraiant")
+			chip1_level = chip3_level = current_level+1
+			chip2_level = current_level
+
+			chip1_x = 0 * x_dim
+			chip1_y = (1 - overlap) * y_dim
+
+			chip2_x = chip1_x + x_dim*(1-sqrt(overlap))
+			chip2_y = chip1_y + y_dim*(1-sqrt(overlap))
+
+			chip3_x = chip2_x + x_dim*(1-sqrt(overlap))
+			chip3_y = chip2_y + y_dim*(1-sqrt(overlap))
+
+			inductor1_level = inductor2_level = current_level
+
+			inductor1_x = chip2_x
+			inductor1_y = chip2_y
+
+			inductor2_x = chip3_x
+			inductor2_y = chip3_y
+
+			inductor1_xdim = inductor2_xdim = x_dim * sqrt(overlap)
+			inductor1_ydim = inductor2_ydim = y_dim * sqrt(overlap)
+		else:
+			utils.abort("Invalid shape  constraint")  # dont know if this check is needed
+
+		positions.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift])
+		positions.append([chip2_level, chip2_x + x_shift, chip2_y + y_shift])
+		positions.append([chip3_level, chip3_x + x_shift, chip3_y + y_shift])
+		inductor_properties.append([inductor1_level, inductor1_x + x_shift, inductor1_y + y_shift, inductor1_xdim, inductor1_ydim])
+		inductor_properties.append([inductor2_level, inductor2_x + x_shift, inductor2_y + y_shift, inductor2_xdim, inductor2_ydim])
+
+						# # Is there an extra chip?
 		# if (num_chips % 3 == 1):
 		#     positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
-
-		"""
-		# Apply some shift for breathing room
-		x_shift = x_dim * 3
-		y_shift = y_dim * 3
-		new_positions = []
-		new_inductor_property = []
-		for [l, x, y] in positions:
-			new_positions.append([l, x+ x_shift, y + y_shift])
-		positions = new_positions
-		for inductor in inductor_properties:
-			new_inductor_property.append([inductor[0],inductor[1]+x_shift,inductor[2]+y_shift,inductor[3],inductor[4]])
-		inductor_properties = new_inductor_property
-		print 'inductors are ', inductor_properties
-		print 'chips are ', positions
-		"""
 		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
 
 	"""Function to compute a diagonal craddle layout """
@@ -1080,8 +1098,6 @@ class LayoutBuilder(object):
 	@staticmethod
 	def compute_diagonal_craddle_layout(num_chips):
 		utils.abort("diagonal craddle not implemented yet")
-		# utils.abort("inductor_properties need to be added when building")
-		# LL* possibly start build off of [0,0]
 
 		positions = []
 		inductor_properties = []
@@ -1091,6 +1107,8 @@ class LayoutBuilder(object):
 
 		if ((num_chips % 3 != 0) and (num_chips % 3 != 1)):
 			utils.abort("Cannot compute a craddle layout with a number of chips that's not of the form 3*k or 3*k+1")
+
+		print 'shape ',utils.argv.constrained_overlap_geometry
 
 		x_dim = utils.argv.chip.x_dimension
 		y_dim = utils.argv.chip.y_dimension

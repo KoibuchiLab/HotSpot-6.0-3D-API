@@ -316,12 +316,6 @@ def optimize_layout_random_greedy():
 			num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
 			utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
 		candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
-		###############################################
-		### Evaluate all Candidates
-		### TODO: PARALLELIZE
-		###		- Transform to a map operation
-		###		- Use the multithreading package
-		###############################################
 		list_of_args = []
 		for index in xrange(0, len(candidate_random_trials)):
 			list_of_args.append([layout, candidate_random_trials[index]])
@@ -403,6 +397,11 @@ def optimize_layout_random_greedy_mpi():
 
 			###############################################
 			### Evaluate all Candidates
+			###############################################
+			###############################################
+			### TODO
+			### - implement add in multiples
+			### - look into merging this function with sequential version
 			###############################################
 
 			worker_list = [False] * (size - 1)
