@@ -1,51 +1,73 @@
 #!/usr/bin/python
+import itertools
 import os
 import sys
-import operator
-import itertools
-import multiprocessing
+import subprocess
 
-import input_file
-import nulldata_file
-import floorplan
-import floor
-import ptrace
-import lcf
 import config
+import floor
+import input_file
+import lcf
+import nulldata_file
+import ptrace
 
 output_grid_size = 128
 args = sys.argv
 
 def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
-	os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
+	#os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
+	proc = subprocess.Popen("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
+	stdout, stderr = proc.communicate()
+	if proc.returncode != 0:
+		print '\nError Compiling Cell.c\nRemoving temp files containing pid = ',pid,'\nCheck that cell was compiled'
+		subprocess.Popen("rm -f *"+str(pid)+"*", shell=True)
+		print '********EXITING HOTSPOT.py********'
+		sys.exit(1)
 
 def call_cell(sorted_file, pid):
 	#os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
 	#print "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
-	try:
-		os.system("./cell"+str(pid)+" "+sorted_file+" "+str(pid)) #PID needs to get passed to cell to avoid competition for executibles
-	except RuntimeError:
-		print '\nCell.c error\ Removing temp files containing pid = ',pid,'\nCheck that cell was compiled'
-		results_file.close()
-		os.system("rm -f *"+str(pid)+"*")
+	command = "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
+	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	proc.communicate()
+	if proc.returncode != 0:
+		print '\nCell.c error\nRemoving temp files containing pid = ',pid,'\nCheck that cell was compiled'
+		subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 		print '********EXITING HOTSPOT.py********'
 		sys.exit(1)
+	"""
 
+try:
+subprocess.call("./cell"+str(pid)+" "+sorted_file+" "+str(pid), shell=True) #PID needs to get passed to cell to avoid competition for executibles
+#os.system("./cell"+str(pid)+" "+sorted_file+" "+str(pid)) #PID needs to get passed to cell to avoid competition for executibles
+except OSError:
+print '\nCell.c error\ Removing temp files containing pid = ',pid,'\nCheck that cell was compiled'
+results_file.close()
+os.system("rm -f *"+str(pid)+"*")
+print '********EXITING HOTSPOT.py********'
+sys.exit(1)
+"""
 def call_hotspot(material, pid):
-	try:
-		if material == "water_pillow": ##when using water pillow, ignoring the second path.
-			os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
-		else:
-			os.system("../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf")
-	except IOError:
-		print '\nHotspot.c error\ Removing temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
-		results_file.close()
-		os.system("rm -f *"+str(pid)+"*")
-		print '********EXITING HOTSPOT.py********'
-		sys.exit(1)
 
-
+	if material == "water_pillow": ##when using water pillow, ignoring the second path.
+		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
+		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		proc.communicate()
+		if proc.returncode != 0:
+			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
+			subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+			print '********EXITING HOTSPOT.py********'
+			sys.exit(1)
+	else:
+		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
+		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		proc.communicate()
+		if proc.returncode != 0:
+			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
+			subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+			print '********EXITING HOTSPOT.py********'
+			sys.exit(1)
 
 if ((len(args) != 3) and (len(args) != 4) and (len(args) != 5)):
 	sys.stderr.write('Usage: ' + args[0] + ' <input file (.data)> <air|water|oil|fluori|novec> [--no_images][--detailed]\" \n')
@@ -168,9 +190,9 @@ try:
 				layer_grid_steady.close()
 			tmp_grid_steady.close()
 		if (not no_images):
-			os.system("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg")
-			os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf")
-			os.system("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png")
+			subprocess.call("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png", shell=True)
 
 	results_file.close()
 	if(detailed):
@@ -191,9 +213,12 @@ try:
 except IOError:
 	print '\nKeyboardInterrupt, Removing temp files containing pid = ',pid
 	results_file.close()
-	os.system("rm -f *"+str(pid)+"*")
+	subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+	#os.system("rm -f *"+str(pid)+"*")
 	print '********EXITING HOTSPOT.py********'
 	sys.exit(1)
 
 #clean up
-os.system("rm -f *"+str(pid)+"*")
+#os.system("rm -f *"+str(pid)+"*")
+subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+

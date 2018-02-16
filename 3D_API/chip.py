@@ -16,7 +16,7 @@ FLOATING_POINT_EPSILON = 0.000001
 
 
 class Chip(object):
-	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172], 'phi7250': [0.0315, 0.0205], 'base2': [0.013, 0.013],                           'base3': [0.013, 0.013]}
+	chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172], 'phi7250': [0.0315, 0.0205], 'base2': [0.013, 0.013], 'base3': [0.013, 0.013]}
 	# chip_dimensions_db = {'e5-2667v4': [0.012634, 0.014172], 'phi7250': [0.0315, 0.0205], 'base2': [10, 10],'base3': [0.013, 0.013]}
 
 	""" Constructor:

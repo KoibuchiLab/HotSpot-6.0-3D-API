@@ -153,7 +153,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--chip', '-c', action='store',
                             dest='chip_name', metavar='<chip name>',
-                            required=True, help='options: "e5-2667v4", "phi7250", "base2"')
+                            required=True, help='options: "e5-2667v4", "phi7250", "base2","base3"')
 
 	parser.add_argument('--numchips', '-n', action='store', type=int,
                             dest='num_chips', metavar='<# of chips>',
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 
 	utils.argv = argv
 
-	if  not (argv.chip_name in ["e5-2667v4", "phi7250", "base2"]):
+	if  not (argv.chip_name in ["e5-2667v4", "phi7250", "base2","base3"]):
 		utils.abort("Chip '" + argv.chip_name + "' not supported")
 	else:
 		argv.chip = Chip(argv.chip_name,  argv.power_benchmark)

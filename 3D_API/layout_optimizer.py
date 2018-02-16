@@ -163,12 +163,13 @@ def evaluate_candidate(args):
 	[layout, candidate] = args
 	utils.info(1, "  - Evaluating candidate " + str(candidate))
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
-	for chip in candidate[0]:
+	#print 'in evaluate candidate candidates are \n', candidate
+	for chip in candidate:
 		dummy_layout.add_new_chip(chip)
 	if (dummy_layout.get_diameter() > utils.argv.diameter):
 		utils.abort("Layout diameter is too big (this should never happen here!)")
 
-	return find_maximum_power_budget(dummy_layout)
+	return [dummy_layout, find_maximum_power_budget(dummy_layout)]
 
 
 """ Function that returns a list of chip candidates"""
@@ -223,12 +224,14 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 		#[picked_level, picked_x, picked_y] = result
 		candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
 		utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
-		candidate_random_trials.append([candidate_list])
+		candidate_random_trials.append(candidate_list)
 
 	return candidate_random_trials
 
 #@jit
 def pick_candidates(layout, results, candidate_random_trials):
+	#print 'results is ', results
+	#print 'candidate random trials is ', candidate_random_trials
 	picked_candidate_temperature = -1
 	picked_candidate_power = -1
 	picked_candidate_ASPL = -1.0
@@ -239,12 +242,12 @@ def pick_candidates(layout, results, candidate_random_trials):
 	for index in xrange(0, len(candidate_random_trials)):
 		candidate = candidate_random_trials[index];
 		result = results[index]
-
+		#print 'candidate is ', candidate
 		if (result != None):
-			[power_distribution, temperature] = result
+			[tmp_layout, [power_distribution, temperature]] = result
 			power = sum(power_distribution)
-			ASPL = layout.get_ASPL()
-			num_edges = layout.get_num_edges()
+			ASPL = tmp_layout.get_ASPL()
+			num_edges = tmp_layout.get_num_edges()
 			utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(ASPL) + " edges=" + str(num_edges))
 
 			new_pick = False
@@ -302,35 +305,16 @@ def optimize_layout_random_greedy():
 	results = []
 	picked_index = 0
 
-	########################################
-	###TODO: add in multiples of 3
-	###		- create dummy layout
-	###		- find candidate then add candidate 3X to Layout
-	###		- evaluate
-	########################################
-
 	while (layout.get_num_chips() != utils.argv.num_chips):
 
 		###############################################
 		### Create Candidates
 		###############################################
 
-		utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
-			1 + layout.get_num_chips()) + " in the layout")
-		"""
-		if num_chips_to_add == 1:
-			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
-			utils.abort("Need to implement evaluation and picking\n candidates random trials is "+str(candidate_random_trials)+"\n")
-			candidate_random_trials = generate_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts)
-
-		if num_chips_to_add > 1:
-			if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
-				num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
-			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
-			utils.abort("Need to implement evaluation and picking\n candidates random trials is "+str(candidate_random_trials)+"\n")
-		"""
+		utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 		if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
 			num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
+			utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
 		candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
 		###############################################
 		### Evaluate all Candidates
@@ -338,27 +322,26 @@ def optimize_layout_random_greedy():
 		###		- Transform to a map operation
 		###		- Use the multithreading package
 		###############################################
-
 		list_of_args = []
 		for index in xrange(0, len(candidate_random_trials)):
 			list_of_args.append([layout, candidate_random_trials[index]])
 		results = map(evaluate_candidate, list_of_args)
 
-		# print "RESULTS = ", results
+		#print "RESULTS = ", results
 
 		###############################################
 		### Pick the best candidate
 		################################################
 
 		picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
-
+		#utils.abort("candidate random trial is \n"+str(candidate_random_trials))
 
 		# Add the candidate
 		if picked_candidate == None:
 			utils.abort("Could not find a candidate that met the temperature constraint")
 
 		utils.info(1, "Picked candidate: " + str(picked_candidate))
-		for chip in picked_candidate[0]:
+		for chip in picked_candidate: #LL* should we just make a deep copy form results[picked_index][0]???
 			layout.add_new_chip(chip)
 	#print "---> ", layout.get_num_chips(), utils.argv.num_chips
 
@@ -371,7 +354,7 @@ def optimize_layout_random_greedy():
 	if (result == None):
 		return None
 
-	[power_distribution, temperature] = result
+	[power_distribution, temperature] = result[-1]
 
 	return [layout, power_distribution, temperature]
 

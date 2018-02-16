@@ -857,10 +857,7 @@ class Layout(object):
 			# utils.info(1,"chip_position %s\n"%chip_position)
 			picked_level = utils.pick_random_element(possible_levels)
 			# print"picked_level %s\n"%picked_level
-			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]],
-																		   [self.__chip.x_dimension,
-																			self.__chip.y_dimension], utils.argv.overlap,
-																		   utils.argv.constrained_overlap_geometry)
+			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
 			if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
 				if not self.check_cross_talk(
 						self.get_new_inductor_properties([picked_level, picked_x, picked_y], chip_position)):
