@@ -163,8 +163,8 @@ def evaluate_candidate(args):
 	[layout, candidate] = args
 	utils.info(1, "  - Evaluating candidate " + str(candidate))
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
-	#print 'in evaluate candidate candidates are \n', candidate
 	for chip in candidate:
+		#print "HERE"
 		dummy_layout.add_new_chip(chip)
 	if (dummy_layout.get_diameter() > utils.argv.diameter):
 		utils.abort("Layout diameter is too big (this should never happen here!)")
@@ -216,16 +216,17 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
 				continue
 			result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
-			if result == None:
-				continue
-			new_chips += 1
-			tmp_layout.add_new_chip(result)
-		#tmp_layout.draw_in_3D(None, True)
-		#[picked_level, picked_x, picked_y] = result
-		candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
-		utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
-		candidate_random_trials.append(candidate_list)
+			if result != None:
+				new_chips += 1
+				tmp_layout.add_new_chip(result)
 
+		if new_chips<num_chips_to_add:
+			utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+		candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
+		#utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
+		candidate_random_trials.append(candidate_list)
+	if len(candidate_random_trials) != num_neighbor_candidates:
+		utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 	return candidate_random_trials
 
 #@jit
@@ -311,11 +312,12 @@ def optimize_layout_random_greedy():
 		### Create Candidates
 		###############################################
 
-		utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
+		utils.info(2, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
 		if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
 			num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
 			utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
 		candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
+
 		list_of_args = []
 		for index in xrange(0, len(candidate_random_trials)):
 			list_of_args.append([layout, candidate_random_trials[index]])
@@ -358,6 +360,9 @@ def optimize_layout_random_greedy():
 
 def send_stop_signals(worker_list, comm):
 	utils.info(2, "Sending stop signal to all workers")
+	#comm.bcast([0, 0, 0, 0, 1], root=0)
+	#print "stop bcast"
+
 	for k in range(0, len(worker_list)):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
@@ -371,12 +376,16 @@ def optimize_layout_random_greedy_mpi():
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
-
+	if size<2:
+		comm.bcast([0, 0, 0, 0, 1],root=0)
+		utils.abort("Need to invoke with 'mpirun-np #' where # is int processes greater than 1")
 	if rank == 0:
 		layout = LayoutBuilder.compute_craddle_layout(3)
 
 		num_neighbor_candidates = 20  # Default value
 		max_num_neighbor_candidate_attempts = 1000  # default value
+		num_chips_to_add = 1 # Default value
+
 
 		if (len(utils.argv.layout_scheme.split(":")) == 2):
 			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1]);
@@ -385,19 +394,32 @@ def optimize_layout_random_greedy_mpi():
 			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1]);
 			max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2]);
 
+		if (len(utils.argv.layout_scheme.split(":")) == 4):
+			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
+			max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
+			num_chips_to_add  = int(utils.argv.layout_scheme.split(":")[3])
+
+		results = []
+		picked_index = 0
+
 		while (layout.get_num_chips() != utils.argv.num_chips):
 
 			###############################################
 			### Create Candidates
 			##########################################
 
-			candidate_random_trials = []
-			candidate_random_trials = generate_candidates(layout, candidate_random_trials, num_neighbor_candidates,
-														  max_num_neighbor_candidate_attempts)
+			#candidate_random_trials = []
+			#candidate_random_trials = generate_candidates(layout, candidate_random_trials, num_neighbor_candidates,
+			utils.info(2, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(1 + layout.get_num_chips()) + " in the layout")
+			if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
+				num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
+				utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
+			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
 
 			###############################################
 			### Evaluate all Candidates
 			###############################################
+
 			###############################################
 			### TODO
 			### - implement add in multiples
@@ -431,13 +453,14 @@ def optimize_layout_random_greedy_mpi():
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
 
+
 			if picked_candidate == None:
 				send_stop_signals(worker_list, comm)
 				utils.abort("Could not find a candidate that met the temperature constraint")
 
 			utils.info(1, "Picked candidate: " + str(picked_candidate))
-			layout.add_new_chip(picked_candidate)
-
+			for chip in picked_candidate: #LL* should we just make a deep copy form results[picked_index][0]???
+				layout.add_new_chip(chip)
 		# Do the final evaluation (which was already be done, but whatever)
 		# result = find_maximum_power_budget(layout)
 		# saved_result = results[picked_index]
@@ -447,7 +470,7 @@ def optimize_layout_random_greedy_mpi():
 		if (result == None):
 			return None
 
-		[power_distribution, temperature] = result
+		[power_distribution, temperature] = result[-1]
 		# print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
 
 		# send stop signal to all worker ranks
@@ -455,6 +478,7 @@ def optimize_layout_random_greedy_mpi():
 		# for k in range(0, len(worker_list)):
 		#	stop_worker = [0, 0, 0, 0, 1]
 		# comm.send(stop_worker,dest = k+1)
+		#comm.Disconnect()
 
 		return [layout, power_distribution, temperature]
 
@@ -463,7 +487,9 @@ def optimize_layout_random_greedy_mpi():
 			data_from_master = comm.recv(source=0)
 			# data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
-				# print '!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
+				#print '\n\n!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
+
+				#comm.Disconnect()
 				sys.exit(0)
 			# print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank
 			# layout = data_from_master[0]
