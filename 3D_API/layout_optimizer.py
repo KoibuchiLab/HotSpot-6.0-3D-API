@@ -373,6 +373,7 @@ def send_stop_signals(worker_list, comm):
 
 
 def optimize_layout_random_greedy_mpi():
+	#TODO: add check for --mpi flag
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
@@ -422,7 +423,8 @@ def optimize_layout_random_greedy_mpi():
 
 			###############################################
 			### TODO
-			### - implement add in multiples
+			### - implement add craddles
+			###		- find feasible craddle function, in layout
 			### - look into merging this function with sequential version
 			###############################################
 
