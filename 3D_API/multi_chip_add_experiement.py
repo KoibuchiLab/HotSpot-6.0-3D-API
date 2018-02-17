@@ -48,25 +48,29 @@ def main():
 	candidates = 15
 	candidate_trials = 1000
 	add_by = [9,6,3,1]
+	export_path = " results_LL/mutiaddexp/"
 	#time = -1
 
 	#start = end = -1
 	try:
-		f = open("results_LL/multiaddexp/prelim_multichip_results.txt", "w+")
+		f = open("results_LL/multiaddexp/second_multichip_results.txt", "w+")
 		header = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\n"
 		f.write(header)
 		f.close()
 		for num in numchips:
 			for add in add_by:
+				if num == add:
+					continue
+				#for trial in range(1,11):
 				#add trials in after we run successfully
-				command = "mpirun -np 16 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:3000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"
+				command = "mpirun -np 16 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:3000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"+export_path+str(num)+"_chip_add_"+str(add)+".pdf""#"_trial_"+str(trial)+".pdf"
 				start = time.time()
 				devnull = open('/dev/null', 'w')
-				proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=devnull)
+				proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=devnull).wait()
 				end = time.time()
 				out = proc.stdout.read()
 				#out, err = procs.communicate()
-				result = str(add)+"\t"+str(end-start)+"\t"+parse_output(out)
+				result = str(add)+"\t"+str((end-start))+"\t"+parse_output(out)
 				f = open("results_LL/multiaddexp/prelim_multichip_results.txt", "a")
 				f.write(result)
 				f.close()
