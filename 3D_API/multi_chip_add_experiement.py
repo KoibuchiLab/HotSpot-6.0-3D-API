@@ -70,7 +70,7 @@ def main():
 				f = open("results_LL/multiaddexp/prelim_multichip_results.txt", "a")
 				f.write(result)
 				f.close()
-			print 'Done numchps ',num,' and add ', add
+				print 'Done numchps ',num,' and add ', add
 			footer = "base3\nlayout_size = "+str(num)+"\ncandidates "+str(candidates)+"\n\n"
 			f = open("results_LL/multiaddexp/prelim_multichip_results.txt", "a")
 			f.write(footer)
