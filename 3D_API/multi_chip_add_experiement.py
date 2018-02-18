@@ -63,7 +63,7 @@ def main():
 	candidates = 15
 	candidate_trials = 1000
 	add_by = [9,6,3,1]
-	export_path = " -e results_LL/multiaddexp/figures/"
+	export_path = " -e results_LL/multiaddexp/"
 	raw_result_file = "results_LL/multiaddexp/raw_multichip_results.txt"
 	avg_result_file = "results_LL/multiaddexp/avg_multichip_results.txt"
 	#start = end = -1
@@ -84,7 +84,7 @@ def main():
 				trial_ex_time = []
 				for trial in range(1,11):
 					#add trials in after we run successfully
-					command = "mpirun -np 6 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"+export_path+str(num)+"_chip_add_"+str(add)+"_trial_"+str(trial)+".pdf --test"
+					command = "mpirun -np 16 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"+export_path+str(num)+"_chip_add_"+str(add)+"_trial_"+str(trial)+".pdf"
 					start = time.time()
 					devnull = open('/dev/null', 'w')
 					proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=devnull)
