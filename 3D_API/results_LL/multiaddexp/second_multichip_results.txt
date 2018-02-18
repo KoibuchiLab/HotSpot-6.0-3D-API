@@ -1,1 +1,0 @@
-chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature
