@@ -38,12 +38,12 @@ verbose = None #<integer verbosity level>, -v <integer verbosity level>  verbosi
 =======CHANGE ARGS BELOW THIS==============================================================================================================================
 ================================================================================================================================================================
 """
-numchips = 9
+numchips = 5
 medium = "air"
 chip = "base3"
-diameter = 7
+diameter = 5
 layout_scheme = "random_greedy:15:5000"
-numlevels = 7
+numlevels = 3
 powerdistopt = "uniform_discrete"
 powerdistopt_num_iterations = 1
 powerdistopt_num_trials = 1
@@ -80,10 +80,11 @@ try:
 		avg = -1
 		to_avg = []
 		for trial in range(trial_num):
-			start = time.time()
+			print 'Trial ',trial,' workers=',num_worker_ranks
 			#print "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string, 'trial ', trial
 			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
-			print 'command is ',command
+			#print 'command is ',command
+			start = time.time()
 			subprocess.Popen(command, stdout=subprocess.PIPE,  shell=True).wait()
 			end = time.time()
 			raw_data_string+="\n"+str(num_worker_ranks)+"\t"+str(trial+1)+"\t"+str((end-start))
