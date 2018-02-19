@@ -38,18 +38,18 @@ verbose = None #<integer verbosity level>, -v <integer verbosity level>  verbosi
 =======CHANGE ARGS BELOW THIS==============================================================================================================================
 ================================================================================================================================================================
 """
-numchips = 5
+numchips = 9
 medium = "air"
-chip = "base2"
-diameter = 3
-layout_scheme = "random_greedy"
-numlevels = 3
+chip = "base3"
+diameter = 7
+layout_scheme = "random_greedy:15:5000"
+numlevels = 7
 powerdistopt = "uniform_discrete"
 powerdistopt_num_iterations = 1
 powerdistopt_num_trials = 1
-overlap = .3
-max_allowed_temperature = 59
-verbose = 3
+overlap = .2
+max_allowed_temperature = 100
+verbose = 0
 mpi = True
 test = None
 #num_worker_ranks = 4
@@ -68,10 +68,12 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 8#15
-min_num_workers = 7#1
-trial_num = 1
+max_num_workers = 16
+min_num_workers = 1
+trial_num = 10
 #print run_string
+raw_results_file = "results_LL/mpiexp/raw_mpi_results.txt"
+avg_results_file = "results_LL/mpiexp/avg_mpi_results.txt"
 
 try:
 	for num_worker_ranks in range(min_num_workers,max_num_workers):
@@ -80,24 +82,24 @@ try:
 		for trial in range(trial_num):
 			start = time.time()
 			#print "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string, 'trial ', trial
-			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string+" --show_in_3D"
+			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
 			print 'command is ',command
-			subprocess.Popen(command, shell=True).wait()
+			subprocess.Popen(command, stdout=subprocess.PIPE,  shell=True).wait()
 			end = time.time()
-			raw_data_string+="\n"+str(num_worker_ranks)+"\t"+str(trial)+"\t"+str((end-start))
+			raw_data_string+="\n"+str(num_worker_ranks)+"\t"+str(trial+1)+"\t"+str((end-start))
 
-			#f = open("mpi_raw_results.txt","w+")
-			#f.write(raw_data_string)
-			#f.close()
+			f = open(raw_results_file,"w+")
+			f.write(raw_data_string)
+			f.close()
 
 			to_avg.append((end-start))
 		avg = (sum(to_avg)/len(to_avg))
 		write_string +="\n"+str(num_worker_ranks)+"\t"+str(avg)
 		print '!!!!!!!!!! num workers done is ', num_worker_ranks
 
-		#g = open("mpi_avg_results.txt","w+")
-		#g.write(write_string)
-		#g.close()
+		g = open(avg_results_file,"w+")
+		g.write(write_string)
+		g.close()
 
 except IOError:
 	print "IOError!!!"

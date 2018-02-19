@@ -373,7 +373,11 @@ def send_stop_signals(worker_list, comm):
 
 
 def optimize_layout_random_greedy_mpi():
-	#TODO: add check for --mpi flag
+	##########################################
+	###TODO: add check for --mpi flag
+	###TODO: maybe run exp overlap vs ex time
+	##########################################
+
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
