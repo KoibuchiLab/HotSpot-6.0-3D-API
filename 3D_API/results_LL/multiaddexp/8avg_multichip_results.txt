@@ -1,0 +1,6 @@
+chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature
+9	115.826780415	12.0	3.7	6.0	2.8696969697	56.7207	3600.0	58.09
+base3
+layout_size = 12
+candidates 15
+
