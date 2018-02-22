@@ -250,7 +250,7 @@ class Layout(object):
 
 		# Just a check in case the user decided to add something without
 		# first checking that it was possible
-		if not self.can_new_chip_fit(new_chip_position):
+		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
 			utils.abort("Cannot add chip") #LL* do we abort here?
 			#print "warning"
 		# adds inductors
@@ -825,9 +825,6 @@ class Layout(object):
 					# if not self.check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
 					utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
 					return [picked_level, picked_x, picked_y];
-
-		# if not check_cross_talk():
-		# return [picked_level, picked_x, picked_y];
 		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
 		return None
 
@@ -931,12 +928,6 @@ class LayoutBuilder(object):
 			current_y_position += utils.argv.chip.y_dimension * (1 - sqrt(utils.argv.overlap))
 			inductor_properties.append([min(current_level, positions[i][0]), current_x_position, current_y_position, (utils.argv.chip.x_dimension * sqrt(utils.argv.overlap)), (utils.argv.chip.y_dimension * sqrt(utils.argv.overlap))])
 
-		# Layout.check_cross_talk()
-		# layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
-		# layout.check_cross_talk()
-		# if Layout.check_cross_talk:
-		# print "WARNING: CROSSTALK\n"
-
 		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties[:-1])
 
 	#	return layout
@@ -954,6 +945,7 @@ class LayoutBuilder(object):
 
 		positions = []
 		inductor_properties = []
+		any = -1
 
 		if num_chips != 3:
 			utils.abort("Can only compute a craddle  with 3 chips")
@@ -971,6 +963,7 @@ class LayoutBuilder(object):
 			overlap_shape = 'any'
 		if overlap_shape is 'any':
 			any = utils.pick_random_element([0,1])
+			#overlap_shape = random.choice(['square','strip']) TODO: implement this
 			#print "\n\nany is "+str(any)+"\n\n"
 
 		"""apply shift"""

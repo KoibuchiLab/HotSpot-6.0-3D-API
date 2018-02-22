@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import random
 from mpi4py import MPI
 
 import utils
@@ -200,7 +201,60 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 """ Function that returns a list of list of candidates """
 
 #@jit
-def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add):
+def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add,add_scheme):
+
+	if add_scheme is "craddle":
+		num_attempts = 0
+		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
+			num_attempts += 1
+			add_attempts = 0
+
+			"""
+			check geometry
+			if geometry is any, randomly pick if added craddle is going to be be straight, or diagonal
+			check level - level and (level - 1)
+			if straight, check diameter + 3(from added craddle) is allowed
+			randomly pick if craddle going to be added from middle or side
+			check diameter if craddle can be added form side or middle
+			get first craddle chip
+			get new_inductor property
+			
+			for middle
+			if (Cx==Ix and Cy==Iy) or (Cx!=Ix and Cy!=Iy):
+				add top left, bottom right
+			else:
+				add bottom left, top right
+				
+			for side square
+			connect first side chip
+			then find random feasible neighbor for first side chip and then add craddle from there
+			"""
+
+			tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
+
+			random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
+
+			overlape_shape = utils.argv.constrained_overlap_geometry
+			if overlape_shape is 'any':
+				overlape_shape = random.choice(['square','strip'])
+
+			if overlape_shape is 'stripe':
+				continue
+
+
+			if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
+				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
+				continue
+			result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
+			if result == None:
+				continue
+			# if constrained geometry is strip, can only add craddle by ends
+			#if utils.argv.constrained_overlap_geometry is 'strip':
+
+
+
+			utils.abort("implementing adding in craddles")
+
 	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
 		1 + layout.get_num_chips()) + " in the layout")
 	num_attempts = 0
@@ -290,7 +344,8 @@ def optimize_layout_random_greedy():
 	num_neighbor_candidates = 10  # Default value
 	max_num_neighbor_candidate_attempts = 1000  # default value
 	num_chips_to_add = 1 # Default value
-
+	add_scheme = None
+	print utils.argv.layout_scheme
 	if (len(utils.argv.layout_scheme.split(":")) == 2):
 		num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
 
@@ -302,6 +357,13 @@ def optimize_layout_random_greedy():
 		num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
 		max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
 		num_chips_to_add  = int(utils.argv.layout_scheme.split(":")[3])
+	"""
+	if (len(utils.argv.layout_scheme.split(":")) == 5):
+		num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
+		max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
+		num_chips_to_add  = int(utils.argv.layout_scheme.split(":")[3])
+		#add_scheme = int(utils.argv.layout_scheme.split(":")[3]
+	"""
 
 	results = []
 	picked_index = 0
@@ -390,6 +452,7 @@ def optimize_layout_random_greedy_mpi():
 		num_neighbor_candidates = 20  # Default value
 		max_num_neighbor_candidate_attempts = 1000  # default value
 		num_chips_to_add = 1 # Default value
+		add_scheme = None
 
 
 		if (len(utils.argv.layout_scheme.split(":")) == 2):
@@ -402,7 +465,12 @@ def optimize_layout_random_greedy_mpi():
 		if (len(utils.argv.layout_scheme.split(":")) == 4):
 			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
 			max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
-			num_chips_to_add  = int(utils.argv.layout_scheme.split(":")[3])
+			try:
+				num_chips_to_add = int(utils.argv.layout_scheme.split(":")[3])
+			except:
+				add_scheme = utils.argv.layout_scheme.split(":")[3]
+				num_chips_to_add = 3
+				#utils.abort("add scheme is "+str(add_scheme))
 
 		results = []
 		picked_index = 0
@@ -419,7 +487,8 @@ def optimize_layout_random_greedy_mpi():
 			if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
 				num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
 				utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
-			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add)
+
+			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add,add_scheme)
 
 			###############################################
 			### Evaluate all Candidates
