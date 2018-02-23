@@ -961,11 +961,10 @@ class LayoutBuilder(object):
 		overlap_shape = utils.argv.constrained_overlap_geometry
 		if overlap_shape is None:
 			overlap_shape = 'any'
-		if overlap_shape is 'any':
-			any = utils.pick_random_element([0,1])
-			#overlap_shape = random.choice(['square','strip']) TODO: implement this
+		if 'any' in overlap_shape:
+			#any = utils.pick_random_element([0,1])
+			overlap_shape = random.choice(['square','strip']) #TODO: implement this
 			#print "\n\nany is "+str(any)+"\n\n"
-
 		"""apply shift"""
 		shift = 5
 		x_shift = x_dim * shift
@@ -974,7 +973,7 @@ class LayoutBuilder(object):
 		# Add the base structures on top of each other
 		current_level = 1
 		current_orientation = 0
-		if 'strip' in overlap_shape or any == 0:
+		if 'strip' in overlap_shape:
 			chip1_level = chip3_level = current_level+1
 			chip2_level = current_level
 
@@ -993,7 +992,7 @@ class LayoutBuilder(object):
 
 			inductor2_x = chip3_x
 			inductor2_y = chip3_y
-		elif 'square' in overlap_shape or any == 1:
+		elif 'square' in overlap_shape:
 			if overlap > .25:
 				utils.abort("\nCan't build craddle with overlap greater than .25 and square overlap\nCollisions occur\nChange overlap or shape contraiant")
 			chip1_level = chip3_level = current_level+1

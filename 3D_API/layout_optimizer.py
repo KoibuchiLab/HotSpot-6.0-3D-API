@@ -13,6 +13,7 @@ from power_optimizer import *
 # from scipy.optimize import basinhopping
 # from scipy.optimize import fmin_slsqp
 
+FLOATING_POINT_EPSILON = 0.000001
 
 ##############################################################################################
 ### LAYOUT OPTIMIZATION
@@ -201,9 +202,8 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 """ Function that returns a list of list of candidates """
 
 #@jit
-def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add,add_scheme):
-
-	if add_scheme is "craddle":
+def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
+	if 'craddle' in add_scheme:
 		num_attempts = 0
 		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 			num_attempts += 1
@@ -233,27 +233,105 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 
 			random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-
+			overlap = utils.argv.overlap
+			chipx_dim = utils.argv.chip.x_dimension
+			chipy_dim = utils.argv.chip.y_dimension
 			overlape_shape = utils.argv.constrained_overlap_geometry
-			if overlape_shape is 'any':
+
+			print 'random chip is ', random_chip
+			#if random_chip == 0:
+			#	print "!!!!!!!!!!!!!!!!!!"
+
+			if (overlape_shape is None) or ('any' in overlape_shape):
 				overlape_shape = random.choice(['square','strip'])
 
-			if overlape_shape is 'stripe':
-				continue
-
-
-			if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
-				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
-				continue
 			result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
 			if result == None:
 				continue
 			# if constrained geometry is strip, can only add craddle by ends
-			#if utils.argv.constrained_overlap_geometry is 'strip':
+			#di = tmp_layout.get_diameter()
+			#print 'diameter is ', di
+			tmp_layout.add_new_chip(result)
+			#di = tmp_layout.get_diameter()
+			#print 'diameter is NOW ', di
+			#print 'added 1st'
+
+			if 'strip' in overlape_shape:
+				if result[0]<2:
+					utils.info(1, "chip 2 of craddle will be below level 1")
+					continue
+				if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
+					utils.info(3,"Adding craddle exceeds diameter constraint")
+					continue #adding a craddle will exceed diameter constraint
+				craddle_chip1 = tmp_layout.get_chip_positions()[-1]
+				#print 'craddle chip 1 is ', craddle_chip1
+				craddle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
+				craddle_chip2[0] = craddle_chip1[0]-1
+				#print 'chip 1 is ', craddle_chip1,'\nchip 2 is ', craddle_chip2
+				if craddle_chip1[1] == craddle_chip2[1]: # add vertically
+					if craddle_chip1[2] < craddle_chip2[2]: #add above
+						chip3_level = craddle_chip1[0]
+						chip3_x = craddle_chip2[1]
+						chip3_y = craddle_chip2[2]+(1-overlap)*chipy_dim
+					else: # add below
+						chip3_level = craddle_chip1[0]
+						chip3_x = craddle_chip2[1]
+						chip3_y = craddle_chip2[2]-(1-overlap)*chipy_dim
+				else: # add horizontally
+					if craddle_chip1[1] < craddle_chip2[1]: #add right
+						#print "ADD right"
+						chip3_level = craddle_chip1[0]
+						chip3_x = craddle_chip2[1]+(1-overlap)*chipx_dim
+						chip3_y = craddle_chip2[2]
+					else: # add left
+						#print "ADD LEFT"
+						chip3_level = craddle_chip1[0]
+						chip3_x = craddle_chip2[1]-(1-overlap)*chipx_dim
+						chip3_y = craddle_chip2[2]
+
+				craddle_chip3 = [chip3_level, chip3_x, chip3_y]
+
+				print 'chip 1 is ', craddle_chip1,'\nchip 2 is ', craddle_chip2,'\nchip 3 is ', craddle_chip3
+				tmp_layout.add_new_chip(craddle_chip2)
+				#print 'added 2nd'
+				tmp_layout.add_new_chip(craddle_chip3)
+				#print 'added 3rd'
+				candidate_list = tmp_layout.get_chip_positions()[-3:]
+				candidate_random_trials.append(candidate_list)
+
+			elif 'square' in overlape_shape:
+				attached_at = utils.pick_random_element([1,2])
+				if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
+					if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
+						utils.info(0, "Adding craddle by the middle chip still exceeds diameter constraint")
+						continue
+					attached_at = 2
+				#print 'ATTACHED AT CHIP ',attached_at
+				inductor = tmp_layout.get_inductor_properties()[-1]
+				if attached_at == 2: #adding at middle of craddle, craddle chip 2
+					#TODO : check level constraint
+					if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
+						utils.info(0,"Adding craddle by middle exceeds level constraint")
+						continue
+					craddle_chip2 = tmp_layout.get_chip_positions()[-1]
+					if (craddle_chip2[1]==inductor[1] and craddle_chip2[2]==inductor[2]) or (craddle_chip2[1]!=inductor[1] and craddle_chip2[2]!=inductor[2]):
+						#add top left, bottom right
+						chip1_level = chip3_level = craddle_chip2[0]+1
+
+				else: #adding at side, craddle chip 1
+					print "Add by side"
+				#print "SQUARE"
+				#if adding to middle
+					#if result[0]
+				tmp_layout.draw_in_3D(None, True)
+				utils.abort("implementing adding in craddles")
+
+			if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
+				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
+				continue
 
 
 
-			utils.abort("implementing adding in craddles")
 
 	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
 		1 + layout.get_num_chips()) + " in the layout")
@@ -474,7 +552,6 @@ def optimize_layout_random_greedy_mpi():
 
 		results = []
 		picked_index = 0
-
 		while (layout.get_num_chips() != utils.argv.num_chips):
 
 			###############################################
