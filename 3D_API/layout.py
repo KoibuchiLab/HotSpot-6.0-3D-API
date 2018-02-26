@@ -39,7 +39,7 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-		self.draw_in_3D(None, True) # for debugging
+		#self.draw_in_3D(None, True) # for debugging
 		self.generate_topology_graph()
 
 	""" Generate a Networkx graph based on chip positions
@@ -1080,11 +1080,11 @@ class LayoutBuilder(object):
 		current_level = 1
 		highest_level = 1
 
-		for helix in range(1,helices+1):
+		for helix in range(1,helices+1): #TODO: only works for 1 helix level
 			chip1_x = 0
 			chip1_y = 0
 			chip1_level = helix
-			print 'chip 1 level ', chip1_level
+			#print 'chip 1 level ', chip1_level
 
 			chip2_level = chip3_level = chip1_level+1
 			chip2_x = chip1_x + x_dim*(1-sqrt(overlap))
@@ -1096,8 +1096,8 @@ class LayoutBuilder(object):
 			ind2_y = chip2_y
 			ind3_x = chip1_x
 			ind3_y = chip1_y
-			print ind2_level,' ',ind3_level
-			print 'chip 2 level ', chip2_level
+			#print ind2_level,' ',ind3_level
+			#print 'chip 2 level ', chip2_level
 
 			chip4_level = chip5_level = chip1_level+2
 			chip4_x = chip5_x = chip1_x
@@ -1108,9 +1108,9 @@ class LayoutBuilder(object):
 			ind4_y = ind2_y + inductor_ydim
 			ind5_x = ind3_x
 			ind5_y = ind3_y - inductor_ydim
-			print ind4_level,' ',ind5_level
-			print chip4_level,' ',chip5_level
-			print 'chip 4 level ', chip4_level
+			#print ind4_level,' ',ind5_level
+			#print chip4_level,' ',chip5_level
+			#print 'chip 4 level ', chip4_level
 
 			highest_level = chip6_level = chip7_level = chip1_level+3
 			chip6_x = chip1_x - x_dim*(1-sqrt(overlap))
@@ -1122,7 +1122,7 @@ class LayoutBuilder(object):
 			ind6_y = ind4_y
 			ind7_x = ind5_x + inductor_xdim
 			ind7_y = ind5_y
-			print 'chip 6 level ', chip6_level
+			#print 'chip 6 level ', chip6_level
 
 			positions.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift])
 			positions.append([chip2_level, chip2_x + x_shift, chip2_y + y_shift])
