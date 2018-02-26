@@ -209,13 +209,15 @@ class Layout(object):
 		existing_inductors = self.__inductor_properties
 		for existing_inductor in existing_inductors:
 			if (not abs(tentative_inductor[0] - existing_inductor[0]) == 1):
+				utils.info(3,"inductors are more than 1 level appart, cross talk cant happen")
 				continue
 			overlap_area = Layout.compute_two_rectangle_overlap_area(
 				[existing_inductor[1], existing_inductor[2]],
 				[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],
 				[tentative_inductor[1], tentative_inductor[2]],
 				[tentative_inductor[1] + tentative_inductor[3], tentative_inductor[2] + tentative_inductor[4]])
-			if overlap_area > 0:
+			#print 'overlap is ', overlap_area
+			if overlap_area-FLOATING_POINT_EPSILON > 0.0:
 				utils.info(2, "WARNING: CROSSTALK at inductor levels " + str(existing_inductor[0]) + " and " + str(
 					tentative_inductor[0]))
 				return True
@@ -335,7 +337,7 @@ class Layout(object):
 				[existing_chip[1] + self.__chip.x_dimension, existing_chip[2] + self.__chip.y_dimension],
 				[x, y],
 				[x + self.__chip.x_dimension, y + self.__chip.y_dimension])
-			if (overlap > 0.0):
+			if (overlap - FLOATING_POINT_EPSILON> 0.0):
 				# print "   - NO: COLLISION! overlap = ", overlap
 				return False
 		# print "   - YES: FITS"
@@ -361,7 +363,7 @@ class Layout(object):
 				[existing_inductor[1] + existing_inductor[3], existing_inductor[2] + existing_inductor[4]],
 				[x, y],
 				[x + x_dim, y + y_dim])
-			if (overlap > 0.0):
+			if (overlap - FLOATING_POINT_EPSILON > 0.0):
 				# print "   - NO: COLLISION! overlap = ", overlap
 				utils.info(0, 'inductor collision, can\'t place here')
 				return False
@@ -806,6 +808,22 @@ class Layout(object):
 		# getout = 0 #program hanging, cant find a valid random overlapping rectangle
 		max_num_trials = 100
 		num_trials = 0
+		"""
+		xdim = utils.argv.chip.x_dimension
+		ydim = utils.argv.chip.y_dimension
+		xhalf = chip_position[1]+.5*xdim
+		yhalf = chip_position[2]+.5*ydim
+		inductor = self.__inductor_properties[-1]
+		ix = inductor[1]
+		iy = inductor[2]
+		ixx = inductor[3]
+		iyy = inductor[4]
+		ixxhalf = inductor[1]+inductor[3]
+		iyyhalf = inductor[2]+inductor[4]
+		print 'inductor ',ix, '' ,iy,' ',ixxhalf,' ',iyyhalf
+		print 'chip position is ', chip_position
+		print 'x half = ',xhalf,'\nyhalf = ',yhalf,'\n'
+		"""
 		while (num_trials < max_num_trials):
 			num_trials += 1
 			# pick a random level
@@ -820,13 +838,15 @@ class Layout(object):
 			picked_level = utils.pick_random_element(possible_levels)
 			# print"picked_level %s\n"%picked_level
 			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
+			#print 'picked = ',picked_x,' ', picked_y
 			if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
 				if not self.check_cross_talk(self.get_new_inductor_properties([picked_level, picked_x, picked_y], chip_position)):
-					# if not self.check_cross_talk([min(chip_position[0],picked_level),max(chip_position[1],picked_x),max(chip_position[2],picked_y)]):
 					utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
+					#print "!!!GREAT!!!"
 					return [picked_level, picked_x, picked_y];
 		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
 		return None
+		#return [3,0.078,0.07475]
 
 
 ##############################################################################################

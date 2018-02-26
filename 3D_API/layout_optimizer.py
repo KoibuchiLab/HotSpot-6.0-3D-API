@@ -203,12 +203,20 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 
 #@jit
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
+
 	if 'craddle' in add_scheme:
 		num_attempts = 0
+		overlap = utils.argv.overlap
+		chipx_dim = utils.argv.chip.x_dimension
+		chipy_dim = utils.argv.chip.y_dimension
+		overlape_shape = utils.argv.constrained_overlap_geometry
+		if (overlape_shape is None) or ('any' in overlape_shape):
+			utils.argv.constrained_overlap_geometry = overlape_shape = random.choice(['square','strip'])
+			utils.info(3,"shape parameter not specified, randomly chose shape parameter = "+str(overlape_shape))
 		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 			num_attempts += 1
 			add_attempts = 0
-
+			#print 'overlap shape ',overlape_shape
 			"""
 			check geometry
 			if geometry is any, randomly pick if added craddle is going to be be straight, or diagonal
@@ -233,20 +241,23 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 
 			random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-			overlap = utils.argv.overlap
-			chipx_dim = utils.argv.chip.x_dimension
-			chipy_dim = utils.argv.chip.y_dimension
-			overlape_shape = utils.argv.constrained_overlap_geometry
+			#random_chip = 2
+			#overlap = utils.argv.overlap
+			#chipx_dim = utils.argv.chip.x_dimension
+			#chipy_dim = utils.argv.chip.y_dimension
+			#overlape_shape = utils.argv.constrained_overlap_geometry
 
-			print 'random chip is ', random_chip
+			#print 'random chip is ', random_chip
+			#print 'len candidate random trial ',len(candidate_random_trials)
 			#if random_chip == 0:
 			#	print "!!!!!!!!!!!!!!!!!!"
 
-			if (overlape_shape is None) or ('any' in overlape_shape):
-				overlape_shape = random.choice(['square','strip'])
+			#if (overlape_shape is None) or ('any' in overlape_shape):
+			#	overlape_shape = random.choice(['square','strip'])
 
 			result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
 			if result == None:
+				#print "HERE"
 				continue
 			# if constrained geometry is strip, can only add craddle by ends
 			#di = tmp_layout.get_diameter()
@@ -257,6 +268,7 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			#print 'added 1st'
 
 			if 'strip' in overlape_shape:
+				#print "Attempting to add craddles in strip configuration"
 				if result[0]<2:
 					utils.info(1, "chip 2 of craddle will be below level 1")
 					continue
@@ -291,16 +303,18 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 
 				craddle_chip3 = [chip3_level, chip3_x, chip3_y]
 
-				print 'chip 1 is ', craddle_chip1,'\nchip 2 is ', craddle_chip2,'\nchip 3 is ', craddle_chip3
+				#print 'chip 1 is ', craddle_chip1,'\nchip 2 is ', craddle_chip2,'\nchip 3 is ', craddle_chip3,'\n'
 				tmp_layout.add_new_chip(craddle_chip2)
 				#print 'added 2nd'
 				tmp_layout.add_new_chip(craddle_chip3)
 				#print 'added 3rd'
 				candidate_list = tmp_layout.get_chip_positions()[-3:]
-				candidate_random_trials.append(candidate_list)
+				#candidate_random_trials.append(candidate_list)
 
 			elif 'square' in overlape_shape:
+				#print "Attempting to add craddles in square configuration"
 				attached_at = utils.pick_random_element([1,2])
+				#attached_at = 1
 				if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 					if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
 						utils.info(0, "Adding craddle by the middle chip still exceeds diameter constraint")
@@ -309,56 +323,111 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 				#print 'ATTACHED AT CHIP ',attached_at
 				inductor = tmp_layout.get_inductor_properties()[-1]
 				if attached_at == 2: #adding at middle of craddle, craddle chip 2
-					#TODO : check level constraint
 					if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
 						utils.info(0,"Adding craddle by middle exceeds level constraint")
 						continue
 					craddle_chip2 = tmp_layout.get_chip_positions()[-1]
-					if (craddle_chip2[1]==inductor[1] and craddle_chip2[2]==inductor[2]) or (craddle_chip2[1]!=inductor[1] and craddle_chip2[2]!=inductor[2]):
-						#add top left, bottom right
-						chip1_level = chip3_level = craddle_chip2[0]+1
+					chip1_level = chip3_level = craddle_chip2[0]+1
+					#print'chip x ',craddle_chip2[1],'\nindu x',inductor[1],'\nchip y ',craddle_chip2[2],'\nindu y',inductor[2],'\nchip1 l ', chip1_level,'\nchip3 l ',chip3_level
+					#tmp_layout.draw_in_3D(None, True)
+					if (craddle_chip2[1]==inductor[1] and craddle_chip2[2]==inductor[2]) or (craddle_chip2[1]!=inductor[1] and craddle_chip2[2]!=inductor[2]): #add top left, bottom right
+						chip1_x = craddle_chip2[1]-chipx_dim*(1-sqrt(overlap))
+						chip1_y = craddle_chip2[2]+chipy_dim*(1-sqrt(overlap))
+						chip3_x = craddle_chip2[1]+chipx_dim*(1-sqrt(overlap))
+						chip3_y = craddle_chip2[2]-chipy_dim*(1-sqrt(overlap))
+						#print "top left, bottom right"
+					else: # add bottom left, top right
+						chip1_x = craddle_chip2[1]+chipx_dim*(1-sqrt(overlap))
+						chip1_y = craddle_chip2[2]+chipy_dim*(1-sqrt(overlap))
+						chip3_x = craddle_chip2[1]-chipx_dim*(1-sqrt(overlap))
+						chip3_y = craddle_chip2[2]-chipy_dim*(1-sqrt(overlap))
+						#print "bottom left, top right"
+					craddle_chip1 = [chip1_level, chip1_x, chip1_y]
+					craddle_chip3 = [chip3_level, chip3_x, chip3_y]
+					tmp_layout.add_new_chip(craddle_chip1)
+					#print 'add chip 1 ', craddle_chip1
+					tmp_layout.add_new_chip(craddle_chip3)
+					#print 'add chip 2 ', craddle_chip3
+					#print "ADDED by Middle"
 
 				else: #adding at side, craddle chip 1
-					print "Add by side"
+					if tmp_layout.get_num_levels() < 2:
+						utils.info(0,"Adding craddle by side will put craddle chip2 below level 1")
+						continue
+					#print "Add by side"
+					craddle_chip1 = tmp_layout.get_chip_positions()[-1]
+					#print 'craddle chip 1 is ', craddle_chip1
+					craddle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
+					craddle_chip2[0] = craddle_chip1[0]-1
+					#craddle_chip2 = tmp_layout.get_random_feasible_neighbor_position()
+					if craddle_chip2[1] < craddle_chip1[1]:
+						#left
+						if craddle_chip2[2] < craddle_chip1[2]:
+							#bottom
+							chip3_x = craddle_chip2[1] - chipx_dim*(1-sqrt(overlap))
+							chip3_y = craddle_chip2[2] - chipy_dim*(1-sqrt(overlap))
+						else:
+							#top
+							chip3_x = craddle_chip2[1] - chipx_dim*(1-sqrt(overlap))
+							chip3_y = craddle_chip2[2] + chipy_dim*(1-sqrt(overlap))
+					else:
+						#right
+						if craddle_chip2[2] < craddle_chip1[2]:
+							#bottom
+							chip3_x = craddle_chip2[1] + chipx_dim*(1-sqrt(overlap))
+							chip3_y = craddle_chip2[2] - chipy_dim*(1-sqrt(overlap))
+						else:
+							#top
+							chip3_x = craddle_chip2[1] + chipx_dim*(1-sqrt(overlap))
+							chip3_y = craddle_chip2[2] + chipy_dim*(1-sqrt(overlap))
+					craddle_chip3 = [craddle_chip1[0], chip3_x, chip3_y]
+					tmp_layout.add_new_chip(craddle_chip2)
+					#print 'added 2nd'
+					tmp_layout.add_new_chip(craddle_chip3)
+					#print "Added by side"
+					#tmp_layout.draw_in_3D(None, True)
+					#utils.abort("implementing adding in craddles")
+
+				#tmp_layout.draw_in_3D(None, True)
 				#print "SQUARE"
 				#if adding to middle
 					#if result[0]
-				tmp_layout.draw_in_3D(None, True)
-				utils.abort("implementing adding in craddles")
+				#tmp_layout.draw_in_3D(None, True)
+				candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
+			#utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
+			candidate_random_trials.append(candidate_list)
+		if len(candidate_random_trials) != num_neighbor_candidates:
+			utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 
-			if (layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
-				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
-				continue
+		#utils.abort("implementing adding in craddles")
 
+	else:
+		utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
+			1 + layout.get_num_chips()) + " in the layout")
+		num_attempts = 0
+		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
+			num_attempts += 1
+			new_chips = 0
+			add_attempts = 0
+			tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
+			while new_chips<num_chips_to_add and add_attempts < max_num_neighbor_candidate_attempts:
+				add_attempts += 1
+				random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
+				if (tmp_layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
+					# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
+					continue
+				result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
+				if result != None:
+					new_chips += 1
+					tmp_layout.add_new_chip(result)
 
-
-
-	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
-		1 + layout.get_num_chips()) + " in the layout")
-	num_attempts = 0
-	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
-		num_attempts += 1
-		new_chips = 0
-		add_attempts = 0
-		tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
-		while new_chips<num_chips_to_add and add_attempts < max_num_neighbor_candidate_attempts:
-			add_attempts += 1
-			random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-			if (tmp_layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
-				# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
-				continue
-			result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
-			if result != None:
-				new_chips += 1
-				tmp_layout.add_new_chip(result)
-
-		if new_chips<num_chips_to_add:
-			utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
-		candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
-		#utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
-		candidate_random_trials.append(candidate_list)
-	if len(candidate_random_trials) != num_neighbor_candidates:
-		utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
+			if new_chips<num_chips_to_add:
+				utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+			candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
+			#utils.info(1, str(num_chips_to_add) + " Candidate random chips are " + str(candidate_list))
+			candidate_random_trials.append(candidate_list)
+		if len(candidate_random_trials) != num_neighbor_candidates:
+			utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 	return candidate_random_trials
 
 #@jit
