@@ -165,7 +165,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store',
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","cradle","bridge"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","craddle","bridge","double_helix"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',

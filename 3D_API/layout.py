@@ -39,7 +39,7 @@ class Layout(object):
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
 		self.__inductor_properties = inductor_properties
-		#self.draw_in_3D(None, True) # for debugging
+		self.draw_in_3D(None, True) # for debugging
 		self.generate_topology_graph()
 
 	""" Generate a Networkx graph based on chip positions
@@ -1051,66 +1051,104 @@ class LayoutBuilder(object):
 		#     positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
 		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
 
-	"""Function to compute a diagonal craddle layout """
-
+	"""Function to comput double helix"""
 	@staticmethod
-	def compute_diagonal_craddle_layout(num_chips):
-		utils.abort("diagonal craddle not implemented yet")
-
+	def compute_double_helix(num_chips):
+		utils.info(0,"Warning level, diameter, and shape constraints ignored")
 		positions = []
 		inductor_properties = []
-
-		if (num_chips < 3):
-			utils.abort("Cannot compute craddle layout with fewer than 3 chips")
-
-		if ((num_chips % 3 != 0) and (num_chips % 3 != 1)):
-			utils.abort("Cannot compute a craddle layout with a number of chips that's not of the form 3*k or 3*k+1")
-
-		print 'shape ',utils.argv.constrained_overlap_geometry
+		any = -1
+		helices = 1 #TODO: set from argument
 
 		x_dim = utils.argv.chip.x_dimension
 		y_dim = utils.argv.chip.y_dimension
 
-		if (x_dim != y_dim):
-			utils.abort("Cannot compute a craddle layout non-square chips")
+		if x_dim != y_dim:
+			utils.abort("Cannot compute a craddle layout non-square chips (to be implemented)")
 
 		overlap = utils.argv.overlap
+		overlap_shape = utils.argv.constrained_overlap_geometry
+
+		"""apply shift"""
+		shift = 5
+		x_shift = x_dim * shift
+		y_shift = y_dim * shift
+		inductor_xdim = x_dim*sqrt(overlap)
+		inductor_ydim = y_dim*sqrt(overlap)
 
 		# Add the base structures on top of each other
 		current_level = 1
-		current_orientation = 0
-		for i in xrange(0, num_chips / 3):
-			if current_orientation == 0:
-				positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
-				positions.append([current_level + 1, 0 * x_dim, (1 - overlap) * y_dim])
-				positions.append([current_level + 1, 2 * (1 - overlap) * x_dim, (1 - overlap) * y_dim])
-				inductor_properties.append(
-					[current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim, x_dim * (overlap), y_dim])
-				inductor_properties.append(
-					[current_level, 2 * ((1 - overlap) * x_dim), (1 - overlap) * y_dim, x_dim * (overlap), y_dim])
-			else:
-				utils.abort("Inductors need to be added")
-				positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
-				positions.append([current_level + 1, (1 - overlap) * x_dim, 0])
-				positions.append([current_level + 1, (1 - overlap) * x_dim, 2 * (1 - overlap) * y_dim])
+		highest_level = 1
 
-			current_level += 2
-			current_orientation = 1 - current_orientation
+		for helix in range(1,helices+1):
+			chip1_x = 0
+			chip1_y = 0
+			chip1_level = helix
+			print 'chip 1 level ', chip1_level
 
-		# Is there an extra chip?
-		if (num_chips % 3 == 1):
-			positions.append([current_level, (1 - overlap) * x_dim, (1 - overlap) * y_dim])
+			chip2_level = chip3_level = chip1_level+1
+			chip2_x = chip1_x + x_dim*(1-sqrt(overlap))
+			chip2_y = chip1_y + y_dim*(1-sqrt(overlap))
+			chip3_x = chip1_x - x_dim*(1-sqrt(overlap))
+			chip3_y = chip1_y - y_dim*(1-sqrt(overlap))
+			ind2_level = ind3_level = chip1_level
+			ind2_x = chip2_x
+			ind2_y = chip2_y
+			ind3_x = chip1_x
+			ind3_y = chip1_y
+			print ind2_level,' ',ind3_level
+			print 'chip 2 level ', chip2_level
 
-		"""
-		# Apply some shift for breathing room
-		x_shift = x_dim * 3
-		y_shift = y_dim * 3
-		new_positions = []
-		for [l, x, y] in positions:
-			new_positions.append([l, x+ x_shift, y + y_shift])
-		positions = new_positions
-		"""
+			chip4_level = chip5_level = chip1_level+2
+			chip4_x = chip5_x = chip1_x
+			chip4_y = chip1_y+y_dim
+			chip5_y = chip1_y-y_dim
+			ind4_level = ind5_level = chip2_level
+			ind4_x = ind2_x
+			ind4_y = ind2_y + inductor_ydim
+			ind5_x = ind3_x
+			ind5_y = ind3_y - inductor_ydim
+			print ind4_level,' ',ind5_level
+			print chip4_level,' ',chip5_level
+			print 'chip 4 level ', chip4_level
+
+			highest_level = chip6_level = chip7_level = chip1_level+3
+			chip6_x = chip1_x - x_dim*(1-sqrt(overlap))
+			chip6_y = chip1_y + y_dim*(1-sqrt(overlap))
+			chip7_x = chip1_x + x_dim*(1-sqrt(overlap))
+			chip7_y = chip1_y - y_dim*(1-sqrt(overlap))
+			ind6_level = ind7_level = chip4_level
+			ind6_x = ind4_x - inductor_xdim
+			ind6_y = ind4_y
+			ind7_x = ind5_x + inductor_xdim
+			ind7_y = ind5_y
+			print 'chip 6 level ', chip6_level
+
+			positions.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift])
+			positions.append([chip2_level, chip2_x + x_shift, chip2_y + y_shift])
+			positions.append([chip3_level, chip3_x + x_shift, chip3_y + y_shift])
+			positions.append([chip4_level, chip4_x + x_shift, chip4_y + y_shift])
+			positions.append([chip5_level, chip5_x + x_shift, chip5_y + y_shift])
+			positions.append([chip6_level, chip6_x + x_shift, chip6_y + y_shift])
+			positions.append([chip7_level, chip7_x + x_shift, chip7_y + y_shift])
+
+			inductor_properties.append([ind2_level, ind2_x + x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([ind3_level, ind3_x + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([ind4_level, ind4_x + x_shift, ind4_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([ind5_level, ind5_x + x_shift, ind5_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([ind6_level, ind6_x + x_shift, ind6_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([ind7_level, ind7_x + x_shift, ind7_y + y_shift, inductor_xdim, inductor_ydim])
+			#inductor_properties.append([ind8_level, ind8_x + x_shift, ind8_y + y_shift, inductor_xdim, inductor_ydim])
+
+		if len(positions)%8!=0:
+			positions.append([highest_level+1,chip1_x + x_shift,chip1_y+ y_shift])
+			inductor_properties.append([highest_level, ind2_x - inductor_xdim+ x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
+			inductor_properties.append([highest_level, ind3_x + inductor_xdim + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
+
 		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
+#layout = Layout(7,positions,utils.argv.medium, utils.argv.overlap,)
+			#inductor_properties.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift, inductor_xdim, inductor_ydim])
+
 
 	"""Function to compute a bridge layout """
 
