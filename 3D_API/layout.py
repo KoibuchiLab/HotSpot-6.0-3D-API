@@ -30,7 +30,7 @@ class Layout(object):
 	"""
 
 	def __init__(self, chip, chip_positions, medium, overlap,
-				 inductor_properties):  # LL* add inductor position to constructor?
+				 inductor_properties):
 
 		self.__chip = chip
 		self.__medium = medium
@@ -253,7 +253,7 @@ class Layout(object):
 		# Just a check in case the user decided to add something without
 		# first checking that it was possible
 		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
-			utils.abort("Cannot add chip") #LL* do we abort here?
+			utils.abort("Cannot add chip") ###TODO: do we abort here?
 			#print "warning"
 		# adds inductors
 		if self.connect_new_chip(new_chip_position):
@@ -444,7 +444,7 @@ class Layout(object):
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
-			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color) #LL* inductor dimension is self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap)))
+			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color)
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
 
 		ax.set_zlim(0, (max_level * 2) * level_height)
@@ -956,7 +956,6 @@ class LayoutBuilder(object):
 
 	@staticmethod
 	def compute_craddle_layout(num_chips):
-		# LL* possibly start build off of [0,0]
 		###################################
 		### TODO
 		###	- correct collision when diagonal craddle overlap >.25
@@ -1155,8 +1154,6 @@ class LayoutBuilder(object):
 	@staticmethod
 	def compute_bridge_layout(num_chips):
 		# utils.abort("inductor_properties need to be added when building")
-		# LL* possibly start build off of [0,0]
-
 		positions = []
 		inductor_properties = []
 

@@ -24,10 +24,10 @@ from layout import Layout
 
 def parse_arguments():
 
+	###TODO: add to layout schemes craddle, mpi implementation, and add multiples
 	parser = argparse.ArgumentParser(epilog="""
 
 LAYOUT SCHEMES (--layout, -L):
-
   - stacked:
        chips are stacked vertically.
        (-d flag ignored)
