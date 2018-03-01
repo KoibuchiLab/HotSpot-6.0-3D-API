@@ -287,7 +287,7 @@ class Layout(object):
 			utils.info(3, "Connecting chip by adding inductor")
 			num_inductor +=1
 			if num_inductor>1:
-				utils.info(1,"\nBRIDGE!!!\n")
+				utils.info(3,"\nBRIDGE!!!\n")
 				#self.draw_in_3D(None, True)
 		if original_inductor_count < len(self.__inductor_properties):
 			return True

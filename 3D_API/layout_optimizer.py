@@ -203,11 +203,11 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 
 """
 	Add candidates in craddles
-	Returns list of a list containing the positions of the 3 craddle chips
+	Returns list containing the positions of the 3 craddle chips
 """
 
-def add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add):
-	utils.info(2,"Adding by Craddles")
+def add_craddle(layout): ###TODO: could probably hard code num_chips_to_add to 3
+	utils.info(1,"Adding by Craddles")
 	overlap = utils.argv.overlap
 	chipx_dim = utils.argv.chip.x_dimension
 	chipy_dim = utils.argv.chip.y_dimension
@@ -216,29 +216,6 @@ def add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_nu
 		utils.argv.constrained_overlap_geometry = overlape_shape = random.choice(['square','strip'])
 		utils.info(3,"shape parameter not specified, randomly chose shape parameter = "+str(overlape_shape))
 
-		"""
-	num_attempts = 0
-	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
-		num_attempts += 1
-		check geometry
-		if geometry is any, randomly pick if added craddle is going to be be straight, or diagonal
-		check level - level and (level - 1)
-		if straight, check diameter + 3(from added craddle) is allowed
-		randomly pick if craddle going to be added from middle or side
-		check diameter if craddle can be added form side or middle
-		get first craddle chip
-		get new_inductor property
-		
-		for middle
-		if (Cx==Ix and Cy==Iy) or (Cx!=Ix and Cy!=Iy):
-			add top left, bottom right
-		else:
-			add bottom left, top right
-			
-		for side square
-		connect first side chip
-		then find random feasible neighbor for first side chip and then add craddle from there
-		"""
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
 	result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
@@ -248,7 +225,7 @@ def add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_nu
 	tmp_layout.add_new_chip(result)
 	if 'strip' in overlape_shape:
 		if result[0]<2:
-			utils.info(1, "chip 2 of craddle will be below level 1")
+			utils.info(2, "chip 2 of craddle will be below level 1")
 			return None
 				#continue
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
@@ -344,18 +321,15 @@ def add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_nu
 			craddle_chip3 = [craddle_chip1[0], chip3_x, chip3_y]
 			tmp_layout.add_new_chip(craddle_chip2)
 			tmp_layout.add_new_chip(craddle_chip3)
-		candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
+		candidate_list = tmp_layout.get_chip_positions()[-3:]
 	return candidate_list
-	"""
-	candidate_random_trials.append(candidate_list)
-	return candidate_random_trials
-	"""
 
 """
-	Add multiple candidates as specified by ___arg
-	returns list of lists containing positions of the multiple chips to add
+	Add multiple candidates as specified by num_chips_to_add arg
+	returns lists containing positions of the multiple chips to add
 """
 def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add):
+	utils.info(1,"Adding chips in multiples of "+str(num_chips_to_add))
 	new_chips = 0
 	add_attempts = 0
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
@@ -383,9 +357,9 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 	num_attempts = 0
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
-		print 'add scheme ',add_scheme
 		if ('craddle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_craddle()
-			candidate_list = add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add)
+
+			candidate_list = add_craddle(layout)
 		else:
 			candidate_list = add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add)
 		if candidate_list == None:
@@ -394,45 +368,6 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 	if len(candidate_random_trials) != num_neighbor_candidates:
 			utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 	return candidate_random_trials
-
-
-	"""
-	if ('craddle' in add_scheme) and (utils.argv.num_chips%3 == 0):
-		###TODO: Maybe move while loop outside to capture multiple craddles or non multiple of 3 add craddle
-		candidate_random_trials = add_craddle(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add)
-
-		if len(candidate_random_trials) != num_neighbor_candidates:
-			utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
-
-	else:
-		utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
-			1 + layout.get_num_chips()) + " in the layout")
-		num_attempts = 0
-		while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
-			num_attempts += 1
-			new_chips = 0
-			add_attempts = 0
-			tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
-			while new_chips<num_chips_to_add and add_attempts < max_num_neighbor_candidate_attempts:
-				add_attempts += 1
-				random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-				if (tmp_layout.get_longest_shortest_path_from_chip(random_chip) >= utils.argv.diameter):
-					# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
-					continue
-				result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
-				if result != None:
-					new_chips += 1
-					tmp_layout.add_new_chip(result)
-
-			if new_chips<num_chips_to_add:
-				utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
-			candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
-
-			candidate_random_trials.append(candidate_list)
-		if len(candidate_random_trials) != num_neighbor_candidates:
-			utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
-	return candidate_random_trials
-	"""
 
 #@jit
 def pick_candidates(layout, results, candidate_random_trials):
@@ -637,7 +572,6 @@ def optimize_layout_random_greedy_mpi():
 			if num_chips_to_add > utils.argv.num_chips - layout.get_num_chips(): #preprocessing
 				num_chips_to_add = utils.argv.num_chips - layout.get_num_chips()
 				utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
-			#print 'passing add scheme ',add_scheme
 			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add,add_scheme)
 
 			###############################################
