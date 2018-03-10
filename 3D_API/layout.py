@@ -252,7 +252,10 @@ class Layout(object):
 
 		# Just a check in case the user decided to add something without
 		# first checking that it was possible
+		#self.draw_in_3D(None,True)
 		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
+			print 'new chip position is ' ,new_chip_position, 'num chips is ',len(self.get_chip_positions())
+			self.draw_in_3D(None,True)
 			utils.abort("Cannot add chip") ###TODO: do we abort here?
 			#print "warning"
 		# adds inductors
@@ -338,7 +341,7 @@ class Layout(object):
 				[x, y],
 				[x + self.__chip.x_dimension, y + self.__chip.y_dimension])
 			if (overlap - FLOATING_POINT_EPSILON> 0.0):
-				# print "   - NO: COLLISION! overlap = ", overlap
+				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
 		# print "   - YES: FITS"
 
@@ -981,8 +984,9 @@ class LayoutBuilder(object):
 		if overlap_shape is None:
 			overlap_shape = 'any'
 		if 'any' in overlap_shape:
+			overlap_shape = 'square' ###set to square b/c it gives more potions when adding
 			#any = utils.pick_random_element([0,1])
-			overlap_shape = random.choice(['square','strip']) #TODO: implement this
+			#overlap_shape = random.choice(['square','strip']) ###TODO: set globally???
 			#print "\n\nany is "+str(any)+"\n\n"
 		"""apply shift"""
 		shift = 5
@@ -1117,10 +1121,10 @@ class LayoutBuilder(object):
 			chip7_x = chip1_x + x_dim*(1-sqrt(overlap))
 			chip7_y = chip1_y - y_dim*(1-sqrt(overlap))
 			ind6_level = ind7_level = chip4_level
-			ind6_x = ind4_x - inductor_xdim
-			ind6_y = ind4_y
-			ind7_x = ind5_x + inductor_xdim
-			ind7_y = ind5_y
+			ind6_x = chip6_x
+			ind6_y = chip6_y
+			ind7_x = chip7_x
+			ind7_y = chip7_y
 			#print 'chip 6 level ', chip6_level
 
 			positions.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift])

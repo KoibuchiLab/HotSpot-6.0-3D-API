@@ -106,3 +106,8 @@ Currently testing:
 mpirun -np 2 ./optimize_layout.py --numchips 6 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:3:100:craddle  --numlevels 3 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .25 --max_allowed_temperature 89  --verbose 0 --test --show_in_3D --mpi -C square
 
 	- working on adding craddles with square inductors
+
+Multichip add experiement command:
+where X = number of chips(12 or 9)
+
+mpirun -np 16 ./optimize_layout.py --numchips x --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:X  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --test --mpi -C any
