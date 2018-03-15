@@ -42,8 +42,8 @@ def optimize_layout():
 		solution = optimize_layout_rectilinear("diagonal")
 	elif (layout_scheme == "checkerboard"):
 		solution = optimize_layout_checkerboard()
-	elif (layout_scheme == "craddle"):
-		solution = optimize_layout_craddle()
+	elif (layout_scheme == "cradle"):
+		solution = optimize_layout_cradle()
 	elif (layout_scheme == "double_helix"):
 		solution = optimize_layout_double_helix()
 	elif (layout_scheme == "bridge"):
@@ -180,7 +180,7 @@ def evaluate_candidate(args):
 
 #@jit
 def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts):
-	utils.info(1, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
+	utils.info(2, "* Generating " + str(num_neighbor_candidates) + " candidate positions for chip #" + str(
 		1 + layout.get_num_chips()) + " in the layout")
 	num_attempts = 0
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (
@@ -202,143 +202,164 @@ def generate_candidates(layout, candidate_random_trials, num_neighbor_candidates
 	return candidate_random_trials
 
 """
-	Add candidates in craddles
-	Returns list containing the positions of the 3 craddle chips
+	Add candidates in cradles
+	Returns list containing the positions of the 3 cradle chips
 """
 
-def add_craddle(layout): ###TODO: could probably hard code num_chips_to_add to 3
-	utils.info(1,"Adding by Craddles")
+def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
+	utils.info(2,"Adding by cradles")
 	overlap = utils.argv.overlap
 	chipx_dim = utils.argv.chip.x_dimension
 	chipy_dim = utils.argv.chip.y_dimension
-	overlape_shape = utils.argv.constrained_overlap_geometry
 	any_shape = False
-	if (overlape_shape is None) or ('any' in overlape_shape): ###TODO: ok to set globally?
-		utils.argv.constrained_overlap_geometry = overlape_shape = random.choice(['square','strip'])
+	if (utils.argv.constrained_overlap_geometry is None) or ('any' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
+		utils.argv.constrained_overlap_geometry = random.choice(['square','strip'])
 		any_shape = True
 		#overlape_shape = random.choice(['square','strip'])
-		utils.info(2,"shape parameter not specified, randomly chose shape parameter = "+str(overlape_shape))
+		utils.info(1,"shape parameter not specified, randomly chose shape parameter = "+str(utils.argv.constrained_overlap_geometry))
+	overlape_shape = utils.argv.constrained_overlap_geometry
 
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
 	result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
 	if result == None:
+		utils.argv.constrained_overlap_geometry = 'any'
 		return None
 		#continue
-	tmp_layout.add_new_chip(result)
+	try:
+		tmp_layout.add_new_chip(result)
+	except:
+		print 'PROBLEM chip 1'
+
 	if 'strip' in overlape_shape:
 		if result[0]<2:
-			utils.info(2, "chip 2 of craddle will be below level 1")
+			utils.info(1, "chip 2 of cradle will be below level 1")
+			utils.argv.constrained_overlap_geometry = 'any'
 			return None
 				#continue
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
-			utils.info(3,"Adding craddle exceeds diameter constraint")
+			utils.info(1,"Adding cradle exceeds diameter constraint")
+			utils.argv.constrained_overlap_geometry = 'any'
 			return None
-			#continue #adding a craddle will exceed diameter constraint
-		craddle_chip1 = tmp_layout.get_chip_positions()[-1]
-		craddle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
-		craddle_chip2[0] = craddle_chip1[0]-1
-		if craddle_chip1[1] == craddle_chip2[1]: # add vertically
-			if craddle_chip1[2] < craddle_chip2[2]: #add above
-				chip3_level = craddle_chip1[0]
-				chip3_x = craddle_chip2[1]
-				chip3_y = craddle_chip2[2]+(1-overlap)*chipy_dim
+			#continue #adding a cradle will exceed diameter constraint
+		cradle_chip1 = tmp_layout.get_chip_positions()[-1]
+		cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
+		cradle_chip2[0] = cradle_chip1[0]-1
+		if cradle_chip1[1] == cradle_chip2[1]: # add vertically
+			if cradle_chip1[2] < cradle_chip2[2]: #add above
+				chip3_level = cradle_chip1[0]
+				chip3_x = cradle_chip2[1]
+				chip3_y = cradle_chip2[2]+(1-overlap)*chipy_dim
 			else: # add below
-				chip3_level = craddle_chip1[0]
-				chip3_x = craddle_chip2[1]
-				chip3_y = craddle_chip2[2]-(1-overlap)*chipy_dim
+				chip3_level = cradle_chip1[0]
+				chip3_x = cradle_chip2[1]
+				chip3_y = cradle_chip2[2]-(1-overlap)*chipy_dim
 		else: # add horizontally
-			if craddle_chip1[1] < craddle_chip2[1]: #add right
-				chip3_level = craddle_chip1[0]
-				chip3_x = craddle_chip2[1]+(1-overlap)*chipx_dim
-				chip3_y = craddle_chip2[2]
+			if cradle_chip1[1] < cradle_chip2[1]: #add right
+				chip3_level = cradle_chip1[0]
+				chip3_x = cradle_chip2[1]+(1-overlap)*chipx_dim
+				chip3_y = cradle_chip2[2]
 			else: # add left
-				chip3_level = craddle_chip1[0]
-				chip3_x = craddle_chip2[1]-(1-overlap)*chipx_dim
-				chip3_y = craddle_chip2[2]
+				chip3_level = cradle_chip1[0]
+				chip3_x = cradle_chip2[1]-(1-overlap)*chipx_dim
+				chip3_y = cradle_chip2[2]
 
-		craddle_chip3 = [chip3_level, chip3_x, chip3_y]
-		print "STRIP"
-		#tmp_layout.add_new_chip(craddle_chip2)
-		#tmp_layout.add_new_chip(craddle_chip3)
-		second_craddle_chip = craddle_chip2
-		third_craddle_chip = craddle_chip3
+		cradle_chip3 = [chip3_level, chip3_x, chip3_y]
+		#print "STRIP"
+		#tmp_layout.add_new_chip(cradle_chip2)
+		#tmp_layout.add_new_chip(cradle_chip3)
+		second_cradle_chip = cradle_chip2
+		third_cradle_chip = cradle_chip3
 		#candidate_list = tmp_layout.get_chip_positions()[-3:]
 
 	elif 'square' in overlape_shape:
 		attached_at = utils.pick_random_element([1,2])
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
-				utils.info(0, "Adding craddle by the middle chip still exceeds diameter constraint")
+				utils.info(1, "Adding cradle by the middle chip still exceeds diameter constraint")
+				utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continu1
 			attached_at = 2
 		inductor = tmp_layout.get_inductor_properties()[-1]
-		if attached_at == 2: #adding at middle of craddle, craddle chip 2
+		if attached_at == 2: #adding at middle of cradle, cradle chip 2
 			if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
-				utils.info(1,"Adding craddle by middle exceeds level constraint")
+				utils.info(1,"Adding cradle by middle exceeds level constraint")
+				utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continue
-			craddle_chip2 = tmp_layout.get_chip_positions()[-1]
-			chip1_level = chip3_level = craddle_chip2[0]+1
-			if (craddle_chip2[1]==inductor[1] and craddle_chip2[2]==inductor[2]) or (craddle_chip2[1]!=inductor[1] and craddle_chip2[2]!=inductor[2]): #add top left, bottom right
-				chip1_x = craddle_chip2[1]-chipx_dim*(1-sqrt(overlap))
-				chip1_y = craddle_chip2[2]+chipy_dim*(1-sqrt(overlap))
-				chip3_x = craddle_chip2[1]+chipx_dim*(1-sqrt(overlap))
-				chip3_y = craddle_chip2[2]-chipy_dim*(1-sqrt(overlap))
+			cradle_chip2 = tmp_layout.get_chip_positions()[-1]
+			chip1_level = chip3_level = cradle_chip2[0]+1
+			if (cradle_chip2[1]==inductor[1] and cradle_chip2[2]==inductor[2]) or (cradle_chip2[1]!=inductor[1] and cradle_chip2[2]!=inductor[2]): #add top left, bottom right
+				chip1_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
+				chip1_y = cradle_chip2[2]+chipy_dim*(1-sqrt(overlap))
+				chip3_x = cradle_chip2[1]+chipx_dim*(1-sqrt(overlap))
+				chip3_y = cradle_chip2[2]-chipy_dim*(1-sqrt(overlap))
 			else: # add bottom left, top right
-				chip1_x = craddle_chip2[1]+chipx_dim*(1-sqrt(overlap))
-				chip1_y = craddle_chip2[2]+chipy_dim*(1-sqrt(overlap))
-				chip3_x = craddle_chip2[1]-chipx_dim*(1-sqrt(overlap))
-				chip3_y = craddle_chip2[2]-chipy_dim*(1-sqrt(overlap))
-			craddle_chip1 = [chip1_level, chip1_x, chip1_y]
-			craddle_chip3 = [chip3_level, chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(craddle_chip1)
-			#tmp_layout.add_new_chip(craddle_chip3)
-			print "MIDDLE"
-			second_craddle_chip = craddle_chip1
-			third_craddle_chip = craddle_chip3
+				chip1_x = cradle_chip2[1]+chipx_dim*(1-sqrt(overlap))
+				chip1_y = cradle_chip2[2]+chipy_dim*(1-sqrt(overlap))
+				chip3_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
+				chip3_y = cradle_chip2[2]-chipy_dim*(1-sqrt(overlap))
+			cradle_chip1 = [chip1_level, chip1_x, chip1_y]
+			cradle_chip3 = [chip3_level, chip3_x, chip3_y]
+			#tmp_layout.add_new_chip(cradle_chip1)
+			#tmp_layout.add_new_chip(cradle_chip3)
+			#print "MIDDLE"
+			second_cradle_chip = cradle_chip1
+			third_cradle_chip = cradle_chip3
 
-		else: #adding at side, craddle chip 1
+		else: #adding at side, cradle chip 1
 			if tmp_layout.get_num_levels() < 2: ###TODO: check that this works
-				utils.info(0,"Adding craddle by side will put craddle chip2 below level 1")
+				utils.info(1,"Adding cradle by side will put cradle chip2 below level 1")
+				utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continue
-			craddle_chip1 = tmp_layout.get_chip_positions()[-1]
-			craddle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
-			craddle_chip2[0] = craddle_chip1[0]-1
-			if craddle_chip2[1] < craddle_chip1[1]:
+			cradle_chip1 = tmp_layout.get_chip_positions()[-1]
+			cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
+			cradle_chip2[0] = cradle_chip1[0]-1
+			if cradle_chip2[1] < cradle_chip1[1]:
 				#left
-				if craddle_chip2[2] < craddle_chip1[2]:
+				if cradle_chip2[2] < cradle_chip1[2]:
 					#bottom
-					chip3_x = craddle_chip2[1] - chipx_dim*(1-sqrt(overlap))
-					chip3_y = craddle_chip2[2] - chipy_dim*(1-sqrt(overlap))
+					chip3_x = cradle_chip2[1] - chipx_dim*(1-sqrt(overlap))
+					chip3_y = cradle_chip2[2] - chipy_dim*(1-sqrt(overlap))
 				else:
 					#top
-					chip3_x = craddle_chip2[1] - chipx_dim*(1-sqrt(overlap))
-					chip3_y = craddle_chip2[2] + chipy_dim*(1-sqrt(overlap))
+					chip3_x = cradle_chip2[1] - chipx_dim*(1-sqrt(overlap))
+					chip3_y = cradle_chip2[2] + chipy_dim*(1-sqrt(overlap))
 			else:
 				#right
-				if craddle_chip2[2] < craddle_chip1[2]:
+				if cradle_chip2[2] < cradle_chip1[2]:
 					#bottom
-					chip3_x = craddle_chip2[1] + chipx_dim*(1-sqrt(overlap))
-					chip3_y = craddle_chip2[2] - chipy_dim*(1-sqrt(overlap))
+					chip3_x = cradle_chip2[1] + chipx_dim*(1-sqrt(overlap))
+					chip3_y = cradle_chip2[2] - chipy_dim*(1-sqrt(overlap))
 				else:
 					#top
-					chip3_x = craddle_chip2[1] + chipx_dim*(1-sqrt(overlap))
-					chip3_y = craddle_chip2[2] + chipy_dim*(1-sqrt(overlap))
-			craddle_chip3 = [craddle_chip1[0], chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(craddle_chip2)
-			#tmp_layout.add_new_chip(craddle_chip3)
-			second_craddle_chip = craddle_chip2
-			third_craddle_chip = craddle_chip3
-			print "SIDE"
-	tmp_layout.add_new_chip(second_craddle_chip)
-	tmp_layout.add_new_chip(third_craddle_chip)
+					chip3_x = cradle_chip2[1] + chipx_dim*(1-sqrt(overlap))
+					chip3_y = cradle_chip2[2] + chipy_dim*(1-sqrt(overlap))
+			cradle_chip3 = [cradle_chip1[0], chip3_x, chip3_y]
+			#tmp_layout.add_new_chip(cradle_chip2)
+			#tmp_layout.add_new_chip(cradle_chip3)
+			second_cradle_chip = cradle_chip2
+			third_cradle_chip = cradle_chip3
+			#print "SIDE"
+	try:
+		tmp_layout.add_new_chip(second_cradle_chip)
+	except:
+		print "PROBLEM2"
+		utils.argv.constrained_overlap_geometry = 'any'
+		return None
+	try:
+		tmp_layout.add_new_chip(third_cradle_chip)
+	except:
+		print "PROBLEM3"
+		utils.argv.constrained_overlap_geometry = 'any'
+		return None
+
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 	if any_shape is True:
 		utils.argv.constrained_overlap_geometry = 'any'
-		utils.info(3,"Reseting global shape parameter back to any")
+		utils.info(1,"Reseting global shape parameter back to any")
 	return candidate_list
 
 """
@@ -346,7 +367,7 @@ def add_craddle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	returns lists containing positions of the multiple chips to add
 """
 def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add):
-	utils.info(1,"Adding chips in multiples of "+str(num_chips_to_add))
+	utils.info(0,"Adding chips in multiples of "+str(num_chips_to_add))
 	new_chips = 0
 	add_attempts = 0
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
@@ -370,13 +391,13 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 
 #@jit
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
-
+	utils.info(3,"generating multi candidates")
 	num_attempts = 0
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
-		if ('craddle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_craddle()
+		if ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_cradle()
 
-			candidate_list = add_craddle(layout)
+			candidate_list = add_cradle(layout)
 		else:
 			candidate_list = add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add)
 		if candidate_list == None:
@@ -444,7 +465,7 @@ def pick_candidates(layout, results, candidate_random_trials):
 
 
 def optimize_layout_random_greedy():
-	layout = LayoutBuilder.compute_craddle_layout(3)
+	layout = LayoutBuilder.compute_cradle_layout(3)
 
 	num_neighbor_candidates = 10  # Default value
 	max_num_neighbor_candidate_attempts = 1000  # default value
@@ -552,7 +573,7 @@ def optimize_layout_random_greedy_mpi():
 		comm.bcast([0, 0, 0, 0, 1],root=0)
 		utils.abort("Need to invoke with 'mpirun-np #' where # is int processes greater than 1")
 	if rank == 0:
-		layout = LayoutBuilder.compute_craddle_layout(3)
+		layout = LayoutBuilder.compute_cradle_layout(3)
 
 		num_neighbor_candidates = 20  # Default value
 		max_num_neighbor_candidate_attempts = 1000  # default value
@@ -599,8 +620,8 @@ def optimize_layout_random_greedy_mpi():
 
 			###############################################
 			### TODO
-			### - implement add craddles
-			###		- find feasible craddle function, in layout
+			### - implement add cradles
+			###		- find feasible cradle function, in layout
 			### - look into merging this function with sequential version
 			###############################################
 
@@ -631,7 +652,6 @@ def optimize_layout_random_greedy_mpi():
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
 
-
 			if picked_candidate == None:
 				send_stop_signals(worker_list, comm)
 				utils.abort("Could not find a candidate that met the temperature constraint")
@@ -643,8 +663,10 @@ def optimize_layout_random_greedy_mpi():
 		# result = find_maximum_power_budget(layout)
 		# saved_result = results[picked_index]
 		# print '\n\result is ',result,'\nsaved_result is ',saved_result
-		result = results[picked_index]
 
+		if not results:
+			return None
+		result = results[picked_index]
 		if (result == None):
 			return None
 
@@ -707,12 +729,12 @@ def optimize_layout_checkerboard():
 """Cradle layout optimization"""
 
 
-def optimize_layout_craddle():
+def optimize_layout_cradle():
 	if (utils.argv.verbose == 0):
 		sys.stderr.write("o")
-	utils.info(1, "Constructing a craddle layout")
+	utils.info(1, "Constructing a cradle layout")
 
-	layout = LayoutBuilder.compute_craddle_layout(utils.argv.num_chips)
+	layout = LayoutBuilder.compute_cradle_layout(utils.argv.num_chips)
 
 	utils.info(1, "Finding the maximum Power Budget")
 	result = find_maximum_power_budget(layout)

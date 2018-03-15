@@ -24,7 +24,7 @@ from layout import Layout
 
 def parse_arguments():
 
-	###TODO: add to layout schemes craddle, mpi implementation, and add multiples
+	###TODO: add to layout schemes cradle, mpi implementation, and add multiples
 	parser = argparse.ArgumentParser(epilog="""
 
 LAYOUT SCHEMES (--layout, -L):
@@ -165,7 +165,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store',
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","craddle","bridge","double_helix"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","cradle","bridge","double_helix"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',

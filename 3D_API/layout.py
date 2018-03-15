@@ -254,8 +254,8 @@ class Layout(object):
 		# first checking that it was possible
 		#self.draw_in_3D(None,True)
 		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
-			print 'new chip position is ' ,new_chip_position, 'num chips is ',len(self.get_chip_positions())
-			self.draw_in_3D(None,True)
+			#print 'new chip position is ' ,new_chip_position, 'num chips is ',len(self.get_chip_positions())
+			#self.draw_in_3D(None,True)
 			utils.abort("Cannot add chip") ###TODO: do we abort here?
 			#print "warning"
 		# adds inductors
@@ -955,13 +955,13 @@ class LayoutBuilder(object):
 
 	#	return layout
 
-	"""Function to compute a craddle layout """
+	"""Function to compute a cradle layout """
 
 	@staticmethod
-	def compute_craddle_layout(num_chips):
+	def compute_cradle_layout(num_chips):
 		###################################
 		### TODO
-		###	- correct collision when diagonal craddle overlap >.25
+		###	- correct collision when diagonal cradle overlap >.25
 		### - check on -C options, both???
 		###################################
 
@@ -970,13 +970,13 @@ class LayoutBuilder(object):
 		any = -1
 
 		if num_chips != 3:
-			utils.abort("Can only compute a craddle  with 3 chips")
+			utils.abort("Can only compute a cradle  with 3 chips")
 
 		x_dim = utils.argv.chip.x_dimension
 		y_dim = utils.argv.chip.y_dimension
 
 		if x_dim != y_dim:
-			utils.abort("Cannot compute a craddle layout non-square chips (to be implemented)")
+			utils.abort("Cannot compute a cradle layout non-square chips (to be implemented)")
 		#print 'shape ',utils.argv.constrained_overlap_geometry
 
 		overlap = utils.argv.overlap
@@ -1017,7 +1017,7 @@ class LayoutBuilder(object):
 			inductor2_y = chip3_y
 		elif 'square' in overlap_shape:
 			if overlap > .25:
-				utils.abort("\nCan't build craddle with overlap greater than .25 and square overlap\nCollisions occur\nChange overlap or shape contraiant")
+				utils.abort("\nCan't build cradle with overlap greater than .25 and square overlap\nCollisions occur\nChange overlap or shape contraiant")
 			chip1_level = chip3_level = current_level+1
 			chip2_level = current_level
 
@@ -1067,7 +1067,7 @@ class LayoutBuilder(object):
 		y_dim = utils.argv.chip.y_dimension
 
 		if x_dim != y_dim:
-			utils.abort("Cannot compute a craddle layout non-square chips (to be implemented)")
+			utils.abort("Cannot compute a cradle layout non-square chips (to be implemented)")
 
 		overlap = utils.argv.overlap
 		overlap_shape = utils.argv.constrained_overlap_geometry
