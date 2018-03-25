@@ -992,6 +992,7 @@ class LayoutBuilder(object):
 
 		overlap = utils.argv.overlap
 		overlap_shape = utils.argv.constrained_overlap_geometry
+		#print 'build shape ', overlap_shape
 		if overlap_shape is None:
 			overlap_shape = 'any'
 		if 'any' in overlap_shape:

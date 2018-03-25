@@ -222,10 +222,13 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	chipx_dim = utils.argv.chip.x_dimension
 	chipy_dim = utils.argv.chip.y_dimension
 	any_shape = False
-	overlape_shape = utils.argv.constrained_overlap_geometry
-
-	if (utils.argv.constrained_overlap_geometry is None) or ('any' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
-		overlape_shape = random.choice(['square','strip'])
+	overlap_shape = utils.argv.constrained_overlap_geometry
+	#print 'global overlap ',utils.argv.constrained_overlap_geometry
+	#if not('strip' in utils.argv.constrained_overlap_geometry) or not('square' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
+	if (overlap_shape is None) or ('any' in overlap_shape): ###TODO: ok to set globally?
+	#if (utils.argv.constrained_overlap_geometry is None) or ('any' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
+		overlap_shape = random.choice(['square','strip'])
+		#print "HERE!!!"
 		#utils.argv.constrained_overlap_geometry = random.choice(['square','strip'])
 		#any_shape = True
 		#overlape_shape = random.choice(['square','strip'])
@@ -236,6 +239,7 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
 	#random_chip = 1
 	result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
+	#print 'overlap shape is ', overlap_shape
 	if result == None:
 		#utils.argv.constrained_overlap_geometry = 'any'
 		utils.info(1, "Could not find a place to add the first cradle chip")
@@ -248,15 +252,15 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		return None
 		#print 'PROBLEM chip 1'
 
-	if 'strip' in overlape_shape:
+	if 'strip' in overlap_shape:
 		if result[0]<2:
 			utils.info(1, "chip 2 of cradle will be below level 1")
-			utils.argv.constrained_overlap_geometry = 'any'
+			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
 				#continue
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			utils.info(1,"Adding cradle exceeds diameter constraint")
-			utils.argv.constrained_overlap_geometry = 'any'
+			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
 			#continue #adding a cradle will exceed diameter constraint
 		cradle_chip1 = tmp_layout.get_chip_positions()[-1]
@@ -290,12 +294,13 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		third_cradle_chip = cradle_chip3
 		#candidate_list = tmp_layout.get_chip_positions()[-3:]
 
-	elif 'square' in overlape_shape:
+	elif 'square' in overlap_shape:
+		#print "\n\n\n\nNO\n\n\n\n\n"
 		attached_at = utils.pick_random_element([1,2])
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
 				utils.info(1, "Adding cradle by the middle chip still exceeds diameter constraint")
-				utils.argv.constrained_overlap_geometry = 'any'
+				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continu1
 			attached_at = 2
@@ -303,19 +308,18 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		if attached_at == 2: #adding at middle of cradle, cradle chip 2
 			if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
 				utils.info(1,"Adding cradle by middle exceeds level constraint")
-				utils.argv.constrained_overlap_geometry = 'any'
+				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continue
 			cradle_chip2 = tmp_layout.get_chip_positions()[-1]
+			#print 'num chips in layout is ', len(tmp_layout.get_chip_positions())
 			chip1_level = chip3_level = cradle_chip2[0]+1
 			if (cradle_chip2[1]==inductor[1] and cradle_chip2[2]==inductor[2]) or (cradle_chip2[1]!=inductor[1] and cradle_chip2[2]!=inductor[2]): #add top left, bottom right
 				chip1_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
 				chip1_y = cradle_chip2[2]+chipy_dim*(1-sqrt(overlap))
 				chip3_x = cradle_chip2[1]+chipx_dim*(1-sqrt(overlap))
 				chip3_y = cradle_chip2[2]-chipy_dim*(1-sqrt(overlap))
-				#print "\n\nDis one\n"
 			else: # add bottom left, top right
-				#print "\n\nDAT one\n"
 				chip1_x = cradle_chip2[1]+chipx_dim*(1-sqrt(overlap))
 				chip1_y = cradle_chip2[2]+chipy_dim*(1-sqrt(overlap))
 				chip3_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
@@ -325,20 +329,19 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 			#tmp_layout.add_new_chip(cradle_chip1)
 			#tmp_layout.add_new_chip(cradle_chip3)
 			#print "MIDDLE"
-			#print "HERE!!!"
 			second_cradle_chip = cradle_chip1
 			third_cradle_chip = cradle_chip3
 
 		else: #adding at side, cradle chip 1
 			if tmp_layout.get_num_levels() < 2: ###TODO: check that this works
 				utils.info(1,"Adding cradle by side will put cradle chip2 below level 1")
-				utils.argv.constrained_overlap_geometry = 'any'
+				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
 				#continue
 			cradle_chip1 = tmp_layout.get_chip_positions()[-1]
 			cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
 			if cradle_chip2 is None:
-				print "This is a problem"
+				#print "This is a problem"
 				return None
 			cradle_chip2[0] = cradle_chip1[0]-1
 			if cradle_chip2[1] < cradle_chip1[1]:
@@ -392,9 +395,9 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 	#print 'there are that many chips in tmp layout -> ',len(tmp_layout.get_chip_positions())
 
-	if any_shape is True:
-		utils.argv.constrained_overlap_geometry = 'any'
-		utils.info(1,"Reseting global shape parameter back to any")
+	#if any_shape is True:
+	#	utils.argv.constrained_overlap_geometry = 'any'
+	#	utils.info(1,"Reseting global shape parameter back to any")
 	return candidate_list
 
 """
@@ -402,7 +405,7 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	returns lists containing positions of the multiple chips to add
 """
 def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add):
-	utils.info(0,"Adding chips in multiples of "+str(num_chips_to_add))
+	utils.info(2,"Adding chips in multiples of "+str(num_chips_to_add))
 	new_chips = 0
 	add_attempts = 0
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
@@ -418,7 +421,7 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 			try:
 				tmp_layout.add_new_chip(result)
 			except:
-				print "error in add_multi_chip()"
+				#print "error in add_multi_chip()"
 				continue
 
 	if new_chips<num_chips_to_add:
@@ -441,21 +444,21 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			if candidate_list is None:
 				continue
 			elif len(candidate_list)<3:
-				print '\n\n\nOMG\n\n\n\n',len(candidate_list)
 				continue
 		else:
 			candidate_list = add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add)
 			if candidate_list == None:
 				continue
 		#layout.draw_in_3D(None,True)
-		for candidtates in candidate_list:
+		#for candidtates in candidate_list:
 			#print 'there are that many chips --> ',len(layout.get_chip_positions())
-			if layout.get_chip_positions()[-1] == candidtates:
-				print "\n\n\n\n\n\n\nWTF\n\n\n\n\n"
+		#	if layout.get_chip_positions()[-1] == candidtates:
+		#		print "\n\n\n\n\n\n\nWTF\n\n\n\n\n"
 		candidate_random_trials.append(candidate_list)
 
 	if len(candidate_random_trials) != num_neighbor_candidates:
 			utils.info(0, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
+			"""
 			overlap = utils.argv.overlap
 			level, xor, yor = layout.get_chip_positions()[1]
 			xend = xor + layout.get_chip().x_dimension
@@ -466,6 +469,7 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			ybe = yor + .013 - overlap*.013
 			print '[',xbb,',',xbe,'] [',ybb,',',ybe,']'
 			#utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
+			"""
 	return candidate_random_trials
 
 #@jit
