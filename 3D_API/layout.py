@@ -256,7 +256,7 @@ class Layout(object):
 		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
 			#print 'new chip position is ' ,new_chip_position, 'num chips is ',len(self.get_chip_positions())
 			#self.draw_in_3D(None,True)
-			utils.abort("Cannot add chip") ###TODO: do we abort here?
+			utils.abort("Cannot add chip, does not fit") ###TODO: do we abort here?
 			#print "warning"
 		# adds inductors
 		if self.connect_new_chip(new_chip_position):
@@ -341,6 +341,9 @@ class Layout(object):
 				[x, y],
 				[x + self.__chip.x_dimension, y + self.__chip.y_dimension])
 			if (overlap - FLOATING_POINT_EPSILON> 0.0):
+				#print 'exisiting chip is [',existing_chip[1],',',existing_chip[2],']'
+				#print 'new chip is [',x,',',y,']'
+				#self.draw_in_3D(None, True)
 				#print "   - NO: COLLISION! overlap = ", overlap
 				return False
 		# print "   - YES: FITS"
@@ -732,27 +735,34 @@ class Layout(object):
 
 	@staticmethod
 	def get_random_overlapping_rectangle(rectangle1_bottom_left, rectangle_dimensions, overlap, shape):
-
+		if (shape is None) or ('any' in shape):
+			shape = random.choice(['square','strip'])
+		"""
 		if shape is None:
 			# print 'shape is', None
 			shape = "any"
-
+		"""
 		[rectangle1_x, rectangle1_y] = rectangle1_bottom_left
 		[dim_x, dim_y] = rectangle_dimensions
 
-		candidates = []
+		#print 'bottom left ', rectangle1_bottom_left
+		#print 'dimensions ', rectangle_dimensions
 
+		candidates = []
+		"""
 		if shape == "strip or square":
+			print "BUG?"
 			if (random.uniform(0, 1) < 0.5):
 				shape = "strip"
 			else:
 				shape = "square"
-
+		"""
 		# Assume for now that the overlap is in the North-East region
 
 		if shape == "any":
 			# pick an x value
 			picked_x = random.uniform(rectangle1_x, rectangle1_x + dim_x - overlap * dim_x)
+			#print picked_x
 			# compute the y value that makes the right overlap
 			picked_y = rectangle1_y + dim_y - (overlap * dim_x * dim_y) / (rectangle1_x + dim_x - picked_x)
 		elif shape == "strip":
@@ -809,7 +819,7 @@ class Layout(object):
 
 		# Pick a random location relative to the last chip
 		# getout = 0 #program hanging, cant find a valid random overlapping rectangle
-		max_num_trials = 100
+		max_num_trials = 10
 		num_trials = 0
 		"""
 		xdim = utils.argv.chip.x_dimension
@@ -839,15 +849,16 @@ class Layout(object):
 				possible_levels = [chip_position[0] - 1, chip_position[0] + 1]
 			# utils.info(1,"chip_position %s\n"%chip_position)
 			picked_level = utils.pick_random_element(possible_levels)
-			# print"picked_level %s\n"%picked_level
+			#print"picked_level %s\n"%picked_level
 			[picked_x, picked_y] = Layout.get_random_overlapping_rectangle([chip_position[1], chip_position[2]], [self.__chip.x_dimension, self.__chip.y_dimension], utils.argv.overlap, utils.argv.constrained_overlap_geometry)
 			#print 'picked = ',picked_x,' ', picked_y
 			if (self.can_new_chip_fit([picked_level, picked_x, picked_y])):
+				#print "New Random Chip Can Fit"
 				if not self.check_cross_talk(self.get_new_inductor_properties([picked_level, picked_x, picked_y], chip_position)):
 					utils.info(3, "Found a feasible random neighbor for chip #" + str(chip_index))
 					#print "!!!GREAT!!!"
 					return [picked_level, picked_x, picked_y];
-		utils.info(3, "Could not find a feasible random neighbor for chip #" + str(chip_index))
+		utils.info(2, "Could not find a feasible random neighbor for chip #" + str(chip_index))
 		return None
 		#return [3,0.078,0.07475]
 
