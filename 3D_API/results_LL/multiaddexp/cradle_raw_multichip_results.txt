@@ -1,0 +1,3 @@
+trial	chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature
+1	cradle	1.4671061039	16	3	6	2.4696969697	56.7207	3600.0	58
+1	cradle	1.07831001282	12	3	4	2.0	56.7207	3600.0	58

@@ -59,13 +59,13 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	numchips = [12]
+	numchips = [12, 9]
 	candidates = 15
 	candidate_trials = 1000
-	add_by = [9]
+	add_by = ['cradle']
 	export_path = " -e results_LL/multiaddexp/"
-	raw_result_file = "results_LL/multiaddexp/8raw_multichip_results.txt"
-	avg_result_file = "results_LL/multiaddexp/8avg_multichip_results.txt"
+	raw_result_file = "results_LL/multiaddexp/cradle_raw_multichip_results.txt"
+	avg_result_file = "results_LL/multiaddexp/cradle_avg_multichip_results.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
@@ -82,7 +82,7 @@ def main():
 					continue
 				trial_results = []
 				trial_ex_time = []
-				for trial in range(1,11):
+				for trial in range(1,2):
 					#add trials in after we run successfully
 					command = "mpirun -np 16 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"#+export_path+str(num)+"_chip_add_"+str(add)+"_trial_"+str(trial)+".pdf"
 					start = time.time()
