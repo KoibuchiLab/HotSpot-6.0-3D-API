@@ -1,10 +1,10 @@
 chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature
-cradle	1.4671061039	16.0	3.0	6.0	2.4696969697	56.7207	3600.0	58.0
+cradle	482.317897916	16.2	3.5	5.3	2.4196969697	56.7207	3600.0	56.925
 base3
 layout_size = 12
 candidates 15
 
-cradle	1.07831001282	12.0	3.0	4.0	2.0	56.7207	3600.0	58.0
+cradle	291.775615573	11.5	3.1	4.2	2.06666666667	56.7207	3600.0	52.934
 base3
 layout_size = 9
 candidates 15
