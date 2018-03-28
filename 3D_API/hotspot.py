@@ -39,18 +39,7 @@ def call_cell(sorted_file, pid):
 		subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 		print '********EXITING HOTSPOT.py********'
 		sys.exit(1)
-	"""
 
-try:
-subprocess.call("./cell"+str(pid)+" "+sorted_file+" "+str(pid), shell=True) #PID needs to get passed to cell to avoid competition for executibles
-#os.system("./cell"+str(pid)+" "+sorted_file+" "+str(pid)) #PID needs to get passed to cell to avoid competition for executibles
-except OSError:
-print '\nCell.c error\ Removing temp files containing pid = ',pid,'\nCheck that cell was compiled'
-results_file.close()
-os.system("rm -f *"+str(pid)+"*")
-print '********EXITING HOTSPOT.py********'
-sys.exit(1)
-"""
 def call_hotspot(material, pid):
 
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
@@ -63,7 +52,7 @@ def call_hotspot(material, pid):
 			print '********EXITING HOTSPOT.py********'
 			sys.exit(1)
 	else:
-		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
+		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
 		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		proc.communicate()
 		if proc.returncode != 0:
@@ -223,5 +212,5 @@ except IOError:
 
 #clean up
 #os.system("rm -f *"+str(pid)+"*")
-subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+#subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 
