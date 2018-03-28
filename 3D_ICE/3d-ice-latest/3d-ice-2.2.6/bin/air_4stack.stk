@@ -1,0 +1,80 @@
+material SILICON :
+   thermal conductivity     1.00e-4; //1.30e-4 ;   //W/um K
+   volumetric heat capacity 1.75e-12; //1.628e-12 ;  //J/um^3K
+
+material BEOL :
+   thermal conductivity     2.25e-6 ;
+   volumetric heat capacity 2.175e-12 ;
+
+top heat sink :
+   //sink height 2e3 ,
+//	area   16e6,
+  // material  COPPER;
+  // spread height   1e3 ,
+  //  area      2.25e6 ,
+  // material CERAMIC ;
+  // heat transfer coefficient 1.0e-7;
+  // ambient temperature 300;
+  // heat transfer coefficient  14e-12;// no sink   //1.0e-7 W/um^2K;
+   heat transfer coefficient  10.584e-9;// air  base14e-12; //1.0e-7 W/um^2K;
+ //  heat transfer coefficient 120.96e-9;// oil  base160e-12; //1.0e-7 W/um^2K;
+ //  heat transfer coefficient 604.8e-9;// water  base800e-12; //1.0e-7 W/um^2K;
+   temperature               298.15 ; //300;
+
+
+microchannel 4rm :
+   height 100 ;
+   channel    length 100 ;
+   wall       length 100 ;
+   first wall length  50 ;
+   last wall  length  50 ;
+   wall material SILICON ;
+   coolant flow rate 42 ;
+   coolant heat transfer coefficient side 2.7132e-8 ,
+                                      top 5.7132e-8 ,
+                                   bottom 4.7132e-8 ;
+   coolant volumetric heat capacity 4.172e-12 ;
+   coolant incoming temperature 300.0 ;
+
+dimensions :
+   chip length 13000, width 13000 ;
+   cell length   100, width   100 ;
+
+layer PCB :
+   height 10 ;
+   material BEOL ;
+
+die TOP_IC :
+   source  2 SILICON ;
+   layer  50 SILICON ;
+
+die BOTTOM_IC :
+   layer  10 BEOL ;
+   source  2 SILICON ;
+   layer  50 SILICON ;
+
+stack:
+   die     MEMORY_DIE1     TOP_IC    floorplan "./test.flp" ;
+//   channel A_CHANNEL    ;
+   die     MEMORY_DIE2     TOP_IC    floorplan "./test.flp" ;
+//   channel B_CHANNEL    ;
+   die     MEMORY_DIE3     TOP_IC    floorplan "./test.flp" ;
+//   channel C_CHANNEL    ;
+   die     CORE_DIE       BOTTOM_IC floorplan "./test.flp" ;
+//   channel BOTTOM_CHANNEL ;
+   layer   CONN_TO_PCB    PCB ;
+
+
+solver:
+   steady ;
+   initial temperature 298.15 ; // 300;
+
+output:
+   T        (  MEMORY_DIE3, 5000, 3000,"output1.txt",             final ) ;
+   Tmap     (    CORE_DIE,             "output2.txt",             final ) ;
+   Tflp     (  MEMORY_DIE3,            "output3.txt", minimum,    final ) ;
+   Tflpel   (   CORE_DIE.Core1,        "output4.txt", average,    final ) ;
+   Tflpel   (   CORE_DIE.Core1,        "max.txt", maximum,    final ) ;
+   //Tcoolant ( A_CHANNEL,             "output5.txt", maximum,    final ) ;
+
+

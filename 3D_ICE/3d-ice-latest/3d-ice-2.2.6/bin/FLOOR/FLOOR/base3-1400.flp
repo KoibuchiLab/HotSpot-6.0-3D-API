@@ -1,0 +1,80 @@
+Core0:
+
+	position	 0, 0;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core1:
+
+	position	 3250, 0;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core2:
+
+	position	 6500, 0;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core3:
+
+	position	 9750, 0;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core4:
+
+	position	 0, 3250;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core5:
+
+	position	 3250, 3250;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core6:
+
+	position	 6500, 3250;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core7:
+
+	position	 9750, 3250;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core8:
+
+	position	 0, 6500;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core9:
+
+	position	 3250, 6500;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core10:
+
+	position	 6500, 6500;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core11:
+
+	position	 9750, 6500;
+	dime:qnsion	 3250, 3250;
+	power values	 0.932095;
+Core12:
+
+	position	 0, 9750;
+	dime:qnsion	 3250, 3250;
+	power values	 1.11996;
+Core13:
+
+	position	 3250, 9750;
+	dime:qnsion	 3250, 3250;
+	power values	 1.11996;
+Core14:
+
+	position	 6500, 9750;
+	dime:qnsion	 3250, 3250;
+	power values	 1.11996;
+Core15:
+
+	position	 9750, 9750;
+	dime:qnsion	 3250, 3250;
+	power values	 1.11996;

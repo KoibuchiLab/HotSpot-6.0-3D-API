@@ -17,8 +17,11 @@ libhotspot.a
 *.ptrace
 *.flp
 *.config
+<<<<<<< HEAD
 *.data
 *.lcf
 
 #IDE files
 .idea*
+
+

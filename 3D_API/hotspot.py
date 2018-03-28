@@ -1,8 +1,10 @@
 #!/usr/bin/python
-import itertools
 import os
 import sys
 import subprocess
+import operator
+import itertools
+import multiprocessing
 
 import config
 import floor
@@ -26,7 +28,7 @@ def compile_cell(pid):
 		sys.exit(1)
 
 def call_cell(sorted_file, pid):
-	#os.system("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid))
+	#subprocess.call("gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s; ./cell"+str(pid)+" " + sorted_file+" "+str(pid), shell=True)
 	#print "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
 	command = "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
 	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -196,9 +198,9 @@ try:
 
 	results_file.close()
 	if(detailed):
-		os.system("sort -n -k11 -u detailed.tmp -o detailed.tmp")
+		subprocess.call("sort -n -k11 -u detailed.tmp -o detailed.tmp", shell=True)
 		for i in xrange(0, len(layer)):
-			os.system("python detailed.py detailed.tmp "+ str(i+1))
+			subprocess.call("python detailed.py detailed.tmp "+ str(i+1), shell=True)
 
 	temp = open("tmp_"+str(pid)+".results").readline()
 	if (float(min(results_list)))<0:

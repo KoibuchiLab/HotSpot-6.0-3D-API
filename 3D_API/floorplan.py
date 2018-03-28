@@ -289,7 +289,7 @@ class floorplan(object):
 		except IOError:
 			print '\nCould not open FLOORPLAN/',name,'.flp,\nRemoving temp files containing pid = ',pid
 			read.close()
-			os.system("rm -f *"+str(pid)+"*")
+			subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 			print '********EXITING floorplan********'
 			sys.exit(1)
 		return floorplan

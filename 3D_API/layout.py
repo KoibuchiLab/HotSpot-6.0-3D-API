@@ -467,7 +467,6 @@ class Layout(object):
 			Will produce amusing ASCI art
 		(DEPRECATED)
 	"""
-
 	def draw_in_octave(self, filename):
 		file = open("/tmp/layout.m", "w")
 		file.write("figure\n")
