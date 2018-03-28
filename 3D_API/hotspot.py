@@ -6,12 +6,13 @@ import operator
 import itertools
 import multiprocessing
 
-import config
-import floor
 import input_file
-import lcf
 import nulldata_file
+import floorplan
+import floor
 import ptrace
+import lcf
+import config
 
 output_grid_size = 128
 args = sys.argv
@@ -19,7 +20,7 @@ args = sys.argv
 def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
 	#os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
-	proc = subprocess.Popen("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
+	proc = subprocess.Popen("gcc -Wall -Ofast -fopenmp -lm cell.c -o cell"+str(pid)+" -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
 	stdout, stderr = proc.communicate()
 	if proc.returncode != 0:
 		print '\nError Compiling Cell.c\nRemoving temp files containing pid = ',pid,'\nCheck that cell was compiled'
