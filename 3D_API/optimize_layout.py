@@ -199,7 +199,7 @@ VISUAL PROGRESS OUTPUT:
                             dest='overlap', metavar='<chip area overlap>',
                             help='the fraction of chip area overlap fraction (default = 1/9)')
 
-	parser.add_argument('--constrained_overlap_geometry', '-C', #action='store_true',  #LL* fix, change to accept strings
+	parser.add_argument('--constrained_overlap_geometry', '-C',
                             required=False,
                             dest='constrained_overlap_geometry',
 							metavar='<overlap shape>',
@@ -237,6 +237,10 @@ VISUAL PROGRESS OUTPUT:
                             required=False,
                             dest='test',
                             help='real, calls hotspot_LL.py. test, calls fake_hotspot_LL.py')
+	parser.add_argument('--pick_criteria','-P',
+                            required=False,
+                            dest='pick_criteria', metavar='<picking priority>',
+                            help='picks candidates based on either power or temp')
 
 #	parser.add_argument('--draw_in_octave', '-D', action='store',
 #                            required=False,
@@ -306,6 +310,9 @@ if __name__ == '__main__':
 	if argv.power_budget:
 	    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
 	        utils.abort("Cannot use discrete power distribution optimization method with a fixed power budget")
+	if not argv.pick_criteria is None:
+		if not('power' in argv.pick_criteria) and not('temp' in argv.pick_criteria):
+			utils.abort("Unsupported picking criteria")
 
 	# Recompile cell.c with specified grid size
 	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))

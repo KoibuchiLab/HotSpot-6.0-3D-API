@@ -212,5 +212,5 @@ except IOError:
 
 #clean up
 #os.system("rm -f *"+str(pid)+"*")
-#subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 

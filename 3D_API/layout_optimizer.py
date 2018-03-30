@@ -458,22 +458,12 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 
 	if len(candidate_random_trials) != num_neighbor_candidates:
 			utils.info(0, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
-			"""
-			overlap = utils.argv.overlap
-			level, xor, yor = layout.get_chip_positions()[1]
-			xend = xor + layout.get_chip().x_dimension
-			yend = yor + layout.get_chip().y_dimension
-			xbb = xor - .013 - overlap*.013
-			xbe = xor + .013 - overlap*.013
-			ybb = yor - .013 - overlap*.013
-			ybe = yor + .013 - overlap*.013
-			print '[',xbb,',',xbe,'] [',ybb,',',ybe,']'
-			#utils.abort("Only "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
-			"""
 	return candidate_random_trials
 
+"""Original pick_candidate"""
+"""
 #@jit
-def pick_candidates(layout, results, candidate_random_trials):
+def pick_candidates(results, candidate_random_trials):
 	#print 'results is ', results
 	#print 'candidate random trials is ', candidate_random_trials
 	picked_candidate_temperature = -1
@@ -520,6 +510,92 @@ def pick_candidates(layout, results, candidate_random_trials):
 				picked_candidate_temperature = temperature
 				picked_candidate_ASPL = ASPL
 				picked_candidate_num_edges = num_edges
+				index_of_result = index
+
+	return [picked_candidate, index_of_result]
+"""
+
+""" pick_candidatesy"""
+
+#@jit
+def pick_candidates(results, candidate_random_trials):
+	#print 'pick criteria ',utils.argv.pick_criteria
+	#print 'results is ', results
+	#print 'candidate random trials is ', candidate_random_trials
+	picked_candidate_temperature = -1
+	picked_candidate_power = -1
+	picked_candidate_ASPL = -1.0
+	picked_candidate_num_edges = -1
+	picked_candidate_diameter = -1
+	index_of_result = None
+	temp_limit = utils.argv.max_allowed_temperature
+	alpha_threshold = .75 #TODO: make a command line argument
+
+	picked_candidate = None
+	for index in xrange(0, len(candidate_random_trials)):
+		candidate = candidate_random_trials[index];
+		result = results[index]
+		#print 'candidate is ', candidate
+		if (result != None):
+			[tmp_layout, [power_distribution, temperature]] = result
+			power = sum(power_distribution)
+			ASPL = tmp_layout.get_ASPL()
+			num_edges = tmp_layout.get_num_edges()
+			diameter = tmp_layout.get_diameter()
+			utils.info(2, "    - power=" + str(power) + " temp=" + str(temperature) + " ASPL=" + str(ASPL) + " edges=" + str(num_edges))
+
+			new_pick = False
+			if (picked_candidate == None):
+				utils.info(2, "    ** INITIAL PICK **")
+				new_pick = True
+			else:
+				if utils.argv.pick_criteria is not None:
+					if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
+						utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+						if diameter<picked_candidate_diameter:
+							utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+							new_pick = True
+						elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+							utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+							new_pick = True
+					elif 'power' in utils.argv.pick_criteria:
+						#utils.abort("pick on power")
+						if (power < picked_candidate_power):
+							utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+							new_pick = True
+						elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
+							utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+							new_picked = True
+					elif 'temp' in utils.argv.pick_criteria:
+						#utils.abort("pick on temp")
+						if (temperature < picked_candidate_temperature):
+							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+							new_pick = True
+						elif (picked_candidate_temperature == temperature) and (power < picked_candidate_power):
+							utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+							new_picked = True
+				else:
+					if (power > picked_candidate_power):
+						utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+						new_pick = True
+					elif (power == picked_candidate_power):
+						if (num_edges > picked_candidate_num_edges):
+							utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+							new_pick = True
+						elif (num_edges == picked_candidate_num_edges) and (ASPL < picked_candidate_ASPL):
+							utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+							new_pick = True
+						elif (num_edges == picked_candidate_num_edges) and (ASPL == picked_candidate_ASPL) and (temperature < picked_candidate_temperature):
+							utils.info(2, "    ** PICKED DUE TO BETTER TEMPERATURE **")
+							new_pick = True
+
+			if new_pick:
+				picked_candidate = candidate
+				picked_candidate_power = power
+				picked_candidate_temperature = temperature
+				picked_candidate_ASPL = ASPL
+				picked_candidate_num_edges = num_edges
+				picked_candidate_diameter = diameter
 				index_of_result = index
 
 	return [picked_candidate, index_of_result]
@@ -584,7 +660,7 @@ def optimize_layout_random_greedy():
 		### Pick the best candidate
 		################################################
 
-		picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
+		picked_candidate, picked_index = pick_candidates(results, candidate_random_trials)
 		#utils.abort("candidate random trial is \n"+str(candidate_random_trials))
 
 		# Add the candidate
@@ -721,7 +797,7 @@ def optimize_layout_random_greedy_mpi():
 			# print "RESULTS = ", results
 
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
-			picked_candidate, picked_index = pick_candidates(layout, results, candidate_random_trials)
+			picked_candidate, picked_index = pick_candidates(results, candidate_random_trials)
 
 			if picked_candidate == None:
 				send_stop_signals(worker_list, comm)
