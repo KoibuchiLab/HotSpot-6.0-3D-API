@@ -241,6 +241,10 @@ VISUAL PROGRESS OUTPUT:
                             required=False,
                             dest='pick_criteria', metavar='<picking priority>',
                             help='picks candidates based on either power or temp')
+	parser.add_argument('--alpha_temp', '-A', action='store',
+						type=float, required=False, default=.75,
+						dest='alpha_temp', metavar='<tempurature alpha>',
+						help='Tempurature threshold for picking criteria (default: .75)')
 
 #	parser.add_argument('--draw_in_octave', '-D', action='store',
 #                            required=False,
@@ -313,6 +317,8 @@ if __name__ == '__main__':
 	if not argv.pick_criteria is None:
 		if not('power' in argv.pick_criteria) and not('temp' in argv.pick_criteria):
 			utils.abort("Unsupported picking criteria")
+	if argv.alpha_temp <=0:
+		utils.abort("alpha_temp needs to be a positive number")
 
 	# Recompile cell.c with specified grid size
 	os.system("gcc -Ofast cell.c -o cell -DGRID_SIZE=" + str(argv.grid_size))
