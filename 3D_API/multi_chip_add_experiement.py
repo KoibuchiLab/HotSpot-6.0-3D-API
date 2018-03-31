@@ -59,11 +59,11 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	numchips = [12, 9]
+	numchips = [9,12]
 	candidates = 15
 	candidate_trials = 1000
-	add_by = ['1','2','3','cradle']
-	export_path = " -e results_LL/multiaddexp/figures"
+	add_by = ['cradle', '3', '2', '1']
+	export_path = " -e results_LL/multiaddexp/figures/"
 	raw_result_file = "results_LL/multiaddexp/2heu_raw_multichip_results.txt"
 	avg_result_file = "results_LL/multiaddexp/2heu_avg_multichip_results.txt"
 	#start = end = -1
@@ -84,8 +84,11 @@ def main():
 				trial_ex_time = []
 				for trial in range(1,11):
 					#add trials in after we run successfully
-					command = "mpirun -np 2 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
-					#print command
+					command = "mpirun -np 8 ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:15:5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 50  --verbose 0 --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+					
+					print command
+					#sys.stderr.write("Error: test command\n")
+       					#sys.exit(1)
 					start = time.time()
 					devnull = open('/dev/null', 'w')
 					proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=devnull)
@@ -101,7 +104,7 @@ def main():
 					f = open(raw_result_file, "a+")
 					f.write(raw_result)
 					f.close()
-					print '  Trial ',trial
+					print '  Trial ',trial, ' execution time is ',ex_time
 				avg_string = get_avg_string(trial_results,trial_ex_time)
 				avg_result = str(add)+"\t"+avg_string
 				g = open(avg_result_file, "a+")

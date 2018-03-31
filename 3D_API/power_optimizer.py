@@ -340,7 +340,7 @@ def find_maximum_power_budget_discrete_uniform(layout):
 	power_levels = layout.get_chip().get_power_levels()
 	best_power_level = None
 	guess_temperature = None
-	# lower_bound = 0 #TODO:top level find max power budget checks max and min, set lower boutnd =1? and upper boutnd len(power_levels)-1-1
+	lower_bound = 0 #TODO:top level find max power budget checks max and min, set lower boutnd =1? and upper boutnd len(power_levels)-1-1
 	upper_bound = len(power_levels) - 2 ###TODO: check that - 2 works, changed from - 1
 	guess_index = -1
 	while (lower_bound != upper_bound):
