@@ -1,0 +1,113 @@
+//
+// Totoki (totoki@am.ics.keio.ac.jp) 2017.8.22 (tiny update by koibuchi@nii.ac.jp)
+// Augmented/Restructured by Henri (henric@hawaii.edu)
+//
+
+***************************************************
+** Compiling/Running hotspot                     **
+***************************************************
+
+1. Compiling hotspot
+--------------------
+
+sudo apt-get install libsuperlu-dev libsuperlu4		# install the superlu package
+cd HotSpot-6.0-3D-API					# go to the main hotspot directory
+make SUPERLU=1						# build (enabling superlu)
+cd 3D_API						# go to this directory
+make							# build (the ./cell executable)
+
+
+2. Generating a hotspot input file for target layout of 3-D chip stacking
+-------------------------------------------------------------------------
+
+A sample input file is provided in ./test.data
+
+File format (each line):
+chipname, Z(vertical)-axis(Layer: 1,2,...), X-axis(m), Y-axis(m) (left/side of chip coordinate), Frequency(MHz), chip rotation(0,90,180,270 degree)
+tulsa 1 0.00 0.00 1380 0  // corresponding to PTRACE/tulsa-1380.ptrace
+HOGE/e5-2667v4 2 0.011 0.011 is3600 0 // PTRACE/HOGE/e5-2667v4-is3600.ptrace
+e5-2667v4 1 0.001 0.031 cg2400 0
+tulsa 1 0.03 0.03 185 0
+phi7250 1 0.03 0.00 1300 0 //PTRACE/phi7250-1300.ptrace  (stress command)
+
+We can change max layer num(now default 20) by changing MAX_LAYER_NUM in cell.c
+The coordinates should be positive number
+
+If you get the error as following, that means chips are overlapped.
+Then you have to take futher distance(X-axis or Y-axis) in test.data.
+	$python hotspot.py test.data water 
+	warning: overlap of functional blocks?
+	layer: (null)
+	i:53 j:7 i1:50 i255 j1:0 j2:9
+
+If you get the error as floowing, something strange happens.
+First, if you use large scale(over 0.2m), some bug might happen beause of deviation of coordinates, so please use small scale system.
+If not, please send me mail(totoki@am.ics.keio.ac.jp) attaching your test.data, I will check the bug.
+	$python hotspot.py test.data water
+	width model: 0.062840 sum: 0.061840
+	height model: 0.091840 sum: 0.061840
+	error: width and height differ across layers
+
+## tulsa chip is modeled by McPAT-1.3
+## phi7250, Xeon e5-2667v4 is physically measured/estimated by Intel RAPL
+
+###############################
+
+Each floorplan of processor chips is stored at ./FLOORPLAN/{e5-2667v4.flp,phi7250.flp,tulsa.flp,base1.flp,base2.flp}
+
+3. Running 
+----------
+
+Usage: python hotspot.py  <input file (.data)> [water | air | oil ]
+
+For instance, running
+
+python ./hotspot.py test.data water --no_images
+
+should print out something like: "maximum temp: 36.51"
+
+Result files:
+	./tmp.results -> a highest temperature of modules on each chip
+	./figure/*.pdf -> Temperature distribution of all chips (unless the --no_images flag is specified)
+
+- Note that temperature_grid.c is modified from the HotSpot-6.0 distribution
+
+###
+If you would like to get max temperature on each chips, you can use --detaild option like as following
+$ python ./hostpot.py test.data water --detailed 
+
+
+***************************************************
+** Running optimize_layout.py                   **
+***************************************************
+
+./optimize_layout.py --help  will print out the whole usage, which has many command-line arguments
+
+Here are some examples:
+
+Example #1:
+./optimize_layout.py --numchips 10 --medium air --chip e5-2667v4 --diameter 5 --layout_scheme checkerboard --numlevels 2 --powerdistopt uniform --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1
+
+	- 10 Xeon5 chips, in air, aiming for diameter 5, checkerboard layout, with 2 levels, uniform power distribution, with 1 iteration and 1 trial for the power distribution optimization
+
+	- Note that the program right now is a bit stupid. For instance, in the above, we should have to specify the diameter because checkboard ignores it. The power
+          distribution optimization doesn't really have a number of iterations and a number of trials.  This is all said in the --help messages, but right now
+          the program still will complain if you don't pass those required arguments.
+
+Example #2:
+
+./optimize_layout.py --numchips 4 --medium air --chip e5-2667v4 --diameter 3 --layout_scheme linear_random_greedy --numlevels 3 --powerdistopt greedy_not_so_random_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 5  --overlap .3 --max_allowed_temperature 68  --verbose 2
+
+	- 10 Xeon5 chips in air, aimining for diameter 3, using the linear_random_greedy layout (which is a random search for a good linear layout), using 3 levels,
+          using the greedy_not_so_random_discrete power distribution optimization heurisitic, that runs for 1 iterations and 5 trials, with a 30% overlap between chips, and a 68 degree maximum allowed temperature, all with verbose "debugging" messages.
+
+Currently testing:
+
+mpirun -np 2 ./optimize_layout.py --numchips 6 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:3:100:craddle  --numlevels 3 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .25 --max_allowed_temperature 89  --verbose 0 --test --show_in_3D --mpi -C square
+
+	- working on adding craddles with square inductors
+
+Multichip add experiement command:
+where X = number of chips(12 or 9)
+
+mpirun -np 16 ./optimize_layout.py --numchips x --medium air --chip base3 --diameter 7 --layout_scheme random_greedy:15:5000:X  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .20 --max_allowed_temperature 100  --verbose 0 --test --mpi -C any

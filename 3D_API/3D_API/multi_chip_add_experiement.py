@@ -5,36 +5,26 @@ import time
 import sys
 import subprocess
 import re
-import datetime
 
-def parse_output(out,exit_code):
-	#return_string = str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)
-	return_string = str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)
-	edge = 0
-	level = 0
-	diameter = 0
-	aspl = 0
-	power = 0
-	freq = 0
-	temp = 0
-	if int(exit_code) == 0:
-		out = re.sub('[\[\],()]', '', out)
-		out = out.rstrip()
-		out = out.split()
-		#print 'out is \n',out
-		"""
-		if ('Error' in out) or not ('edges' in out):
-			#set all output to -1
-			print "Error Here"
-			return return_string
-		"""
-		edge = out[out.index("edges")+2]
-		level = out[out.index("Diameter")-1]
-		diameter = out[out.index("Diameter")+2]
-		aspl =  out[out.index("ASPL")+2]
-		power = out[out.index("distribution")+2]
-		freq = out[out.index("Frequency")+3]
-		temp = out[out.index("Temperature")+2]
+def parse_output(out):
+	return_string = str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)
+
+	out = re.sub('[\[\],()]', '', out)
+	out = out.rstrip()
+	out = out.split()
+	#print 'out is \n',out
+	if 'Error' in out:
+		#set all output to -1
+		print "Error Here"
+		return return_string
+
+	edge = out[out.index("edges")+2]
+	level = out[out.index("Diameter")-1]
+	diameter = out[out.index("Diameter")+2]
+	aspl =  out[out.index("ASPL")+2]
+	power = out[out.index("distribution")+2]
+	freq = out[out.index("Frequency")+3]
+	temp = out[out.index("Temperature")+2]
 
 	return_string = str(edge)+"\t"+str(level)+"\t"+str(diameter)+"\t"+str(aspl)+"\t"+str(power)+"\t"+str(freq)+"\t"+str(temp)
 	return_value = [float(edge),float(level),float(diameter),float(aspl),float(power),float(freq),float(temp)]
@@ -70,36 +60,26 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [6]
+	numchips = [9,12]
 	candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.1, .2]
-	#add_by = ['1','3','cradle']
-	add_by = [ '3', '1', 'cradle']
+	add_by = ['cradle', '3', '2', '1']
 	pickby = ['power', 'temp']
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "6chip_powertemp"
-	raw_result_file = "results_LL/multiaddexp/"+file_name+"_raw_multichip_results.txt"
-	avg_result_file = "results_LL/multiaddexp/"+file_name+"_avg_multichip_results.txt"
-	raw_output_file = "results_LL/multiaddexp/"+file_name+"_raw_output.txt"
+	raw_result_file = "results_LL/multiaddexp/2heu_raw_multichip_results.txt"
+	avg_result_file = "results_LL/multiaddexp/2heu_avg_multichip_results.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
 		header = "trial\tchips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\n"
 		f.write(header)
 		f.close()
-
 		g = open(avg_result_file, "w+")
 		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\n"
 		g.write(header_g)
 		g.close()
-
-		h = open(raw_output_file, "w+")
-		header_h = "raw output\n\n"
-		h.write(header_h)
-		h.close()
-
 		for pick in pickby:
 			for overlap in overlaps:
 				for num in numchips:
@@ -110,31 +90,22 @@ def main():
 						trial_ex_time = []
 						for trial in range(1,11):
 							#add trials in after we run successfully
-							command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+							command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 							print command
 							#sys.stderr.write("Error: test command\n")
 							#sys.exit(1)
-							print 'started at ',datetime.datetime.now()
 							start = time.time()
-							#devnull = open('/dev/null', 'w')
-							proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+							devnull = open('/dev/null', 'w')
+							proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=devnull)
 							proc.wait()
 							end = time.time()
-							#out = proc.stdout.read()
-							print 'returned from subprocess'
-							out, err = proc.communicate()
-							print 'parsing'
+							out = proc.stdout.read()
+							#out, err = procs.communicate()
+							out_str, out_val = parse_output(out)
 							ex_time = float(end-start)
-
-							h = open(raw_output_file, "a+")
-							h.write("\ntrial "+str(trial)+"\t add by "+str(add)+"\t ex time "+str(ex_time)+"\tpicked by "+str(pick)+"\toverlap "+str(overlap)+"\n"+out+"\n")
-							h.close()
-							out_str, out_val = parse_output(out,proc.returncode)
-
-							if out_val[2] > 0:
-								trial_results.append(out_val)
-								trial_ex_time.append(ex_time)
+							trial_results.append(out_val)
+							trial_ex_time.append(ex_time)
 							raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\n"
 							f = open(raw_result_file, "a+")
 							f.write(raw_result)

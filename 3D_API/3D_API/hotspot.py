@@ -21,7 +21,6 @@ def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
 	#os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
 	proc = subprocess.Popen("gcc -Wall -Ofast -fopenmp -lm cell.c -o cell"+str(pid)+" -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
-	proc.wait()
 	stdout, stderr = proc.communicate()
 	if proc.returncode != 0:
 		print '\nError Compiling Cell.c\nRemoving temp files containing pid = ',pid,'\nCheck that cell was compiled'
@@ -34,7 +33,6 @@ def call_cell(sorted_file, pid):
 	#print "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
 	command = "./cell"+str(pid)+" "+sorted_file+" "+str(pid)
 	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	proc.wait()
 	proc.communicate()
 	if proc.returncode != 0:
 		print '\nCell.c error\nRemoving temp files containing pid = ',pid,'\nCheck that cell was compiled'
@@ -47,7 +45,6 @@ def call_hotspot(material, pid):
 	if material == "water_pillow": ##when using water pillow, ignoring the second path.
 		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 0 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
 		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-		proc.wait()
 		proc.communicate()
 		if proc.returncode != 0:
 			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
@@ -57,7 +54,6 @@ def call_hotspot(material, pid):
 	else:
 		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
 		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-		proc.wait()
 		proc.communicate()
 		if proc.returncode != 0:
 			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
