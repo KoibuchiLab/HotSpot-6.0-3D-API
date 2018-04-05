@@ -571,7 +571,7 @@ def pick_candidates(results, candidate_random_trials):
 							new_pick = True
 					elif 'power' in utils.argv.pick_criteria:
 						#utils.abort("pick on power")
-						if (power < picked_candidate_power):
+						if (power > picked_candidate_power):
 							utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 							new_pick = True
 						elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
@@ -582,7 +582,7 @@ def pick_candidates(results, candidate_random_trials):
 						if (temperature < picked_candidate_temperature):
 							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 							new_pick = True
-						elif (picked_candidate_temperature == temperature) and (power < picked_candidate_power):
+						elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
 							utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
 							new_picked = True
 				else:
