@@ -70,16 +70,17 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [9]
+	numchips = [6, 9]
 	candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ '3', '1', 'cradle']
-	pickby = ['power', 'temp']
+	#add_by = [ '3', '1', 'cradle']
+	add_by = [ '2']
+	pickby = ['power']
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "6chip_powertemp"
+	file_name = "addby2"
 	raw_result_file = "results_LL/multiaddexp/"+file_name+"_raw_multichip_results.txt"
 	avg_result_file = "results_LL/multiaddexp/"+file_name+"_avg_multichip_results.txt"
 	raw_output_file = "results_LL/multiaddexp/"+file_name+"_raw_output.txt"
