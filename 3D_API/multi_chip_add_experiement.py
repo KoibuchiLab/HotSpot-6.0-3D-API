@@ -70,7 +70,7 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [6]
+	numchips = [9]
 	candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.1, .2]
