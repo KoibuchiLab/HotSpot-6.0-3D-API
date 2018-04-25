@@ -16,6 +16,8 @@
 #define PHI7250_Y 0.0205
 #define E52667V4_X 0.012634
 #define E52667V4_Y 0.014172
+#define E52667V4SQ_X 0.014172
+#define E52667V4SQ_Y 0.014172
 #define BASE1_X 0.016
 #define BASE1_Y 0.016
 #define BASE2_X 0.013
@@ -136,6 +138,17 @@ int main(int argc, char **argv){
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
 			}
+		}else if(strstr(chip_name, "e5-2667v4sq") != NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = E52667V4SQ_X;
+				chip_ylen = E52667V4SQ_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = E52667V4SQ_Y;
+				chip_ylen = E52667V4SQ_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
 		}else if(strstr(chip_name, "e5-2667v4") != NULL){
 			if(rotate == 0 || rotate == 180){
 				chip_xlen = E52667V4_X;
@@ -227,6 +240,17 @@ int main(int argc, char **argv){
 			}else if(rotate == 90 || rotate == 270){
 				chip_xlen = PHI7250_Y;
 				chip_ylen = PHI7250_X;
+			}else{
+				fprintf(stderr, "invalid rotation in input file '%s'", fname);
+				exit(1);
+			}
+		}else if(strstr(chip_name, "e5-2667v4sq")!= NULL){
+			if(rotate == 0 || rotate == 180){
+				chip_xlen = E52667V4SQ_X;
+				chip_ylen = E52667V4SQ_Y;
+			}else if(rotate == 90 || rotate == 270){
+				chip_xlen = E52667V4SQ_Y;
+				chip_ylen = E52667V4SQ_X;
 			}else{
 				fprintf(stderr, "invalid rotation in input file '%s'", fname);
 				exit(1);
