@@ -15,6 +15,9 @@ phi7250_y = 0.0205
 e52667v4_x = 0.012634 #default e5-2676v4 chip size
 e52667v4_y = 0.014172
 
+e52667v4sq_x = 0.014172
+e52667v4sq_y = 0.014172
+
 base1_x = 0.016
 base1_y = 0.016
 
@@ -71,6 +74,9 @@ def config(sorted_input, material, pid):
 		elif 'phi7250' in chip_name:
 			chip_x += [float (phi7250_x)]
 			chip_y += [float (phi7250_y)]
+		elif 'e5-2667v4sq' in chip_name:
+			chip_x += [float (e52667v4sq_x)]
+			chip_y += [float (e52667v4sq_y)]
 		elif 'e5-2667v4' in chip_name:
 			chip_x += [float (e52667v4_x)]
 			chip_y += [float (e52667v4_y)]

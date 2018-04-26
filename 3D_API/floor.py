@@ -10,6 +10,8 @@ phi7250_x = 0.0315 #default phi7250 chip size
 phi7250_y = 0.0205
 e52667v4_x = 0.012634 #default e5-2667-v4 chip size
 e52667v4_y = 0.014172
+e52667v4sq_x = 0.014172
+e52667v4sq_y = 0.014172
 base1_x = 0.016
 base1_y = 0.016
 base2_x = 0.013
@@ -45,6 +47,10 @@ def floor(sorted_input, null_data, pid):
 			chip_xlen += [float(phi7250_x)]
 			chip_ylen += [float(phi7250_y)]
 			chip_name += ['phi7250']
+		elif 'e5-2667v4sq' in str(data[0]):
+			chip_xlen += [float(e52667v4sq_x)]
+			chip_ylen += [float(e52667v4sq_y)]
+			chip_name += ['e5-2667v4sq']
 		elif 'e5-2667v4' in str(data[0]):
 			chip_xlen += [float(e52667v4_x)]
 			chip_ylen += [float(e52667v4_y)]
