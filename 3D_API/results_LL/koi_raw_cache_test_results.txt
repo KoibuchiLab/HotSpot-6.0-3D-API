@@ -1,0 +1,2 @@
+core	trial	L1-dcache-load-misses	LLC-load-misses	time
+8	2	4458831673.0	267061487.0	63.846688972
