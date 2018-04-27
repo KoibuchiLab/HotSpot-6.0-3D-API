@@ -3,18 +3,26 @@
 import sys
 import subprocess
 import multiprocessing
+import re
 
 def parse_perf_data(perf_out,perf_err):
 	perf_out
-	tokens = perf_err.split()
+	#tokens = perf_err.split()
 	#remove commas from values if they exist
 	#print perf_out
 	#print tokens
-	l1_cache = float(tokens[9].replace(",", ""))
-	llc_cache = float(tokens[11].replace(",", ""))
-	time = float(tokens[13].replace(",", ""))
+	tokens = re.sub('[\[\],()]', '', perf_err)
+	tokens = tokens.rstrip()
+	tokens = tokens.split()
+	l1_cache = -1#float(tokens[9].replace(",", ""))
+	llc_cache = -1#float(tokens[11].replace(",", ""))
+	time = tokens[tokens.index("seconds")-1]
+	
+	#l1_cache = float(tokens[9].replace(",", ""))
+	#llc_cache = float(tokens[11].replace(",", ""))
+	#time = float(tokens[13].replace(",", ""))
 
-	return [l1_cache, llc_cache, time]
+	return [l1_cache, llc_cache, float(time)]
 
 num_cores = multiprocessing.cpu_count()
 #num_cores = 4
@@ -52,7 +60,7 @@ try:
 			perf_out, perf_err = p.communicate()
 			raw_l1, raw_llc, raw_time = parse_perf_data(perf_out, perf_err)
 
-			print cores,' processes, trial ',trial,'\nexe time was ',raw_time
+			print cores,' processes, trial ',trial,' exe time was ',raw_time
 
 			raw_results = open("results_LL/koi_raw_cache_test_results.txt","a+")
 			raw_results.write(str(cores)+"\t"+str(trial)+"\t"+str(raw_l1)+"\t"+str(raw_llc)+"\t"+str(raw_time)+"\n")
@@ -65,6 +73,7 @@ try:
 		l1_avg = sum((l1_to_avg))/len(l1_to_avg)
 		llc_avg = sum((llc_to_avg))/len(llc_to_avg)
 		time_avg = sum((time_to_avg))/len(time_to_avg)
+		print '======== avg time was ',time_avg,'========i\n'
 
 		avg_results = open("results_LL/koi_avg_cache_test_results.txt","a+")
 		avg_results.write(str(cores)+"\t"+str(l1_avg)+"\t"+str(llc_avg)+"\t"+str(time_avg)+"\n")
