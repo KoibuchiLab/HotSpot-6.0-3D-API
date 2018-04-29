@@ -375,40 +375,21 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	#	return
 	if not tmp_layout.can_new_chip_fit(second_cradle_chip):
 		#print 'cant add second chip'
+		utils.info(0,"Second Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(second_cradle_chip)
 	if not tmp_layout.can_new_chip_fit(third_cradle_chip):
 		#print 'cant add third chip'
+		utils.info(0,"Third Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(third_cradle_chip)
-	"""
-	try:
-		tmp_layout.add_new_chip(second_cradle_chip)
-		#print "add cradle 2"
-	except:
-		#print "PROBLEM2"
-		#print 'overlap shape is ', overlape_shape
-		#utils.argv.constrained_overlap_geometry = 'any'
-		return None
-	try:
-		tmp_layout.add_new_chip(third_cradle_chip)
-		#print "add cradle 3"
-	except:
-		#print "PROBLEM3"
-		#print 'overlap shape is ', overlape_shape
-		#utils.argv.constrained_overlap_geometry = 'any'
-		return None
-	"""
+
 	if len(tmp_layout.get_chip_positions())%3!=0:
 		#tmp_layout.draw_in_3D(None, True)
-		utils.info(1,"Did not find all 3 cradle chip positions, returning None")
+		utils.info(0,"Did not find all 3 cradle chip positions, returning None")
 		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
-	#print 'there are that many chips in tmp layout -> ',len(tmp_layout.get_chip_positions())
 
-	#if any_shape is True:
-	#	utils.argv.constrained_overlap_geometry = 'any'
-	#	utils.info(1,"Reseting global shape parameter back to any")
 	return candidate_list
 
 """
