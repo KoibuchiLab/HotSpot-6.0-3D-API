@@ -69,11 +69,11 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7
-	numchips = [9]
+	workers = 18
+	numchips = [9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
-	overlaps = [.2]
+	overlaps = [.2, .1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
 	add_by = [ '3', '2', '1', 'cradle']
@@ -81,7 +81,7 @@ def main():
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "find_num_candidate_9"
+	file_name = "koi_run_all"
 	raw_result_file = "results_LL/multiaddexp/"+file_name+"_raw_multichip_results.txt"
 	avg_result_file = "results_LL/multiaddexp/"+file_name+"_avg_multichip_results.txt"
 	raw_output_file = "results_LL/multiaddexp/"+file_name+"_raw_output.txt"
@@ -111,6 +111,7 @@ def main():
 						trial_results = []
 						trial_ex_time = []
 						candidates = workers*2
+						"""
 						if overlap == .1:
 							if '3' in add:
 								#candidates = 33
@@ -130,20 +131,23 @@ def main():
 								candidates = 7
 							elif 'cradle' in add:
 								candidates = 20
-						
+						"""	
 						original_can = candidates
 						avg_ex_time = -1
+						"""
 						for can in can_range:
 							if avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
 								continue
+						"""
+						for dumb in range(1,2):
 							for trial in range(1,11):
-								print '+++ candidate is ',original_can,' +++'
-								candidates = original_can + can
-								print '=== candidate plus range=',can,' is ',candidates,' ==='
+								#print '+++ candidate is ',original_can,' +++'
+								#candidates = original_can + can
+								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								print command
+								#print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
@@ -153,9 +157,9 @@ def main():
 								proc.wait()
 								end = time.time()
 								#out = proc.stdout.read()
-								print 'returned from subprocess'
+								#print 'returned from subprocess'
 								out, err = proc.communicate()
-								print 'parsing'
+								#print 'parsing'
 								ex_time = float(end-start)
 
 								h = open(raw_output_file, "a+")
@@ -170,7 +174,7 @@ def main():
 								f = open(raw_result_file, "a+")
 								f.write(raw_result)
 								f.close()
-								print '  Trial ',trial, ' execution time is ',ex_time
+								print '>>>  Trial ',trial, ' execution time is ',ex_time,' numchips = ',num,' overlap = ',overlap,' add by =  ',add
 							avg_string = get_avg_string(trial_results,trial_ex_time)
 							avg_result = str(add)+"\t"+avg_string+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
 							g = open(avg_result_file, "a+")
