@@ -72,8 +72,8 @@ max_num_workers = 32
 min_num_workers = 1
 trial_num = 10
 #print run_string
-raw_results_file = "results_LL/mpiexp/koi_raw_mpi_results.txt"
-avg_results_file = "results_LL/mpiexp/koi_avg_mpi_results.txt"
+raw_results_file = "results_LL/mpiexp/koi_raw_mpi2_results.txt"
+avg_results_file = "results_LL/mpiexp/koi_avg_mpi2_results.txt"
 
 try:
 	f = open(raw_results_file,'w+')
