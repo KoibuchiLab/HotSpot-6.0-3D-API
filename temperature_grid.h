@@ -12,7 +12,11 @@
 
 #if SUPERLU > 0
 /* Lib for SuperLU */
+#if SUPERLUMT > 0
+#include "slu_mt_ddefs.h"
+#else
 #include "slu_ddefs.h"
+#endif
 #endif
 
 /* layer configuration file constants */

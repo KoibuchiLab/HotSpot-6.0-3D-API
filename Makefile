@@ -11,24 +11,31 @@
 ifndef SUPERLU
 SUPERLU = 0
 endif
+ifndef SUPERLUMT
+SUPERLUMT = 0
+endif
 
 ifeq ($(SUPERLU), 1)
-#Super LU
+
+#SuperLU_MT
+ifeq ($(SUPERLUMT), 1)
+SuperLUroot = /vagrant/HOTSPOT/SuperLU_MT_3.1/
+SUPERLULIB      = $(SuperLUroot)/lib/libsuperlu_mt_PTHREAD.a
+SLU_HEADER  = $(SuperLUroot)/SRC/
+else
 SuperLUroot = /usr/lib/x86_64-linux-gnu
 SUPERLULIB      = $(SuperLUroot)/libsuperlu.so
-BLASLIB         = -L $(SuperLUroot) -lblas
-#SLU_HEADER  = /home/koibuchi/compile/SuperLU_4.3/SRC
 SLU_HEADER  = /usr/include/superlu/
-#SuperLUroot	= /net/if10/rz3vg/Runjie/Temp/SuperLU_4.3
-#SUPERLULIB 	= $(SuperLUroot)/lib/libsuperlu_4.3.a
-#BLASLIB    	= -L $(SuperLUroot) -lblas
-#SLU_HEADER  = $(SuperLUroot)/SRC
+endif
+
+BLASLIB         = -L $(SuperLUroot) -lblas
+
 
 MATHACCEL	= none
 INCDIR		= $(SLU_HEADER)
 LIBDIR		= 
 LIBS  		= -lm $(SUPERLULIB) $(BLASLIB)
-EXTRAFLAGS	= -fopenmp 
+EXTRAFLAGS	= -fopenmp
 else
 # default - no math acceleration
 MATHACCEL	= none
@@ -137,7 +144,7 @@ ifdef LIBDIR
 LIBDIRFLAG = -L$(LIBDIR)
 endif
 
-CFLAGS	= $(OFLAGS) $(EXTRAFLAGS) $(INCDIRFLAG) $(LIBDIRFLAG) -DVERBOSE=$(VERBOSE) -DMATHACCEL=$(ACCELNUM) -DDEBUG3D=$(DEBUG3D) -DSUPERLU=$(SUPERLU) -g
+CFLAGS	= $(OFLAGS) $(EXTRAFLAGS) $(INCDIRFLAG) $(LIBDIRFLAG) -DVERBOSE=$(VERBOSE) -DMATHACCEL=$(ACCELNUM) -DDEBUG3D=$(DEBUG3D) -DSUPERLU=$(SUPERLU) -DSUPERLUMT=$(SUPERLUMT)
 
 # sources, objects, headers and inputs
 

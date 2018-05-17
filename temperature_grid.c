@@ -17,7 +17,11 @@
 
 #if SUPERLU > 0
 /* Lib for SuperLU */
+#if SUPERLUMT > 0
+#include "slu_mt_ddefs.h"
+#else
 #include "slu_ddefs.h"
+#endif
 #endif
 
 /*BU_3D: We modified R-C computations to return resistance or capacitance for a specified grid cell.
@@ -4684,8 +4688,14 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   register int      *perm_r; /* row permutations from partial pivoting */
   register int      *perm_c; /* column permutation vector */
   int      info;
+#if SUPERLU > 0
+#if SUPERLUMT > 0
+#else
   superlu_options_t options;
   SuperLUStat_t stat;
+#endif
+#endif
+
 
   int          i, dim;
   DNformat     *Astore;
@@ -4713,6 +4723,8 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   if ( !(perm_c = intMalloc(dim)) ) fatal("Malloc fails for perm_c[].\n");
 
   /* Set the default input options. */
+#ifdef SUPERLUMT > 0
+#else
   set_default_options(&options);
   options.ColPerm = MMD_AT_PLUS_A;
   options.DiagPivotThresh = 0.01;
@@ -4721,11 +4733,15 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
 
   /* Initialize the statistics variables. */
   StatInit(&stat);
+#endif
+
 
   /* Solve the linear system. */
-  //printf("CALLING dgssv\n");
+#if SUPERLUMT > 0
+  pdgssv(1, &A, perm_c, perm_r, &L, &U, &B, &info);
+#else
   dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
-  //printf("CALLED dgssv\n");
+#endif
 
   Astore = (DNformat *) B.Store;
   dp = (double *) Astore->nzval;
@@ -4745,6 +4761,11 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   Destroy_SuperMatrix_Store(&B);
   Destroy_SuperNode_Matrix(&L);
   Destroy_CompCol_Matrix(&U);
+
+#ifdef SUPERLUMT > 0
+#else
   StatFree(&stat);
+#endif
+
 }
 #endif
