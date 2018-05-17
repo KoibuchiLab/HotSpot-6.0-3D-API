@@ -116,7 +116,7 @@ def optimize_layout_rectilinear(mode):
 
 def optimize_layout_linear_random_greedy():
 	# Create an initial layout
-	layout = Layout(utils.argv.chip, [[1, 0.0, 0.0]], utils.argv.medium, utils.argv.overlap)
+	layout = Layout(utils.argv.chip, [[1, 0.0, 0.0]], utils.argv.medium, utils.argv.overlap,[])
 
 	max_num_random_trials = 5  # TODO: Don't hardcode this
 	while (layout.get_num_chips() != utils.argv.num_chips):
