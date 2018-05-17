@@ -630,33 +630,33 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 			d_temp = hotspot_vector(model);
 			temp_old = hotspot_vector(model);
 			power_new = hotspot_vector(model);
-		//omp_set_num_threads(8);
+		omp_set_num_threads(8);
 		/*#pragma omp parallel shared(blk_width, blk_height, model, power_new, power, temp_old, temp, d_max, d_temp,leak_convg_true) private(leak_iter, i)
 		{
 			#pragma omp for nowait schedule(static)*/
 			for (leak_iter=0;(!leak_convg_true)&&(leak_iter<=LEAKAGE_MAX_ITER);leak_iter++){
-			//#pragma omp parallel shared(blk_width, blk_height, model, power_new, power, temp_old, temp, ) private(i)
-			//{
-				//#pragma omp for nowait schedule(static)
+			#pragma omp parallel shared(blk_width, blk_height, model, power_new, power, temp_old, temp, ) private(i)
+			{
+				#pragma omp for nowait schedule(static)
 				for(i=0; i < n; i++) {
 					blk_height = model->block->flp->units[i].height;
 					blk_width = model->block->flp->units[i].width;
 					power_new[i] = power[i] + calc_leakage(model->config->leakage_mode,blk_height,blk_width,temp[i]);
 					temp_old[i] = temp[i]; //copy temp before update
 				}
-			//}
+			}
 				steady_state_temp_block(model->block, power_new, temp); // update temperature
 				d_max = 0.0;
-			//#pragma omp parallel shared(temp_old, temp, d_max, d_temp,leak_convg_true) private( i)
-			//{
-				//#pragma omp for nowait schedule(static)
+			#pragma omp parallel shared(temp_old, temp, d_max, d_temp,leak_convg_true) private( i)
+			{
+				#pragma omp for nowait schedule(static)
 				for(i=0; i < n; i++) {
 					d_temp[i] = temp[i] - temp_old[i]; //temperature increase due to leakage
 					if (d_temp[i]>d_max) {
 						d_max = d_temp[i];
 					}
 				}
-			//}
+			}
 				if (d_max < LEAK_TOL) {// check convergence
 					leak_convg_true = 1;
 				}

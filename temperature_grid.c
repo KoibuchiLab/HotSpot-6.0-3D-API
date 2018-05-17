@@ -4746,14 +4746,14 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   Astore = (DNformat *) B.Store;
   dp = (double *) Astore->nzval;
   //copy results back to last_steady
-  //omp_set_num_threads(8);
-  //#pragma omp parallel shared(model, dp) private(i)
-  //{
-    //#pragma omp for nowait schedule(static)
+  omp_set_num_threads(8);
+  #pragma omp parallel shared(model, dp) private(i)
+  {
+    #pragma omp for nowait schedule(static)
     for(i=0; i<dim; ++i){
         model->last_steady->cuboid[0][0][i] = dp[i];
     }
-  //}
+  }
   SUPERLU_FREE (rhs);
   SUPERLU_FREE (perm_r);
   SUPERLU_FREE (perm_c);

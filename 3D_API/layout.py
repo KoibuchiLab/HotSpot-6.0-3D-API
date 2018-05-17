@@ -430,62 +430,12 @@ class Layout(object):
 		ax = Axes3D(fig)
 
 		max_level = -1
-		chip_num = 0
 		for position in self.__chip_positions:
 			# print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
 			b = random.uniform(0.1, 0.9)
-			"""
-			if position[0] == 1:
-				r = 0
-				g = 0
-				b = 0
-
-			if position[0] == 2:
-				r = .5
-				g = .5
-				b = .5
-			"""
-			if chip_num%9 == 0:
-				r = .9
-				g = 0
-				b = 0
-			elif chip_num%9 == 1:
-				r = .9
-				g = .45
-				b = 0
-			elif chip_num%9 == 2:
-				r = .9
-				g = .9
-				b = 0
-			elif chip_num%9 == 3:
-				r = 0
-				g = .9
-				b = 0
-			elif chip_num%9 == 4:
-				r = 0
-				g = .45
-				b = .45
-			elif chip_num%9 == 5:
-				r = 0
-				g = .9
-				b = .9
-			elif chip_num%9 == 6:
-				r = 0
-				g = 0
-				b = .9
-			elif chip_num%9 == 7:
-				r = .45
-				g = 0
-				b = .9
-			elif chip_num%9 == 8:
-				r = .9
-				g = 0
-				b = .9
-			chip_num += 1
-
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
