@@ -233,4 +233,4 @@ clean:
 	$(RM) *.$(OEXT) *.obj *.d core *~ Makefile.bak hotspot hotfloorplan libhotspot.$(LEXT)
 
 cleano:
-$(RM) *.$(OEXT) *.obj
+	$(RM) *.$(OEXT) *.obj
