@@ -215,6 +215,5 @@ except IOError:
 	sys.exit(1)
 
 #clean up
-#os.system("rm -f *"+str(pid)+"*")
 subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 
