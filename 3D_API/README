@@ -74,7 +74,7 @@ Result files:
 
 ###
 If you would like to get max temperature on each chips, you can use --detaild option like as following
-$ python ./hostpot.py test.data water --detailed 
+$ python ./hotspot.py test.data water --detailed 
 
 
 ***************************************************
