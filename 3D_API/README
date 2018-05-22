@@ -101,11 +101,9 @@ Example #2:
 	- 10 Xeon5 chips in air, aimining for diameter 3, using the linear_random_greedy layout (which is a random search for a good linear layout), using 3 levels,
           using the greedy_not_so_random_discrete power distribution optimization heurisitic, that runs for 1 iterations and 5 trials, with a 30% overlap between chips, and a 68 degree maximum allowed temperature, all with verbose "debugging" messages.
 
-Currently testing:
+Current testing w/ MPI:
 
 mpirun -np 2 ./optimize_layout.py --numchips 6 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:3:100:craddle  --numlevels 3 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap .25 --max_allowed_temperature 89  --verbose 0 --test --show_in_3D --mpi -C square
-
-	- working on adding craddles with square inductors
 
 Multichip add experiement command:
 where X = number of chips(12 or 9)

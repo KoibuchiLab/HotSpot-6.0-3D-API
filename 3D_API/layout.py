@@ -38,7 +38,8 @@ class Layout(object):
 		self.__overlap = overlap
 		self.__diameter = 0
 		self.__all_pairs_shortest_path_lengths = {}
-		self.__inductor_properties = inductor_properties
+		self.__inductor_properties = self.connect_all_chips(self.__chip_positions, inductor_properties)
+		#self.__inductor_properties = inductor_properties
 		#self.draw_in_3D(None, True) # for debugging
 		self.generate_topology_graph()
 
@@ -202,11 +203,13 @@ class Layout(object):
 	Returns True if there is crosstalk
 	"""
 	#@jit
-	def check_cross_talk(self, tentative_inductor):
+	def check_cross_talk(self, tentative_inductor, inductor_list = -1):
+		existing_inductors = []
+		if inductor_list == -1:
+			existing_inductors = self.__inductor_properties
 
 		utils.info(2, 'Checking for CROSSTALK')
 
-		existing_inductors = self.__inductor_properties
 		for existing_inductor in existing_inductors:
 			if (not abs(tentative_inductor[0] - existing_inductor[0]) == 1):
 				utils.info(3,"inductors are more than 1 level appart, cross talk cant happen")
@@ -274,7 +277,6 @@ class Layout(object):
 			-new_chip_position: position of new chip
 		Returns True if inductors added
 	"""
-	#@jit
 	def connect_new_chip(self, new_chip_position):
 		original_inductor_count = len(self.__inductor_properties)
 		num_inductor = 0
@@ -297,6 +299,31 @@ class Layout(object):
 			return True
 		utils.info(2, "Could not connect new chip")
 		return False
+
+	""" connects new chip by adding inductor(s) where they will fit and appends new inductor to inductor_properties
+			-new_chip_position: position of new chip
+		Returns True if inductors added
+	"""
+	def connect_all_chips(self, chip_positions, inductor_properties):
+		if inductor_properties:
+			return inductor_properties
+		num_inductor = 0
+		for index1, chip1 in enumerate(chip_positions):
+			for index2, chip2 in enumerate(chip_positions):
+				if index1 == index2:
+						continue
+				new_inductor_property = []
+				if not self.are_neighbors(chip1, chip2): #check if chips overlap properly
+					continue
+				new_inductor_property = self.get_new_inductor_properties(chip1, chip2)
+
+				if not self.can_new_inductor_fit(new_inductor_property,inductor_properties): #check if inductor can be added where overlap is
+					continue
+				if self.check_cross_talk(new_inductor_property, inductor_properties):
+					continue
+				inductor_properties.append(new_inductor_property)
+				utils.info(3, "Connecting chip by adding inductor")
+		return inductor_properties
 
 	""" Remove a chip (by index) from the layout, updating the topology accordingly
 	"""
@@ -355,11 +382,13 @@ class Layout(object):
 		Returns True if can fit
 	"""
 	#@jit
-	def can_new_inductor_fit(self, position):
+	def can_new_inductor_fit(self, position, inductor_property = -1):
+		if inductor_property == -1:
+				inductor_property = self.__inductor_properties
 		[layer, x, y, x_dim, y_dim] = position
 		# print "CAN FIT?:  ", [layer, x, y]
-		for i in xrange(0, len(self.__inductor_properties)):
-			existing_inductor = self.__inductor_properties[i]
+		for i, inductor in enumerate(inductor_property):
+			existing_inductor = inductor
 			# print "  Looking at xisting chip ", existing_inductor
 			if (existing_inductor[0] != layer):
 				# print "    Not in same layer so ok"
@@ -372,7 +401,7 @@ class Layout(object):
 				[x + x_dim, y + y_dim])
 			if (overlap - FLOATING_POINT_EPSILON > 0.0):
 				# print "   - NO: COLLISION! overlap = ", overlap
-				utils.info(0, 'inductor collision, can\'t place here')
+				utils.info(3, 'inductor collision, can\'t place here')
 				return False
 		# print "   - YES: FITS"
 
@@ -432,7 +461,7 @@ class Layout(object):
 		max_level = -1
 		chip_num = 0
 		for position in self.__chip_positions:
-			# print 'chip level is ', position[0]
+			#print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
@@ -1051,7 +1080,7 @@ class LayoutBuilder(object):
 			#overlap_shape = random.choice(['square','strip']) ###TODO: set globally???
 			#print "\n\nany is "+str(any)+"\n\n"
 		"""apply shift"""
-		shift = 5
+		shift = 10
 		x_shift = x_dim * shift
 		y_shift = y_dim * shift
 
@@ -1345,14 +1374,98 @@ class LayoutBuilder(object):
 
 	@staticmethod
 	def compute_checkerboard_layout(num_chips):
-		utils.abort("inductor_properties need to be added when building")
-
-		if (utils.argv.overlap > 0.5):
-			utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
 
 		if (utils.argv.overlap > 0.25):
-			utils.info(2, "Computing a generalized checkerboard with more than 1/4-th overlap")
-			return LayoutBuilder.compute_generalized_checkerboard_layout(num_chips)
+			utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
+		if (utils.argv.constrained_overlap_geometry is not None)and('strip' in utils.argv.constrained_overlap_geometry):
+			utils.info(0,"Checkerboard can only be built with square inductors\nBuilding Checkerboard with square inductors")
+		#if (utils.argv.overlap > 0.25):
+		#	utils.info(2, "Computing a generalized checkerboard with more than 1/4-th overlap")
+		#	return LayoutBuilder.compute_generalized_checkerboard_layout(num_chips)
+
+		chips_to_add = num_chips
+		x_dim = utils.argv.chip.x_dimension
+		y_dim = utils.argv.chip.y_dimension
+		shift = 15
+		x_shift = x_dim * shift
+		y_shift = y_dim * shift
+		#move_x = x_dim*(1-sqrt(utils.argv.overlap))
+		#move_y = y_dim*(1-sqrt(utils.argv.overlap))
+		positions = []
+		def get_chip_pos(parent, child):
+			x_dim = utils.argv.chip.x_dimension
+			y_dim = utils.argv.chip.y_dimension
+			move_x = x_dim*(1-sqrt(utils.argv.overlap))
+			move_y = y_dim*(1-sqrt(utils.argv.overlap))
+			p_lvl, px, py = parent
+			c_lvl = 1
+			#print 'child val ',child
+			if p_lvl == 1:
+				c_lvl = 2
+			elif p_lvl == 2:
+				c_lvl == 1
+			pos = []
+			if child == 1:
+				pos = [c_lvl, px-move_x, py+move_y]
+			elif child == 2:
+				pos = [c_lvl, px+move_x, py+move_y]
+			elif child == 3:
+				pos = [c_lvl, px+move_x, py-move_y]
+			elif child == 0 or child == 4:
+				pos = [c_lvl, px-move_x, py-move_y]
+				#print 'clvl ',c_lvl
+			return pos
+
+		def get_parent(parent, child, parent_factor):
+			if parent_factor == 0 and child == 0:
+				parent_factor = 1
+				print 'here'
+			parent = child + 4*(parent_factor)
+			return parent
+
+		positions.append([1,0+x_shift,0+y_shift])
+		left_child = 1
+		right_child = 2
+		children_left = left_child
+		num_parents = 0
+		parents_left = 0
+		child_factor = 1
+		first = True
+		for chip in range(1,chips_to_add):
+			child_pos = []
+			if first == True:
+				child = chip%4
+				child_pos = get_chip_pos([1,0+x_shift,0+y_shift],child)
+				positions.append(child_pos)
+				if child == 0:
+					first = False
+			else:
+				child = chip%4
+				parent = chip - 4*(right_child - child_factor)
+				#print parent, ' = ',chip, ' - 4( ',right_child,' - ',child_factor,')'
+				child_pos = get_chip_pos(positions[parent],child+child_factor)
+				positions.append(child_pos)
+
+				if chip-4*(left_child) == parent and child == 0:
+					#print '\n1) chip = ',chip,' parent = ',parent,' child = ',child-child_factor, ' left child = ',left_child,' right_child = ',right_child,' children_left = ',children_left
+					children_left = children_left - 1
+					child_factor = 0
+				elif children_left == 0 and child == 0:
+					#print '\n2) chip = ',chip,' parent = ',parent,' child = ',child-child_factor, ' left child = ',left_child,' right_child = ',right_child,' children_left = ',children_left, ' child factor ', child_factor
+					child_factor = 1
+					left_child = left_child + 1
+					right_child = right_child + 1
+					children_left = left_child
+				else:
+					#print '\n3) chip = ',chip,' parent = ',parent,' child = ',child-child_factor, ' left child = ',left_child,' right_child = ',right_child,' children_left = ',children_left
+
+					if child == 0:
+						children_left = children_left - 1
+
+		#layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, [])
+		#layout.draw_in_3D(None, True)
+		"""
+		utils.abort("adding inductor_properties need to be added when building")
 
 		if (num_chips == 3):
 			utils.info(2, "Computing a generalized checkerboard with 3 chips")
@@ -1564,5 +1677,5 @@ class LayoutBuilder(object):
 			utils.abort(
 				"Error: Cannot compute a checkerboard layout with " + str(utils.argv.num_levels) + " levels and " + str(
 					num_chips) + " chips")
-
-		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		"""
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,[])
