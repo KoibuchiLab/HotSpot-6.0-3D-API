@@ -56,6 +56,7 @@ def call_hotspot(material, pid):
 			sys.exit(1)
 	else:
 		command = "../hotspot -f test1_"+str(pid)+".flp -c test_"+str(pid)+".config -p test_"+str(pid)+".ptrace -model_type grid -model_secondary 1 -grid_steady_file tmp_"+str(pid)+".grid.steady -detailed_3D on -grid_layer_file test_"+str(pid)+".lcf"
+		#print command
 		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		proc.wait()
 		proc.communicate()
@@ -215,6 +216,5 @@ except IOError:
 	sys.exit(1)
 
 #clean up
-#os.system("rm -f *"+str(pid)+"*")
 subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 

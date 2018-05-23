@@ -43,11 +43,7 @@ numchips = 9
 medium = "air"
 chip = "base3"
 diameter = 9
-<<<<<<< HEAD
-layout_scheme = "random_greedy:15:5000:1"
-=======
 layout_scheme = "random_greedy:31:5000:1"
->>>>>>> 610fb51f03847dac1e8a1df9f9c0f2705a4bdafd
 numlevels = 7
 powerdistopt = "uniform_discrete"
 powerdistopt_num_iterations = 1
@@ -73,19 +69,20 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 16
-min_num_workers = 15
+max_num_workers = 31
+min_num_workers = 1
 trial_num = 10
 #print run_string
-raw_results_file = "results_LL/mpiexp/dirt_raw_mpi_9chip_results.txt"
-avg_results_file = "results_LL/mpiexp/dirt_avg_mpi_9chip_results.txt"
+raw_results_file = "results_LL/mpiexp/calc3_koi2_raw_mpi_9chip_results.txt"
+avg_results_file = "results_LL/mpiexp/calc3_koi2_avg_mpi_9chip_results.txt"
+
 try:
-	#f = open(raw_results_file,'w+')
-	#f.write(raw_data_string)
-	#f.close()
-	#g = open(avg_results_file,'w+')
-	#g.write(write_string)
-	#g.close()
+	f = open(raw_results_file,'w+')
+	f.write(raw_data_string)
+	f.close()
+	g = open(avg_results_file,'w+')
+	g.write(write_string)
+	g.close()
 	for num_worker_ranks in range(min_num_workers,max_num_workers,1):
 		avg = -1
 		to_avg = []
@@ -95,7 +92,7 @@ try:
 			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
 			#print 'command is ',command
 			start = time.time()
-			print '>>> ', datetime.datetime.now()
+			print '>> ', datetime.datetime.now()
 			subprocess.Popen(command, stdout=subprocess.PIPE,  shell=True).wait()
 			end = time.time()
 			raw_data_string="\n"+str(num_worker_ranks)+"\t"+str(trial+1)+"\t"+str((end-start))
