@@ -38,17 +38,17 @@ verbose = None #<integer verbosity level>, -v <integer verbosity level>  verbosi
 =======CHANGE ARGS BELOW THIS==============================================================================================================================
 ================================================================================================================================================================
 """
-numchips = 6
+numchips = 9
 medium = "air"
 chip = "base3"
-diameter = 5
+diameter = 9
 layout_scheme = "random_greedy:15:5000:1"
-numlevels = 3
+numlevels = 7
 powerdistopt = "uniform_discrete"
 powerdistopt_num_iterations = 1
 powerdistopt_num_trials = 1
 overlap = .2
-max_allowed_temperature = 100
+max_allowed_temperature = 50
 verbose = 0
 mpi = True
 test = None
@@ -60,7 +60,7 @@ test = None
 """
 
 
-arg_dict = {"--medium":medium, "--chip":chip, "--numchips":numchips, "--diameter": diameter, "--layout_scheme":layout_scheme, "--numlevels":numlevels, "--powerdistopt":powerdistopt, "--powerdistopt_num_iterations":powerdistopt_num_iterations, "--powerdistopt_num_trials":powerdistopt_num_trials, "--power_benchmark":power_benchmark, "--overlap":overlap, "--power_budget":power_budget, "--overlap":overlap, "--power_binarysearch_epsilon":power_binarysearch_epsilon, "--max_allowed_temperature":max_allowed_temperature, "--grid_size":grid_size, "--verbose":verbose, "--mpi":mpi, "--test":test}
+arg_dict = {"--medium":medium, "--chip":chip, "--numchips":numchips, "--diameter": diameter, "--layout_scheme":layout_scheme, "--numlevels":numlevels, "--powerdistopt":powerdistopt, "--powerdistopt_num_iterations":powerdistopt_num_iterations, "--powerdistopt_num_trials":powerdistopt_num_trials, "--power_benchmark":power_benchmark, "--overlap":overlap, "--power_budget":power_budget, "--overlap":overlap, "--power_binarysearch_epsilon":power_binarysearch_epsilon, "--max_allowed_temperature":max_allowed_temperature, "--grid_size":grid_size, "--verbose":verbose, "--mpi":mpi, "--test":test, "-P":"power"}
 #print "arg dict is ",arg_dict
 run_string = load_ars(arg_dict)
 test_results = []
@@ -68,21 +68,21 @@ write_string = "num_workers\tavg_runtime"
 import multiprocessing
 raw_data_string = "num_workers\ttrial\truntime"
 #max_num_workers = multiprocessing.cpu_count()
-max_num_workers = 32
-min_num_workers = 1
+max_num_workers = 16
+min_num_workers = 15
 trial_num = 10
 #print run_string
-raw_results_file = "results_LL/mpiexp/koi_raw_mpi2_results.txt"
-avg_results_file = "results_LL/mpiexp/koi_avg_mpi2_results.txt"
+raw_results_file = "results_LL/mpiexp/dirt_raw_mpi_9chip_results.txt"
+avg_results_file = "results_LL/mpiexp/dirt_avg_mpi_9chip_results.txt"
 
 try:
-	f = open(raw_results_file,'w+')
-	f.write(raw_data_string)
-	f.close()
-	g = open(avg_results_file,'w+')
-	g.write(write_string)
-	g.close()
-	for num_worker_ranks in range(max_num_workers,min_num_workers,-1):
+	#f = open(raw_results_file,'w+')
+	#f.write(raw_data_string)
+	#f.close()
+	#g = open(avg_results_file,'w+')
+	#g.write(write_string)
+	#g.close()
+	for num_worker_ranks in range(min_num_workers,max_num_workers,1):
 		avg = -1
 		to_avg = []
 		for trial in range(trial_num):
