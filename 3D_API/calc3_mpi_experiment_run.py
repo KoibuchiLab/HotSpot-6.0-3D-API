@@ -73,8 +73,8 @@ max_num_workers = 31
 min_num_workers = 1
 trial_num = 10
 #print run_string
-raw_results_file = "results_LL/mpiexp/calc4_koi2_raw_mpi_9chip_results.txt"
-avg_results_file = "results_LL/mpiexp/calc4_koi2_avg_mpi_9chip_results.txt"
+raw_results_file = "results_LL/mpiexp/calc3_koi2_raw_mpi_9chip_results.txt"
+avg_results_file = "results_LL/mpiexp/calc3_koi2_avg_mpi_9chip_results.txt"
 
 try:
 	f = open(raw_results_file,'w+')
@@ -83,7 +83,7 @@ try:
 	g = open(avg_results_file,'w+')
 	g.write(write_string)
 	g.close()
-	for num_worker_ranks in range(max_num_workers,min_num_workers,-1):
+	for num_worker_ranks in range(min_num_workers,max_num_workers,1):
 		avg = -1
 		to_avg = []
 		for trial in range(trial_num):
@@ -92,7 +92,7 @@ try:
 			command = "mpirun -np "+str(num_worker_ranks+1)+" ./optimize_layout.py"+run_string
 			#print 'command is ',command
 			start = time.time()
-			print '>>> ', datetime.datetime.now()
+			print '>> ', datetime.datetime.now()
 			subprocess.Popen(command, stdout=subprocess.PIPE,  shell=True).wait()
 			end = time.time()
 			raw_data_string="\n"+str(num_worker_ranks)+"\t"+str(trial+1)+"\t"+str((end-start))
