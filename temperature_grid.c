@@ -13,11 +13,13 @@
 #include "flp.h"
 #include "util.h"
 
-#include "omp.h"
-
 #if SUPERLU > 0
 /* Lib for SuperLU */
+#if SUPERLUMT > 0
+#include "slu_mt_ddefs.h"
+#else
 #include "slu_ddefs.h"
+#endif
 #endif
 
 /*BU_3D: We modified R-C computations to return resistance or capacitance for a specified grid cell.
@@ -27,7 +29,7 @@
  * It will calculate the joint resistance only if there are values defined within the array or rx,ry,rz values. */
 double find_res_3D(int n, int i, int j, grid_model_t *model,int choice)
 {
- int hasRes = model->layers[n].b2gmap[i][j]->hasRes;
+  int hasRes = model->layers[n].b2gmap[i][j]->hasRes;
   //Returns the rx of the grid cell
   if(choice==1){
       if(!hasRes)
@@ -204,9 +206,7 @@ void blist_append(blist_t *head, int idx, double occupancy,double res, double sp
 double blist_avg(blist_t *ptr, flp_t *flp, double *v, int type)
 {
   double  val = 0.0;
-/*#pragma omp parallel shared() private()
-{
-  #pragma for schedule(static)*/
+
   for(; ptr; ptr = ptr->next) {
       if (type == V_POWER)
         val += ptr->occupancy * v[ptr->idx] / (flp->units[ptr->idx].width *
@@ -216,7 +216,6 @@ double blist_avg(blist_t *ptr, flp_t *flp, double *v, int type)
       else
         fatal("unknown vector type\n");
   }
-//}
 
   return val;
 }
@@ -234,9 +233,7 @@ void set_bgmap(grid_model_t *model, layer_t *layer)
   double sh,res;
   /* initialize	*/
   reset_b2gmap(model, layer);
-/*#pragma omp parallel private(i, j, u, i1, i2, j1, j2)
-{
-  #pragma omp for schedule(static)//RACE CONDITIONS*/
+
   /* for each functional unit	*/
   for(u=0; u < layer->flp->n_units; u++) {
       /* shortcuts for unit boundaries	*/
@@ -351,7 +348,6 @@ void set_bgmap(grid_model_t *model, layer_t *layer)
           }
       }
   }
-//}//pragma
 }
 
 /* populate default set of layers	*/
@@ -4681,11 +4677,17 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
 {
   SuperMatrix A, L, U, B;
   double   *rhs;
-  register int      *perm_r; /* row permutations from partial pivoting */
-  register int      *perm_c; /* column permutation vector */
+  int      *perm_r; /* row permutations from partial pivoting */
+  int      *perm_c; /* column permutation vector */
   int      info;
+//#if SUPERLU > 0
+//#if SUPERLUMT > 0
+//#else
   superlu_options_t options;
   SuperLUStat_t stat;
+//#endif
+//#endif
+
 
   int          i, dim;
   DNformat     *Astore;
@@ -4713,6 +4715,8 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   if ( !(perm_c = intMalloc(dim)) ) fatal("Malloc fails for perm_c[].\n");
 
   /* Set the default input options. */
+//#ifdef SUPERLUMT > 0
+//#else
   set_default_options(&options);
   options.ColPerm = MMD_AT_PLUS_A;
   options.DiagPivotThresh = 0.01;
@@ -4721,23 +4725,23 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
 
   /* Initialize the statistics variables. */
   StatInit(&stat);
+//#endif
+
 
   /* Solve the linear system. */
-  //printf("CALLING dgssv\n");
+//#if SUPERLUMT > 0
+//  pdgssv(1, &A, perm_c, perm_r, &L, &U, &B, &info);
+//#else
   dgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
-  //printf("CALLED dgssv\n");
+//#endif
 
   Astore = (DNformat *) B.Store;
   dp = (double *) Astore->nzval;
   //copy results back to last_steady
-  omp_set_num_threads(8);
-  #pragma omp parallel shared(model, dp) private(i)
-  {
-    #pragma omp for nowait schedule(static)
-    for(i=0; i<dim; ++i){
-        model->last_steady->cuboid[0][0][i] = dp[i];
-    }
+  for(i=0; i<dim; ++i){
+      model->last_steady->cuboid[0][0][i] = dp[i];
   }
+
   SUPERLU_FREE (rhs);
   SUPERLU_FREE (perm_r);
   SUPERLU_FREE (perm_c);
@@ -4745,6 +4749,11 @@ void direct_SLU(grid_model_t *model, grid_model_vector_t *power, grid_model_vect
   Destroy_SuperMatrix_Store(&B);
   Destroy_SuperNode_Matrix(&L);
   Destroy_CompCol_Matrix(&U);
+
+//#ifdef SUPERLUMT > 0
+//#else
   StatFree(&stat);
+//#endif
+
 }
 #endif

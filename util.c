@@ -563,16 +563,16 @@ int coo2csc(int size, int nnz,
   cooArray = (struct coo_elem *) calloc (nnz, sizeof(struct coo_elem));
 
   // Copy in
-omp_set_num_threads(8);
-#pragma omp parallel shared(cooX, cooY, cooV, cooArray) private(i)
+//omp_set_num_threads(8);
+/*#pragma omp parallel shared(cooX, cooY, cooV, cooArray) private(i)
 {
-	#pragma omp for nowait schedule(static)
+	#pragma omp for nowait schedule(static)*/
   for (i =0; i <nnz; i++) {
       cooArray[i].x = cooX[i];
       cooArray[i].y = cooY[i];
       cooArray[i].val = cooV[i];
   }
-}
+//}
   // Sort in col major
   qsort(cooArray, nnz, sizeof(cooArray[0]), c2c_cmp);
 
