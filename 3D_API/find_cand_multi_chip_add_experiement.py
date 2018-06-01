@@ -76,12 +76,12 @@ def main():
 	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ '3', '2', '1']
+	add_by = [ '3', '2', '1','cradle']
 	pickby = ['power']
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "alpha_find_num_candidate"
+	file_name = "dirt_find_num_candidate2"
 	raw_result_file = "results_LL/multiaddexp/"+file_name+"_raw_multichip_results.txt"
 	avg_result_file = "results_LL/multiaddexp/"+file_name+"_avg_multichip_results.txt"
 	raw_output_file = "results_LL/multiaddexp/"+file_name+"_raw_output.txt"
@@ -111,30 +111,69 @@ def main():
 						trial_results = []
 						trial_ex_time = []
 						candidates = workers*2
-						if overlap == .1:
+
+						if numchips == 6 and overlap == .1:
 							if '3' in add:
-								#candidates = 33
-								candidates = 23
+								candidates = 38
+								#candidates = 23
 							elif '2' in add:
-								candidates = 17
+								candidates = 22
+								#candidates = 17
 							elif '1' in add:
+								continue
 								candidates = 12
 							elif 'cradle' in add:
-								candidates = 25
-						elif overlap ==.2:
+								candidates = 37
+								#candidates = 25
+						elif numchips == 6 and overlap ==.2:
 							if '3' in add:
+								continue
 								candidates = 13
 							elif '2' in add:
+								continue
 								candidates = 11
 							elif '1' in add:
+								continue
 								candidates = 7
 							elif 'cradle' in add:
-								candidates = 20
+								#candidates = 20
+								candidates = 30
+	
+						if numchips == 9 and overlap == .1:
+							if '3' in add:
+								continue
+								candidates = 38
+								#candidates = 23
+							elif '2' in add:
+								continue
+								candidates = 22
+								#candidates = 17
+							elif '1' in add:
+								continue
+								candidates = 12
+							elif 'cradle' in add:
+								candidates = 33
+								#candidates = 25
+						elif numchips == 9 and overlap ==.2:
+							if '3' in add:
+								continue
+								candidates = 13
+							elif '2' in add:
+								candidates = 7
+							elif '1' in add:
+								candidates = 2
+							elif 'cradle' in add:
+								#candidates = 20
+								candidates = 25
 						
 						original_can = candidates
 						avg_ex_time = -1
 						for can in can_range:
-							if avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
+							if numchips == 6 and avg_ex_time > 300:  #TODO: time in sec, dont hard code this
+								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',numchips
+								continue
+							if numchips == 9 and avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
+								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',numchips
 								continue
 							for trial in range(1,11):
 								print '+++ candidate is ',original_can,' +++'
@@ -178,6 +217,7 @@ def main():
 							g.close()
 							split_avg_string = re.split(r'\t',avg_string)
 							avg_ex_time = float(split_avg_string[0])
+							print '\n>>>>>>> avg ex time is ',avg_ex_time,' <<<<<<<<<<<<\n'
 						footer = "base3\nlayout_size = "+str(num)+"\ncandidates "+str(candidates)+"\n\n"
 						g = open(avg_result_file, "a+")
 						g.write(footer)
