@@ -28,4 +28,3 @@ candidates 36
 base3
 layout_size = 6
 candidates 36
-
