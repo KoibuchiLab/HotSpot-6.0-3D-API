@@ -69,7 +69,7 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 18
+	workers = 7 
 	numchips = [13,9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
@@ -81,7 +81,7 @@ def main():
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "koi_stepup_exp"
+	file_name = "dirt_stepup_exp"
 	raw_result_file = "results_LL/"+file_name+"_raw_results.txt"
 	avg_result_file = "results_LL/"+file_name+"_avg_results.txt"
 	raw_output_file = "results_LL/"+file_name+"_raw_output.txt"
@@ -104,7 +104,7 @@ def main():
 
 		for pick in pickby:
 			for overlap in overlaps:
-				for num in range(3,14):
+				for num in range(4,14):
 					for add in add_by:
 						if num == add:
 							continue
