@@ -1,3 +1,0 @@
-num_workers	trial	runtime
-1	1	4962.38315511
-1	2	5144.41460013
