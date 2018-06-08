@@ -240,9 +240,9 @@ VISUAL PROGRESS OUTPUT:
 	parser.add_argument('--pick_criteria','-P',
                             required=False,
                             dest='pick_criteria', metavar='<picking priority>',
-                            help='picks candidates based on either power or temp')
+                            help='picks candidates based on either network, power, or temp')
 	parser.add_argument('--alpha_temp', '-A', action='store',
-						type=float, required=False, default=.75,
+						type=float, required=False,
 						dest='alpha_temp', metavar='<tempurature alpha>',
 						help='Tempurature threshold for picking criteria (default: .75)')
 
@@ -315,7 +315,7 @@ if __name__ == '__main__':
 	    if (argv.powerdistopt == "exhaustive_discrete") or (argv.powerdistopt == "random_discrete") or (argv.powerdistopt == "greedy_random_discrete") or (argv.powerdistopt == "greedy_not_so_random_discrete") or (argv.powerdistopt == "uniform_discrete"):
 	        utils.abort("Cannot use discrete power distribution optimization method with a fixed power budget")
 	if not argv.pick_criteria is None:
-		if not('power' in argv.pick_criteria) and not('temp' in argv.pick_criteria):
+		if not('power' in argv.pick_criteria) and not('temp' in argv.pick_criteria) and not('network' in argv.pick_criteria):
 			utils.abort("Unsupported picking criteria")
 	if argv.alpha_temp <0:
 		utils.abort("alpha_temp needs to be a positive number")

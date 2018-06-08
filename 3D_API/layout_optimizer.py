@@ -521,7 +521,8 @@ def pick_candidates(results, candidate_random_trials):
 	picked_candidate_diameter = -1
 	index_of_result = None
 	temp_limit = utils.argv.max_allowed_temperature
-	alpha_threshold = .75 #TODO: make a command line argument
+	alpha_threshold = utils.argv.alpha_temp
+	picked_by = utils.argv.pick_criteria
 	picked_candidate = None
 	for index in xrange(0, len(candidate_random_trials)):
 		candidate = candidate_random_trials[index];
@@ -542,30 +543,83 @@ def pick_candidates(results, candidate_random_trials):
 				new_pick = True
 			else:
 				if utils.argv.pick_criteria is not None:
-					if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
-						utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
-						if diameter<picked_candidate_diameter:
-							utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
-							new_pick = True
-						elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
-							utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-							new_pick = True
-					elif 'power' in utils.argv.pick_criteria:
-						#utils.abort("pick on power")
-						if (power > picked_candidate_power):
-							utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
-							new_pick = True
-						elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
-							utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-							new_picked = True
-					elif 'temp' in utils.argv.pick_criteria:
-						#utils.abort("pick on temp")
-						if (temperature < picked_candidate_temperature):
+					if alpha_threshold is not None:
+						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
 							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
-							new_pick = True
-						elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
-							utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-							new_picked = True
+							if diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+						elif 'power' in picked_by:
+							#utils.abort("pick on power")
+							if (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_picked = True
+						elif 'temp' in picke_by:
+							#utils.abort("pick on temp")
+							if (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
+							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_picked = True
+					else:
+						if 'network' in picked_by:
+							if diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
+						elif 'power' in picked_by:
+							#utils.abort("pick on power")
+							if (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (picked_candidate_power == power) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_picked = True
+						elif 'temp' in picked_by:
+							#utils.abort("pick on temp")
+							if (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
+							elif (picked_candidate_temperature == temperature) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_picked = True
+
 				else:
 					if (power > picked_candidate_power):
 						utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
