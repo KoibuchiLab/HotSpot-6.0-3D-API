@@ -1,0 +1,101 @@
+chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature	picked_by	overlap	numchips	candidates
+1	78.5029720306	3.0	2.0	2.0	1.5	56.7207	3600.0	43.784	power	0.2	4	36
+base3
+layout_size = 4
+candidates 36
+
+1	146.998751712	4.0	2.0	2.0	1.6	56.7207	3600.0	47.27	power	0.2	5	36
+base3
+layout_size = 5
+candidates 36
+
+1	218.993374681	6.0	2.6	3.0	1.73333333333	56.7207	3600.0	48.248	power	0.2	6	36
+base3
+layout_size = 6
+candidates 36
+
+1	301.743101645	8.0	2.8	3.0	1.80952380952	56.7207	3600.0	49.795	power	0.2	7	36
+base3
+layout_size = 7
+candidates 36
+
+1	417.169413257	9.0	3.0	3.0	1.92857142857	56.7207	3600.0	52.0	power	0.2	8	36
+base3
+layout_size = 8
+candidates 36
+
+1	498.351359391	11.0	2.9	4.0	2.05555555556	56.7207	3600.0	53.604	power	0.2	9	36
+base3
+layout_size = 9
+candidates 36
+
+1	588.99003346	13.0	2.9	4.0	2.13333333333	56.7207	3600.0	55.217	power	0.2	10	36
+base3
+layout_size = 10
+candidates 36
+
+1	719.462194705	14.0	3.3	4.0	2.25454545455	56.7207	3600.0	56.689	power	0.2	11	36
+base3
+layout_size = 11
+candidates 36
+
+1	810.126267672	15.0	3.1	4.0	2.36363636364	56.7207	3600.0	60.032	power	0.2	12	36
+base3
+layout_size = 12
+candidates 36
+
+1	957.282325816	16.4	3.3	4.2	2.45128205128	56.7207	3600.0	61.309	power	0.2	13	36
+base3
+layout_size = 13
+candidates 36
+
+1	77.2571173429	3.0	2.0	2.0	1.5	56.7207	3600.0	40.574	power	0.1	4	36
+base3
+layout_size = 4
+candidates 36
+
+1	147.519651699	4.0	2.0	2.0	1.6	56.7207	3600.0	44.33	power	0.1	5	36
+base3
+layout_size = 5
+candidates 36
+
+1	220.741471624	6.0	2.5	3.0	1.73333333333	56.7207	3600.0	45.703	power	0.1	6	36
+base3
+layout_size = 6
+candidates 36
+
+1	302.352004862	8.0	2.6	3.0	1.80952380952	56.7207	3600.0	46.58	power	0.1	7	36
+base3
+layout_size = 7
+candidates 36
+
+1	376.563668442	9.0	2.8	3.0	1.92857142857	56.7207	3600.0	49.196	power	0.1	8	36
+base3
+layout_size = 8
+candidates 36
+
+1	506.239382529	11.0	3.0	4.0	2.05555555556	56.7207	3600.0	50.127	power	0.1	9	36
+base3
+layout_size = 9
+candidates 36
+
+1	612.95034852	13.0	3.2	4.0	2.13555555555	56.7207	3600.0	50.677	power	0.1	10	36
+base3
+layout_size = 10
+candidates 36
+
+1	722.167470741	14.0	3.2	4.0	2.25454545455	56.7207	3600.0	52.835	power	0.1	11	36
+base3
+layout_size = 11
+candidates 36
+
+1	846.412883544	15.0	3.3	4.0	2.36363636364	56.7207	3600.0	54.776	power	0.1	12	36
+base3
+layout_size = 12
+candidates 36
+
+1	978.963622952	16.0	3.3	4.0	2.46153846154	56.7207	3600.0	56.965	power	0.1	13	36
+base3
+layout_size = 13
+candidates 36
+
