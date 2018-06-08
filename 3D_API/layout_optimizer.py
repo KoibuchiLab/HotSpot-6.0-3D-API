@@ -544,6 +544,7 @@ def pick_candidates(results, candidate_random_trials):
 			else:
 				if utils.argv.pick_criteria is not None:
 					if alpha_threshold is not None:
+						utils.abort("should not be here yet")
 						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
 							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 							if diameter<picked_candidate_diameter:
