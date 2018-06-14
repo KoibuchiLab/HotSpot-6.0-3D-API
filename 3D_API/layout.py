@@ -305,6 +305,7 @@ class Layout(object):
 		Returns True if inductors added
 	"""
 	def connect_all_chips(self, chip_positions, inductor_properties):
+
 		if inductor_properties:
 			return inductor_properties
 		num_inductor = 0
@@ -1367,8 +1368,9 @@ class LayoutBuilder(object):
 
 	@staticmethod
 	def plot_custom_layout(positions):
-		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,[])
 		layout.draw_in_3D(None, True)
+		return layout
 
 	"""Function to compute a checkerboard layout"""
 

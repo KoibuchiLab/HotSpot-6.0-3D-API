@@ -49,6 +49,8 @@ def optimize_layout():
 		solution = optimize_layout_double_helix()
 	elif (layout_scheme == "bridge"):
 		solution = optimize_layout_bridge()
+	elif (layout_scheme == "plot"):
+		solution = plot_layout()
 	elif (layout_scheme == "linear_random_greedy"):
 		solution = optimize_layout_linear_random_greedy()
 	elif (layout_scheme == "random_greedy"):
@@ -63,6 +65,19 @@ def optimize_layout():
 
 	return solution
 
+
+"""plot layouts"""
+def plot_layout():
+	if (len(utils.argv.layout_scheme.split(":")) == 2):
+		inputfile = str(utils.argv.layout_scheme.split(":")[1])
+	f = open(inputfile, "r")
+	positions = f.read()
+	f.close()
+	import ast
+	positions = ast.literal_eval(positions)
+	layout = LayoutBuilder.plot_custom_layout(positions)
+
+	return [layout, -1, -1]
 
 """Stacked layout optimization"""
 
