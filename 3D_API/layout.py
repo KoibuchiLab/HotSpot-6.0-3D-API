@@ -1240,7 +1240,8 @@ class LayoutBuilder(object):
 			inductor_properties.append([highest_level, ind2_x - inductor_xdim+ x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([highest_level, ind3_x + inductor_xdim + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
 
-		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, [])
+		#return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
 #layout = Layout(7,positions,utils.argv.medium, utils.argv.overlap,)
 			#inductor_properties.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift, inductor_xdim, inductor_ydim])
 
