@@ -204,6 +204,10 @@ class Layout(object):
 	"""
 	#@jit
 	def check_cross_talk(self, tentative_inductor, inductor_list = -1):
+		if utils.argv.crosstalk:
+			utils.info(3,"Ignoring crosstalk")
+			return False
+
 		existing_inductors = []
 		if inductor_list == -1:
 			existing_inductors = self.__inductor_properties
@@ -1226,7 +1230,7 @@ class LayoutBuilder(object):
 			positions.append([chip5_level, chip5_x + x_shift, chip5_y + y_shift])
 			positions.append([chip6_level, chip6_x + x_shift, chip6_y + y_shift])
 			positions.append([chip7_level, chip7_x + x_shift, chip7_y + y_shift])
-
+			"""
 			inductor_properties.append([ind2_level, ind2_x + x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind3_level, ind3_x + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind4_level, ind4_x + x_shift, ind4_y + y_shift, inductor_xdim, inductor_ydim])
@@ -1234,7 +1238,7 @@ class LayoutBuilder(object):
 			inductor_properties.append([ind6_level, ind6_x + x_shift, ind6_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind7_level, ind7_x + x_shift, ind7_y + y_shift, inductor_xdim, inductor_ydim])
 			#inductor_properties.append([ind8_level, ind8_x + x_shift, ind8_y + y_shift, inductor_xdim, inductor_ydim])
-
+			"""
 		if len(positions)%8!=0:
 			positions.append([highest_level+1,chip1_x + x_shift,chip1_y+ y_shift])
 			inductor_properties.append([highest_level, ind2_x - inductor_xdim+ x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
