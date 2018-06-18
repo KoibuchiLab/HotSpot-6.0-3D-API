@@ -317,7 +317,7 @@ if __name__ == '__main__':
 	if not argv.pick_criteria is None:
 		if not('power' in argv.pick_criteria) and not('temp' in argv.pick_criteria) and not('network' in argv.pick_criteria):
 			utils.abort("Unsupported picking criteria")
-	if argv.alpha_temp <0:
+	if argv.alpha_temp is not None and argv.alpha_temp <0:
 		utils.abort("alpha_temp needs to be a positive number")
 
 	# Recompile cell.c with specified grid size
