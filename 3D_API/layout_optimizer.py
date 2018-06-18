@@ -41,8 +41,8 @@ def optimize_layout():
 		solution = optimize_layout_rectilinear("straight")
 	elif (layout_scheme == "rectilinear_diagonal"):
 		solution = optimize_layout_rectilinear("diagonal")
-	elif (layout_scheme == "carbon"):
-		solution = optimize_layout_carbon()
+	#elif (layout_scheme == "carbon"):
+	#	solution = optimize_layout_carbon()
 	elif (layout_scheme == "checkerboard"):
 		solution = optimize_layout_checkerboard()
 	elif (layout_scheme == "cradle"):
@@ -79,7 +79,17 @@ def plot_layout():
 	positions = ast.literal_eval(positions)
 	layout = LayoutBuilder.plot_custom_layout(positions)
 
-	return [layout, -1, -1]
+	result = find_maximum_power_budget(layout)
+
+	if result == None:
+		return None
+
+	[power_distribution, temperature] = result
+
+	return [layout, power_distribution, temperature]
+
+
+	#return [layout, -1, -1]
 
 """Stacked layout optimization"""
 
@@ -425,14 +435,15 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 			# utils.info(2, "Ooops, chip " + str(random_chip) + " won't work for the diameter");
 			continue
 		result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
+		#if result != None:
+		#print 'random chip = ',random_chip,' positions len =',len(layout.get_chip_positions()) #TODO: look into and add cmd arg
 		if result != None:
-		#print random_chip TODO: look into and add cmd arg
-		#if result != None and tmp_layout.enforce_carbon_structure(layout.get_chip_positions()[random_chip], result):
+			if utils.argv.carbon and not tmp_layout.enforce_carbon_structure(tmp_layout.get_chip_positions()[random_chip], result):
+				continue
 			new_chips += 1
 			try:
 				tmp_layout.add_new_chip(result)
 			except:
-				#print "error in add_multi_chip()"
 				continue
 
 	if new_chips<num_chips_to_add:
@@ -526,7 +537,7 @@ def pick_candidates(results, candidate_random_trials):
 	return [picked_candidate, index_of_result]
 """
 
-""" pick_candidatesy"""
+""" pick_candidates"""
 
 #@jit
 def pick_candidates(results, candidate_random_trials):
@@ -974,13 +985,12 @@ def optimize_layout_checkerboard():
 """Carbon layout optimization"""
 
 
-def optimize_layout_carbon():
+#def optimize_layout_carbon():
 
-	"""
+"""
 	build first carbon
 	until numlevel == diameter+1
 		add to each level
-	"""
 	utils.info(1, "Constructing a carbon layout")
 
 	layout = LayoutBuilder.compute_carbon_init_layout()
@@ -1016,7 +1026,7 @@ def optimize_layout_carbon():
 	[power_distribution, temperature] = result
 
 	return [layout, power_distribution, temperature]
-
+"""
 
 """Cradle layout optimization"""
 

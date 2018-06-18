@@ -1415,7 +1415,7 @@ class LayoutBuilder(object):
 		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,[])
 		layout.draw_in_3D(None, True)
 		return layout
-
+	"""
 	@staticmethod
 	def compute_carbon_init_layout():
 		if (utils.argv.overlap > 0.25):
@@ -1428,7 +1428,7 @@ class LayoutBuilder(object):
 		y_dim = utils.argv.chip.y_dimension
 		overlap = utils.argv.overlap
 
-		"""apply shift"""
+		#apply shift
 		shift = 10
 		x_shift = x_dim * shift
 		y_shift = y_dim * shift
@@ -1441,6 +1441,7 @@ class LayoutBuilder(object):
 		chip_positions.append([start_lvl, start_x, start_y])
 
 		return Layout(utils.argv.chip, chip_positions, utils.argv.medium, overlap,[])
+	"""
 
 	"""Function to compute a checkerboard layout"""
 	@staticmethod

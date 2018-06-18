@@ -270,6 +270,11 @@ VISUAL PROGRESS OUTPUT:
                             dest='crosstalk',
                             help='ignores crosstalk')
 
+	parser.add_argument('--carbon', action='store_true',
+                            required=False,
+                            dest='carbon',
+                            help='allows chips to like with the same rules as carbon chemistry')
+
 
 
 	return parser.parse_args()
