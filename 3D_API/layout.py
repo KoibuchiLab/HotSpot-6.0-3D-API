@@ -204,6 +204,10 @@ class Layout(object):
 	"""
 	#@jit
 	def check_cross_talk(self, tentative_inductor, inductor_list = -1):
+		if utils.argv.crosstalk:
+			utils.info(3,"Ignoring crosstalk")
+			return False
+
 		existing_inductors = []
 		if inductor_list == -1:
 			existing_inductors = self.__inductor_properties
@@ -305,6 +309,7 @@ class Layout(object):
 		Returns True if inductors added
 	"""
 	def connect_all_chips(self, chip_positions, inductor_properties):
+
 		if inductor_properties:
 			return inductor_properties
 		num_inductor = 0
@@ -941,6 +946,45 @@ class Layout(object):
 		return None
 		#return [3,0.078,0.07475]
 
+	""" TODO:
+	"""
+	#@staticmethod
+	def enforce_carbon_structure(self, current_chip_position,new_chip_position):
+		current_lvl, current_x, current_y = current_chip_position
+		new_lvl, new_x, new_y = new_chip_position
+		xdim = utils.argv.chip.x_dimension
+		ydim = utils.argv.chip.y_dimension
+		check_lvl = new_lvl
+		chip_positions = self.get_chip_positions()
+
+		if len(chip_positions) < 2:
+			return True
+
+		for position in chip_positions:
+			if not self.are_connected_neighbors(current_chip_position,position):
+				continue
+			lvl, x, y = position
+			if lvl == new_lvl:
+				if x != new_x and y != new_y:
+					return True
+			if abs(lvl - new_lvl) == 2:
+				#if (new_x < x+xdim) or (new_x+xdim < x):
+				if x == new_x or y == new_y:
+					return True
+		return False
+
+		"""
+		check for chips connected to the current chip
+		
+		of those chips get the level , and xy
+		
+		if the lvl is the same as the new chip
+			new chip must be diagonal to it, no horizontal overlap
+			
+		if lvl of current chip is two away from new chip
+			new chip must not be diagonal
+		"""
+
 
 ##############################################################################################
 ### LAYOUT BUILDER CLASS
@@ -1225,7 +1269,7 @@ class LayoutBuilder(object):
 			positions.append([chip5_level, chip5_x + x_shift, chip5_y + y_shift])
 			positions.append([chip6_level, chip6_x + x_shift, chip6_y + y_shift])
 			positions.append([chip7_level, chip7_x + x_shift, chip7_y + y_shift])
-
+			"""
 			inductor_properties.append([ind2_level, ind2_x + x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind3_level, ind3_x + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind4_level, ind4_x + x_shift, ind4_y + y_shift, inductor_xdim, inductor_ydim])
@@ -1233,13 +1277,14 @@ class LayoutBuilder(object):
 			inductor_properties.append([ind6_level, ind6_x + x_shift, ind6_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([ind7_level, ind7_x + x_shift, ind7_y + y_shift, inductor_xdim, inductor_ydim])
 			#inductor_properties.append([ind8_level, ind8_x + x_shift, ind8_y + y_shift, inductor_xdim, inductor_ydim])
-
+			"""
 		if len(positions)%8!=0:
 			positions.append([highest_level+1,chip1_x + x_shift,chip1_y+ y_shift])
 			inductor_properties.append([highest_level, ind2_x - inductor_xdim+ x_shift, ind2_y + y_shift, inductor_xdim, inductor_ydim])
 			inductor_properties.append([highest_level, ind3_x + inductor_xdim + x_shift, ind3_y + y_shift, inductor_xdim, inductor_ydim])
 
-		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
+		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, [])
+		#return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap, inductor_properties)
 #layout = Layout(7,positions,utils.argv.medium, utils.argv.overlap,)
 			#inductor_properties.append([chip1_level, chip1_x + x_shift, chip1_y + y_shift, inductor_xdim, inductor_ydim])
 
@@ -1367,11 +1412,38 @@ class LayoutBuilder(object):
 
 	@staticmethod
 	def plot_custom_layout(positions):
-		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
+		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,[])
 		layout.draw_in_3D(None, True)
+		return layout
+	"""
+	@staticmethod
+	def compute_carbon_init_layout():
+		if (utils.argv.overlap > 0.25):
+			utils.abort("A checkerboard layout can only be built with overlap <= 0.25")
+		if (utils.argv.constrained_overlap_geometry is not None)and('strip' in utils.argv.constrained_overlap_geometry):
+			utils.info(0,"Checkerboard can only be built with square inductors\nBuilding Checkerboard with square inductors")
+
+		chip_positions = []
+		x_dim = utils.argv.chip.x_dimension
+		y_dim = utils.argv.chip.y_dimension
+		overlap = utils.argv.overlap
+
+		#apply shift
+		shift = 10
+		x_shift = x_dim * shift
+		y_shift = y_dim * shift
+
+		import math
+		start_lvl = math.ceil(float(utils.argv.num_chips)/2)
+		start_x = x_shift
+		start_y = y_shift
+
+		chip_positions.append([start_lvl, start_x, start_y])
+
+		return Layout(utils.argv.chip, chip_positions, utils.argv.medium, overlap,[])
+	"""
 
 	"""Function to compute a checkerboard layout"""
-
 	@staticmethod
 	def compute_checkerboard_layout(num_chips):
 
