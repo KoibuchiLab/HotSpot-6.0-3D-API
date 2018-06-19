@@ -70,29 +70,30 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [13]
+	numchips = [9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2, .1]
 	#overlaps = [.1, .2]
 	#add_by = ['1']#,'3','cradle']
-	add_by = [ '3', '2', '1', 'cradle']
+	add_by = [ '3', '2', '1',] 
+	alpha = ['0','.25','.5','.75','1']
 	pickby = ['network','temp','power']
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "13chip_picking_criteria"
+	file_name = "alpha_threshold_exp"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_raw_output.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
-		header = "trial\tchips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\n"
+		header = "trial\tchips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\talpha\n"
 		f.write(header)
 		f.close()
 
 		g = open(avg_result_file, "w+")
-		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\n"
+		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\talpha\n"
 		g.write(header_g)
 		g.close()
 
@@ -112,13 +113,13 @@ def main():
 						candidates = workers*2
 						original_can = candidates
 						avg_ex_time = -1
-						for dumb in range(1,2):
+						for a in alpha:
 							for trial in range(1,11):
 								#print '+++ candidate is ',original_can,' +++'
 								#candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi -A "+str(a)#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 								#command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
@@ -145,13 +146,13 @@ def main():
 								if out_val[2] > 0:
 									trial_results.append(out_val)
 									trial_ex_time.append(ex_time)
-								raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
+								raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\t"+str(a)+"\n"
 								f = open(raw_result_file, "a+")
 								f.write(raw_result)
 								f.close()
 								print '>>>  Trial ',trial, ' execution time is ',ex_time,' numchips = ',num,' overlap = ',overlap,' add by =  ',add
 							avg_string = get_avg_string(trial_results,trial_ex_time)
-							avg_result = str(add)+"\t"+avg_string+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
+							avg_result = str(add)+"\t"+avg_string+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\t"+str(a)+"\n"
 							g = open(avg_result_file, "a+")
 							g.write(avg_result)
 							g.close()

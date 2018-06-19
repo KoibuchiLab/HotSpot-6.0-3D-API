@@ -229,18 +229,22 @@ VISUAL PROGRESS OUTPUT:
                             type=int, required=False, default=0,
                             dest='verbose', metavar='<integer verbosity level>',
                             help='verbosity level for debugging/curiosity')
+
 	parser.add_argument('--mpi', '-M', action='store_true',
                             required=False,
                             dest='mpi',
                             help='implements MPI version of Layout algorithm')
+
 	parser.add_argument('--test', '-z', action='store_true',
                             required=False,
                             dest='test',
                             help='real, calls hotspot_LL.py. test, calls fake_hotspot_LL.py')
+
 	parser.add_argument('--pick_criteria','-P',
                             required=False,
                             dest='pick_criteria', metavar='<picking priority>',
                             help='picks candidates based on either network, power, or temp')
+
 	parser.add_argument('--alpha_temp', '-A', action='store',
 						type=float, required=False,
 						dest='alpha_temp', metavar='<tempurature alpha>',
@@ -260,6 +264,16 @@ VISUAL PROGRESS OUTPUT:
                             required=False,
                             dest='show_in_3D',
                             help='opens up an interactive matplotlib visualization')
+
+	parser.add_argument('--off_crosstalk', '-i', action='store_true',
+                            required=False,
+                            dest='crosstalk',
+                            help='ignores crosstalk')
+
+	parser.add_argument('--carbon', action='store_true',
+                            required=False,
+                            dest='carbon',
+                            help='allows chips to like with the same rules as carbon chemistry')
 
 
 
