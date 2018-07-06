@@ -79,10 +79,11 @@ def main():
 	add_by = [ '3', '2', '1','cradle']
 	pickby = ['power']
 	can_range = [-2,-1,0,1,2]
+	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "dirt_find_num_candidate_3"
-	raw_result_file = "LL/results_LL/"+file_name+"_raw_.txt"
+	file_name = "dirt_new_find_candidate3"
+	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
@@ -111,64 +112,53 @@ def main():
 						trial_results = []
 						trial_ex_time = []
 						candidates = workers*2
-"""
-candiates must be > 4 for candidate range -2 to +2
-"""
+						#candiates must be > 4 for candidate range -2 to +2
 						if num == 6 and overlap == .1:
 							if '3' in add:
-								continue
-								#candidates = 38
-								#candidates = 23
-							elif '2' in add:
-								continue
-								candidates = 22
-								#candidates = 17
-							elif '1' in add:
-								continue
-								candidates = 12
-							elif 'cradle' in add:
-								candidates = 32 
-								#candidates = 25
-						elif num == 6 and overlap ==.2:
-							if '3' in add:
-								continue
-								candidates = 13
-							elif '2' in add:
-								continue
-								candidates = 11
-							elif '1' in add:
-								continue
-								candidates = 7
-							elif 'cradle' in add:
-								#candidates = 20
-								candidates = 40
-	
-						if num == 9 and overlap == .1:
-							if '3' in add:
-								continue
 								candidates = 38
 								#candidates = 23
 							elif '2' in add:
-								continue
-								candidates = 22
+								candidates = 19
 								#candidates = 17
 							elif '1' in add:
-								continue
 								candidates = 12
 							elif 'cradle' in add:
-								candidates = 35
+								candidates = 36 
+								#candidates = 25
+						elif num == 6 and overlap ==.2:
+							if '3' in add:
+								candidates = 32
+							elif '2' in add:
+								candidates = 15
+							elif '1' in add:
+								candidates = 11
+							elif 'cradle' in add:
+								#candidates = 20
+								candidates = 41
+	
+						if num == 9 and overlap == .1:
+							if '3' in add:
+								candidates = 20
+								#candidates = 23
+							elif '2' in add:
+								#candidates = 22
+								candidates = 17
+							elif '1' in add:
+								candidates = 12
+							elif 'cradle' in add:
+								candidates = 45
 								#candidates = 25
 						elif num == 9 and overlap ==.2:
 							if '3' in add:
-								continue
-								candidates = 13
+								candidates = 17
 							elif '2' in add:
-								candidates = 7
+								candidates = 14
 							elif '1' in add:
-								candidates = 3
+								candidates = 9
 							elif 'cradle' in add:
 								#candidates = 20
-								candidates = 33
+								candidates = 28
+						#candidates = 14
 						original_can = candidates
 						avg_ex_time = -1
 						for can in can_range:
@@ -180,12 +170,13 @@ candiates must be > 4 for candidate range -2 to +2
 								continue
 							for trial in range(1,11):
 								print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
+								#candidates = 14
 								candidates = original_can + can
 								print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
 								command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								print command
+								#print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
@@ -195,9 +186,9 @@ candiates must be > 4 for candidate range -2 to +2
 								proc.wait()
 								end = time.time()
 								#out = proc.stdout.read()
-								print 'returned from subprocess'
+								#print 'returned from subprocess'
 								out, err = proc.communicate()
-								print 'parsing'
+								#print 'parsing'
 								ex_time = float(end-start)
 
 								h = open(raw_output_file, "a+")
