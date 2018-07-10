@@ -115,57 +115,65 @@ def main():
 						#candiates must be > 4 for candidate range -2 to +2
 						if num == 6 and overlap == .1:
 							if '3' in add:
+								continue
 								candidates = 38
 								#candidates = 23
 							elif '2' in add:
+								continue
 								candidates = 19
 								#candidates = 17
 							elif '1' in add:
+								continue
 								candidates = 12
 							elif 'cradle' in add:
-								candidates = 36 
+								candidates = 47 
 								#candidates = 25
 						elif num == 6 and overlap ==.2:
 							if '3' in add:
+								continue
 								candidates = 32
 							elif '2' in add:
+								continue
 								candidates = 15
 							elif '1' in add:
+								continue
 								candidates = 11
 							elif 'cradle' in add:
 								#candidates = 20
-								candidates = 41
+								candidates = 47
 	
 						if num == 9 and overlap == .1:
 							if '3' in add:
-								candidates = 20
+								candidates = 43
 								#candidates = 23
 							elif '2' in add:
 								#candidates = 22
-								candidates = 17
+								candidates = 28
 							elif '1' in add:
-								candidates = 12
+								candidates = 17
 							elif 'cradle' in add:
-								candidates = 45
+								candidates = 63
 								#candidates = 25
 						elif num == 9 and overlap ==.2:
 							if '3' in add:
-								candidates = 17
+								candidates = 24
 							elif '2' in add:
+								continue
 								candidates = 14
 							elif '1' in add:
+								continue
 								candidates = 9
 							elif 'cradle' in add:
 								#candidates = 20
-								candidates = 28
+								candidates = 34
 						#candidates = 14
 						original_can = candidates
 						avg_ex_time = -1
 						for can in can_range:
-							if numchips == 6 and avg_ex_time > 300:  #TODO: time in sec, dont hard code this
+							if num  == 6 and avg_ex_time > 300:  #TODO: time in sec, dont hard code this
 								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',numchips
 								continue
-							if numchips == 9 and avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
+							if num == 9 and avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
 								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',numchips
 								continue
 							for trial in range(1,11):
