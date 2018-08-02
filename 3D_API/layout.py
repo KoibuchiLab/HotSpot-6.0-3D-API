@@ -309,7 +309,6 @@ class Layout(object):
 		Returns True if inductors added
 	"""
 	def connect_all_chips(self, chip_positions, inductor_properties):
-
 		if inductor_properties:
 			return inductor_properties
 		num_inductor = 0
@@ -319,6 +318,7 @@ class Layout(object):
 						continue
 				new_inductor_property = []
 				if not self.are_neighbors(chip1, chip2): #check if chips overlap properly
+					#TODO: skip check when plotting layouts
 					continue
 				new_inductor_property = self.get_new_inductor_properties(chip1, chip2)
 
@@ -465,23 +465,40 @@ class Layout(object):
 
 		max_level = -1
 		chip_num = 0
-		for position in self.__chip_positions:
+		for i, position in enumerate(self.__chip_positions):
 			#print 'chip level is ', position[0]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
 			b = random.uniform(0.1, 0.9)
-			"""
-			if position[0] == 1:
-				r = 0
-				g = 0
-				b = 0
 
+			### set black for figure ###
+			r = 0
+			g = 0
+			b = 0
+			"""
+			if i%3 == 0:
+				r = .3
+				g = .3
+				b = .3
+
+			if i%2 == 0:
+				r = .7
+				g = .7
+				b = .7
+			"""
 			if position[0] == 2:
+				r = .3
+				g = .3
+				b = .3
+
+			if position[0] == 3:
 				r = .5
 				g = .5
 				b = .5
+
 			"""
+			### Colors for Debugging ###
 			if chip_num%9 == 0:
 				r = .9
 				g = 0
@@ -519,6 +536,7 @@ class Layout(object):
 				g = 0
 				b = .9
 			chip_num += 1
+			"""
 
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
@@ -526,21 +544,33 @@ class Layout(object):
 			plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
 		# Layout.compute_two_rectangle_overlap_area()
+		""" 
 		for position in self.__inductor_properties:
 			xyz = [position[1], position[2], position[0] * level_height + .01]
 			# print 'inductor level is ', position[0],' xyz = ', xyz
 			r = 0
 			g = 0
 			b = 0
+
+			### set red for figures ###
+			r = .7
+
 			color = (r, g, b)
 			if (max_level == -1) or (max_level < position[0]):
 				max_level = position[0]
 			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color)
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
 
+		"""
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim = +0
-		ax.elev = 90
+		ax.azim = +45
+		#ax.elev = 90
+		ax.elev = +15
+
+		#ax.set_axis_off() #turns axis off
+		ax.set_xlabel('$X$',fontsize=20)
+		ax.set_ylabel('$Y$',fontsize=20)
+		ax.set_zlabel('$Z$',fontsize=20)
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')

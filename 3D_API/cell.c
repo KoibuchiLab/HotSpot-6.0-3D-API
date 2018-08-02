@@ -5,7 +5,7 @@
 
 #define MAX_LAYER_NUM 20 ///supporting up to 20 chip stacking
 #ifndef GRID_SIZE
-#define GRID_SIZE 2048//Warning thrown when <=512
+#define GRID_SIZE 2048  //Warning thrown when <=512
 #endif
 #define OUTPUT_GRID_SIZE 128
 #define MAX_CHAR_SIZE 100 // input file format
