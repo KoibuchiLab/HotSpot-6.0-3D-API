@@ -70,19 +70,19 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [9,6]
+	numchips = [13,5]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ '3', '2', '1','cradle']
+	add_by = [ '1','cradle']
 	pickby = ['power']
-	can_range = [-2,-1,0,1,2]
-	#can_range = [0]
+	#can_range = [-2,-1,0,1,2]
+	can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "dirt_new_find_candidate3"
+	file_name = "build_5_13_chip"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -112,6 +112,8 @@ def main():
 						trial_results = []
 						trial_ex_time = []
 						candidates = workers*2
+						if num == 5:
+							candidates = candidates*2
 						#candiates must be > 4 for candidate range -2 to +2
 						if num == 6 and overlap == .1:
 							if '3' in add:
