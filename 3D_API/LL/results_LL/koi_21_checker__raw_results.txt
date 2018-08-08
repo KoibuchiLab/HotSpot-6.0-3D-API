@@ -1,0 +1,3 @@
+trial	chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature	picked_by	overlap	numchips	candidates
+1	1	85.0276908875	32	2	6	3.00952380952	21.9087	2200.0	46.86	power	0.2	21	14
+1	1	112.018571138	32	2	6	3.00952380952	25.7721	2400.0	47.63	power	0.1	21	14
