@@ -486,7 +486,6 @@ class Layout(object):
 				r = .7
 				g = .7
 				b = .7
-			"""
 			if position[0] == 2:
 				r = .3
 				g = .3
@@ -496,6 +495,7 @@ class Layout(object):
 				r = .5
 				g = .5
 				b = .5
+			"""
 
 			"""
 			### Colors for Debugging ###
@@ -544,7 +544,6 @@ class Layout(object):
 			plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
 		# Layout.compute_two_rectangle_overlap_area()
-		""" 
 		for position in self.__inductor_properties:
 			xyz = [position[1], position[2], position[0] * level_height + .01]
 			# print 'inductor level is ', position[0],' xyz = ', xyz
@@ -560,6 +559,7 @@ class Layout(object):
 				max_level = position[0]
 			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color)
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
+		""" 
 
 		"""
 		ax.set_zlim(0, (max_level * 2) * level_height)
@@ -567,10 +567,10 @@ class Layout(object):
 		#ax.elev = 90
 		ax.elev = +15
 
-		#ax.set_axis_off() #turns axis off
-		ax.set_xlabel('$X$',fontsize=20)
-		ax.set_ylabel('$Y$',fontsize=20)
-		ax.set_zlabel('$Z$',fontsize=20)
+		ax.set_axis_off() #turns axis off
+		#ax.set_xlabel('$X$',fontsize=20)
+		#ax.set_ylabel('$Y$',fontsize=20)
+		#ax.set_zlabel('$Z$',fontsize=20)
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')
