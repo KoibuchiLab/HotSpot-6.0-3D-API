@@ -563,9 +563,9 @@ class Layout(object):
 
 		"""
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim = +45
+		ax.azim = +90
 		#ax.elev = 90
-		ax.elev = +15
+		ax.elev = +90
 
 		ax.set_axis_off() #turns axis off
 		#ax.set_xlabel('$X$',fontsize=20)

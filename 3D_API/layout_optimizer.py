@@ -921,9 +921,11 @@ def optimize_layout_random_greedy_mpi():
 		# print '\n\result is ',result,'\nsaved_result is ',saved_result
 
 		if not results:
+			send_stop_signals(worker_list, comm)
 			return None
 		result = results[picked_index]
 		if (result == None):
+			send_stop_signals(worker_list, comm)
 			return None
 
 		[power_distribution, temperature] = result[-1]
