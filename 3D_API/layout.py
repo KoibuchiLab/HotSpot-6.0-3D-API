@@ -715,7 +715,7 @@ class Layout(object):
 		# Call hotspot
 		if utils.argv.test:
 			# command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
-			return 58
+			return random.randint(49,52)
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:

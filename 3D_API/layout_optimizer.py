@@ -250,46 +250,27 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	chipy_dim = utils.argv.chip.y_dimension
 	any_shape = False
 	overlap_shape = utils.argv.constrained_overlap_geometry
-	#print 'global overlap ',utils.argv.constrained_overlap_geometry
-	#if not('strip' in utils.argv.constrained_overlap_geometry) or not('square' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
 	if (overlap_shape is None) or ('any' in overlap_shape): ###TODO: ok to set globally?
-	#if (utils.argv.constrained_overlap_geometry is None) or ('any' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
 		overlap_shape = random.choice(['square','strip'])
-		#print "HERE!!!"
-		#utils.argv.constrained_overlap_geometry = random.choice(['square','strip'])
-		#any_shape = True
-		#overlape_shape = random.choice(['square','strip'])
 		utils.info(1,"shape parameter not specified, randomly chose shape parameter = "+str(utils.argv.constrained_overlap_geometry))
-	#overlape_shape = utils.argv.constrained_overlap_geometry
-	#tmp_layout = copy.copy(layout)
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-	#random_chip = 1
 	result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
-	#print 'overlap shape is ', overlap_shape
 	if result == None:
-		#utils.argv.constrained_overlap_geometry = 'any'
 		utils.info(1, "Could not find a place to add the first cradle chip")
 		return None
-		#continue
 	try:
 		tmp_layout.add_new_chip(result)
-		#print "add cradle 1"
 	except:
 		return None
-		#print 'PROBLEM chip 1'
 
 	if 'strip' in overlap_shape:
 		if result[0]<2:
 			utils.info(1, "chip 2 of cradle will be below level 1")
-			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
-				#continue
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			utils.info(1,"Adding cradle exceeds diameter constraint")
-			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
-			#continue #adding a cradle will exceed diameter constraint
 		cradle_chip1 = tmp_layout.get_chip_positions()[-1]
 		cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
 		if cradle_chip2 is None:
@@ -316,10 +297,8 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 				chip3_y = cradle_chip2[2]
 
 		cradle_chip3 = [chip3_level, chip3_x, chip3_y]
-		#print "STRIP"
 		second_cradle_chip = cradle_chip2
 		third_cradle_chip = cradle_chip3
-		#candidate_list = tmp_layout.get_chip_positions()[-3:]
 
 	elif 'square' in overlap_shape:
 		#print "\n\n\n\nNO\n\n\n\n\n"
@@ -327,19 +306,14 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
 				utils.info(1, "Adding cradle by the middle chip still exceeds diameter constraint")
-				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
-				#continu1
 			attached_at = 2
 		inductor = tmp_layout.get_inductor_properties()[-1]
 		if attached_at == 2: #adding at middle of cradle, cradle chip 2
 			if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
 				utils.info(1,"Adding cradle by middle exceeds level constraint")
-				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
-				#continue
 			cradle_chip2 = tmp_layout.get_chip_positions()[-1]
-			#print 'num chips in layout is ', len(tmp_layout.get_chip_positions())
 			chip1_level = chip3_level = cradle_chip2[0]+1
 			if (cradle_chip2[1]==inductor[1] and cradle_chip2[2]==inductor[2]) or (cradle_chip2[1]!=inductor[1] and cradle_chip2[2]!=inductor[2]): #add top left, bottom right
 				chip1_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
@@ -353,9 +327,6 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 				chip3_y = cradle_chip2[2]-chipy_dim*(1-sqrt(overlap))
 			cradle_chip1 = [chip1_level, chip1_x, chip1_y]
 			cradle_chip3 = [chip3_level, chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(cradle_chip1)
-			#tmp_layout.add_new_chip(cradle_chip3)
-			#print "MIDDLE"
 			second_cradle_chip = cradle_chip1
 			third_cradle_chip = cradle_chip3
 
@@ -392,27 +363,18 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 					chip3_x = cradle_chip2[1] + chipx_dim*(1-sqrt(overlap))
 					chip3_y = cradle_chip2[2] + chipy_dim*(1-sqrt(overlap))
 			cradle_chip3 = [cradle_chip1[0], chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(cradle_chip2)
-			#tmp_layout.add_new_chip(cradle_chip3)
 			second_cradle_chip = cradle_chip2
 			third_cradle_chip = cradle_chip3
-			#print "SIDE"
-	#if (tmp_layout.can_new_chip_fit(third_cradle_chip)):
-	#	print "third chip cant fit\nreturn"
-	#	return
 	if not tmp_layout.can_new_chip_fit(second_cradle_chip):
-		#print 'cant add second chip'
 		utils.info(0,"Second Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(second_cradle_chip)
 	if not tmp_layout.can_new_chip_fit(third_cradle_chip):
-		#print 'cant add third chip'
 		utils.info(0,"Third Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(third_cradle_chip)
 
 	if len(tmp_layout.get_chip_positions())%3!=0:
-		#tmp_layout.draw_in_3D(None, True)
 		utils.info(0,"Did not find all 3 cradle chip positions, returning None")
 		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
@@ -447,7 +409,8 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 				continue
 
 	if new_chips<num_chips_to_add:
-		utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+		return None
+		#utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
 	candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
 	return candidate_list
 
@@ -471,15 +434,10 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			candidate_list = add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add)
 			if candidate_list == None:
 				continue
-		#layout.draw_in_3D(None,True)
-		#for candidtates in candidate_list:
-			#print 'there are that many chips --> ',len(layout.get_chip_positions())
-		#	if layout.get_chip_positions()[-1] == candidtates:
-		#		print "\n\n\n\n\n\n\nWTF\n\n\n\n\n"
 		candidate_random_trials.append(candidate_list)
 
 	if len(candidate_random_trials) != num_neighbor_candidates:
-			utils.info(0, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
+			utils.info(3, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 	return candidate_random_trials
 
 """Original pick_candidate"""
@@ -864,15 +822,16 @@ def optimize_layout_random_greedy_mpi():
 				utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
 			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add,add_scheme)
 
-			###############################################
-			### Evaluate all Candidates
-			###############################################
+			if None in candidate_random_trials:
+				candidate_random_trials = filter(None,candidate_random_trials)
+				utils.info(3,"filtering None out of candidate_random_trials list")
+
+			if len(candidate_random_trials) == 0:
+				send_stop_signals(worker_list,comm)
+				utils.abort("Candidate list is empty")
 
 			###############################################
-			### TODO
-			### - implement add cradles
-			###		- find feasible cradle function, in layout
-			### - look into merging this function with sequential version
+			### Evaluate all Candidates
 			###############################################
 
 			worker_list = [False] * (size - 1)
@@ -885,16 +844,12 @@ def optimize_layout_random_greedy_mpi():
 						worker = worker_list.index(False)
 						worker_list[worker] = True
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
-						# data_to_worker[layout, candidate, index in results list, index in worker list, worker stop variable]
-						# print 'SENT layout is ', layout
 						comm.send(data_to_worker, dest=worker + 1)
 						i += 1
 					else:
 						end = 1  # when no more candidates and workers arent working, and alive
 				else:
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
-					# data_from_worker[[[power_distribution, temperature]], index in results list, index in worker list]
-					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
 
 			# print "RESULTS = ", results
@@ -920,13 +875,21 @@ def optimize_layout_random_greedy_mpi():
 		# saved_result = results[picked_index]
 		# print '\n\result is ',result,'\nsaved_result is ',saved_result
 
+		if results:
+			result = results[picked_index]
+			if (result == None):
+				return_val = None
+		"""		
 		if not results:
 			send_stop_signals(worker_list, comm)
+			print "HERE STOPPING"
 			return None
 		result = results[picked_index]
 		if (result == None):
 			send_stop_signals(worker_list, comm)
+			print "HERE STOPPING"
 			return None
+		"""
 
 		[power_distribution, temperature] = result[-1]
 		# print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
@@ -938,7 +901,8 @@ def optimize_layout_random_greedy_mpi():
 		# comm.send(stop_worker,dest = k+1)
 		#comm.Disconnect()
 
-		return [layout, power_distribution, temperature]
+		return_val =  [layout, power_distribution, temperature]
+		return return_val
 
 	else:
 		while True:
