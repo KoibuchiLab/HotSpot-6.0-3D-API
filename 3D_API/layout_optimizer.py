@@ -905,14 +905,14 @@ def optimize_layout_random_greedy_mpi():
 		return return_val
 
 	else:
-		while True:
+		ask_for_work = True
+		while ask_for_work is True:
 			data_from_master = comm.recv(source=0)
 			# data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
 				#print '\n\n!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
-
+				ask_for_work = False
 				#comm.Disconnect()
-				sys.exit(0)
 			# print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank
 			# layout = data_from_master[0]
 			# candidate = data_from_master[1]
@@ -925,6 +925,8 @@ def optimize_layout_random_greedy_mpi():
 			data_to_master = [powerdisNtemp, data_from_master[2], data_from_master[3]]
 			# data_to_master[[power_distribution, temperature], candidate,index of restult, index of worker,stop worker variable]
 			comm.send(data_to_master, dest=0)
+		utils.info(2, "Worker Terminated, Exiting")
+		sys.exit(0)
 
 
 """Checkboard layout optimization"""
