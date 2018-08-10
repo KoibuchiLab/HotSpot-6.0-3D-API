@@ -762,6 +762,7 @@ def send_stop_signals(worker_list, comm):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
 		comm.send(stop_worker, dest=k + 1)
+		print 'stopping worker rank ',k+1
 
 
 """Random greedy layout optimization with MPI"""
@@ -839,12 +840,14 @@ def optimize_layout_random_greedy_mpi():
 			end = 0
 			i = 0
 			while None in results:
-				print 'HERE1'
 				if False in worker_list and end < 1:
 					print 'HERE2'
 					if i < len(candidate_random_trials):
+						print 'worker list =',worker_list
 						worker = worker_list.index(False)
+						print 'worker index is ',worker
 						worker_list[worker] = True
+						print 'presend worker list =',worker_list
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
 						comm.send(data_to_worker, dest=worker + 1)
 						print 'sent'
@@ -855,11 +858,14 @@ def optimize_layout_random_greedy_mpi():
 				else:
 					print 'results is ', results
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
+					if data_from_worker[0][1] is None:
+						print 'Hotspot returned None, CONTINUING'
+						continue
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
 					print 'rec'
 
-			print 'out results is ',results
+			#print 'out results is ',results
 			print 'HERE4'
 			#print 'HERE5'
 			# print "RESULTS = ", results

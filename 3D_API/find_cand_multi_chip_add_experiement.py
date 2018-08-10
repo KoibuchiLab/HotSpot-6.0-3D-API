@@ -111,7 +111,7 @@ def main():
 							#continue
 						trial_results = []
 						trial_ex_time = []
-						candidates = workers*2
+						candidates = workers*2-1
 						#candiates must be > 4 for candidate range -2 to +2
 						if num == 6 and overlap == .1:
 							if '3' in add:

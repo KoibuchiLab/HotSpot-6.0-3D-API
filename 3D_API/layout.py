@@ -297,7 +297,7 @@ class Layout(object):
 			utils.info(3, "Connecting chip by adding inductor")
 			num_inductor +=1
 			if num_inductor>1:
-				#utils.info(3,"\nBRIDGE!!!\n")
+				utils.info(3,"\nBRIDGE!!!\n")
 				#self.draw_in_3D(None, True)
 		if original_inductor_count < len(self.__inductor_properties):
 			return True
@@ -723,6 +723,7 @@ class Layout(object):
 			command_line = "./hotspot.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		utils.info(3, "--> " + command_line)
 		# layout.draw_in_3D("./broken2.pdf", False)
+		"""
 		try:
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
@@ -730,6 +731,20 @@ class Layout(object):
 			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 
 		string_output = proc.stdout.read().rstrip()
+		"""
+		proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+		proc.wait()
+		string_output, error_output = proc.communicate() 
+
+		if int(proc.returncode)>0:
+			print 'output is \n',string_output
+			print 'hospot error code not zero'
+			print 'error output is \n',error_output
+			utils.info(2,"Hotspot retured with error, TEMP val returning None")
+			return None
+
+		string_output = string_output.rstrip()
+
 		#		print 'STRING OUTPUT ',string_output
 		try:
 			# tokens = string_output.split(" ")
