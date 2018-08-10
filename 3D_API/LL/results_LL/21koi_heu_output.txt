@@ -1,0 +1,13 @@
+raw output
+
+
+trial 1	 add by cradle	 ex time 43900.2640212	picked by power	overlap 0.2
+
+
+trial 2	 add by cradle	 ex time 5595.25873613	picked by power	overlap 0.2
+This is a problem, strip
+This is a problem, strip
+This is a problem, strip
+This is a problem, strip
+This is a problem, strip
+
