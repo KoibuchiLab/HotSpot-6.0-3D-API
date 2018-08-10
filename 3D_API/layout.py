@@ -738,7 +738,6 @@ class Layout(object):
 		except:
 			utils.abort("Cannot convert HotSpot output ('" + string_output + "') to float")
 
-		utils.info(3, "Hostpot returned temperature: " + str(temperature))
 
 		# Remove files
 		try:
@@ -749,6 +748,7 @@ class Layout(object):
 		except Exception, e:
 			sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 
+		utils.info(3, "Hostpot returned temperature: " + str(temperature))
 		return temperature
 
 	""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
