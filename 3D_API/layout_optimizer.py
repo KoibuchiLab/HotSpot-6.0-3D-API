@@ -274,7 +274,7 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		cradle_chip1 = tmp_layout.get_chip_positions()[-1]
 		cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
 		if cradle_chip2 is None:
-			print "This is a problem, strip"
+			#print "This is a problem, strip"
 			return None
 		cradle_chip2[0] = cradle_chip1[0]-1
 		if cradle_chip1[1] == cradle_chip2[1]: # add vertically
@@ -366,16 +366,16 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 			second_cradle_chip = cradle_chip2
 			third_cradle_chip = cradle_chip3
 	if not tmp_layout.can_new_chip_fit(second_cradle_chip):
-		utils.info(0,"Second Chip Cant Fit")
+		utils.info(1,"Second Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(second_cradle_chip)
 	if not tmp_layout.can_new_chip_fit(third_cradle_chip):
-		utils.info(0,"Third Chip Cant Fit")
+		utils.info(1,"Third Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(third_cradle_chip)
 
 	if len(tmp_layout.get_chip_positions())%3!=0:
-		utils.info(0,"Did not find all 3 cradle chip positions, returning None")
+		utils.info(1,"Did not find all 3 cradle chip positions, returning None")
 		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 
@@ -839,19 +839,29 @@ def optimize_layout_random_greedy_mpi():
 			end = 0
 			i = 0
 			while None in results:
+				print 'HERE1'
 				if False in worker_list and end < 1:
+					print 'HERE2'
 					if i < len(candidate_random_trials):
 						worker = worker_list.index(False)
 						worker_list[worker] = True
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
 						comm.send(data_to_worker, dest=worker + 1)
+						print 'sent'
 						i += 1
 					else:
-						end = 1  # when no more candidates and workers arent working, and alive
+						print 'HERE3'
+						end = 1  # when no more candidates and workers arent working, but alive
 				else:
+					print 'results is ', results
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
+					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
+					print 'rec'
 
+			print 'out results is ',results
+			print 'HERE4'
+			#print 'HERE5'
 			# print "RESULTS = ", results
 
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
@@ -869,6 +879,9 @@ def optimize_layout_random_greedy_mpi():
 				except:
 					send_stop_signals(worker_list, comm)
 					utils.abort("Final add doesnt work")
+			print 'picked, next set of chips\n layout numchips = ',layout.get_num_chips()
+
+		print 'Found all chips'
 
 		# Do the final evaluation (which was already be done, but whatever)
 		# result = find_maximum_power_budget(layout)
