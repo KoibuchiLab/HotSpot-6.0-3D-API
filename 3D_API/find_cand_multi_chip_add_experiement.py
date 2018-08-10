@@ -70,19 +70,19 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7
-	numchips = [9,6]
+	numchips = [21]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ '3', '2', '1','cradle']
+	add_by = [ 'cradle','1','2','3']
 	pickby = ['power']
-	can_range = [-2,-1,0,1,2]
+	can_range = [0]
 	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "dirt_new_find_candidate3"
+	file_name = "new21koi"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -182,9 +182,9 @@ def main():
 								candidates = original_can + can
 								print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								#print command
+								print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
