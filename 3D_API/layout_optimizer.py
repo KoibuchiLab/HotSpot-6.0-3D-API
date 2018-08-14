@@ -194,7 +194,7 @@ def optimize_layout_linear_random_greedy():
 def evaluate_candidate(args):
 	[layout, candidate] = args
 	utils.info(1, "  - Evaluating candidate " + str(candidate))
-	#print 'layout recieved ',layout
+	print 'layout recieved ',layout
 	#print '\ncandidates ', candidate
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	#print 'layout chips ', dummy_layout.get_chip_positions(),'\n'
@@ -825,6 +825,7 @@ def optimize_layout_random_greedy_mpi():
 
 			if None in candidate_random_trials:
 				candidate_random_trials = filter(None,candidate_random_trials)
+				print 'EMPTY candidate slot'
 				utils.info(3,"filtering None out of candidate_random_trials list")
 
 			if len(candidate_random_trials) == 0:
@@ -841,16 +842,16 @@ def optimize_layout_random_greedy_mpi():
 			i = 0
 			while None in results:
 				if False in worker_list and end < 1:
-					print 'HERE2'
+					#print 'HERE2'
 					if i < len(candidate_random_trials):
-						print 'worker list =',worker_list
+						#print 'worker list =',worker_list
 						worker = worker_list.index(False)
-						print 'worker index is ',worker
+						#print 'worker index is ',worker
 						worker_list[worker] = True
-						print 'presend worker list =',worker_list
+						#print 'presend worker list =',worker_list
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
 						comm.send(data_to_worker, dest=worker + 1)
-						print 'sent'
+						#print 'sent'
 						i += 1
 					else:
 						print 'HERE3'
@@ -858,15 +859,15 @@ def optimize_layout_random_greedy_mpi():
 				else:
 					print 'results is ', results
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
-					if data_from_worker[0][1] is None:
-						print 'Hotspot returned None, CONTINUING'
-						continue
+					#if data_from_worker[0][1] is None:
+						#print 'Hotspot returned None, CONTINUING'
+						#continue
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
 					print 'rec'
 
 			#print 'out results is ',results
-			print 'HERE4'
+			#print 'HERE4'
 			#print 'HERE5'
 			# print "RESULTS = ", results
 
@@ -898,6 +899,9 @@ def optimize_layout_random_greedy_mpi():
 			result = results[picked_index]
 			if (result == None):
 				return_val = None
+			else:
+				[power_distribution, temperature] = result[-1]
+				return_val =  [layout, power_distribution, temperature]
 		"""		
 		if not results:
 			send_stop_signals(worker_list, comm)
@@ -908,19 +912,13 @@ def optimize_layout_random_greedy_mpi():
 			send_stop_signals(worker_list, comm)
 			print "HERE STOPPING"
 			return None
-		"""
-
-		[power_distribution, temperature] = result[-1]
-		# print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
-
-		# send stop signal to all worker ranks
+		"""	# send stop signal to all worker ranks
 		send_stop_signals(worker_list, comm)
 		# for k in range(0, len(worker_list)):
 		#	stop_worker = [0, 0, 0, 0, 1]
 		# comm.send(stop_worker,dest = k+1)
 		#comm.Disconnect()
 
-		return_val =  [layout, power_distribution, temperature]
 		return return_val
 
 	else:
@@ -930,6 +928,8 @@ def optimize_layout_random_greedy_mpi():
 			# data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
 				#print '\n\n!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
+				print 'exiting worker'
+				sys.exit(0)
 				ask_for_work = False
 				#comm.Disconnect()
 			# print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank

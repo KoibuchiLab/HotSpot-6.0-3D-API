@@ -739,7 +739,7 @@ class Layout(object):
 		if int(proc.returncode)>0:
 			print 'output is \n',string_output
 			print 'hospot error code not zero'
-			print 'error output is \n',error_output
+			#print 'error output is \n',error_output
 			utils.info(2,"Hotspot retured with error, TEMP val returning None")
 			return None
 

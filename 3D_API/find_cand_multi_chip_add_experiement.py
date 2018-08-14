@@ -82,7 +82,7 @@ def main():
 	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "new21koi"
+	file_name = "test_hotspot_error_handling"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -177,10 +177,10 @@ def main():
 								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
 								continue
 							for trial in range(1,11):
-								print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
+								#print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
 								#candidates = 14
 								candidates = original_can + can
-								print '=== candidate plus range=',can,' is ',candidates,' ==='
+								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
 								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
