@@ -20,7 +20,7 @@ args = sys.argv
 def compile_cell(pid):
 	#print "gcc -Wall -Ofast cell.c -o cell"+str(pid)+" -s;"
 	#os.system("gcc -Wall -O3 -fopenmp -lm cell.c -o cell"+str(pid)+" -s;")
-	proc = subprocess.Popen("gcc -Wall -Ofast -fopenmp -lm cell.c -o cell"+str(pid)+" -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
+	proc = subprocess.Popen("gcc -Wall -Ofast -fopenmp -lm cell.c -o cell"+str(pid)+" -DGRID_SIZE=4096 -s",stdout=subprocess.PIPE, stderr=subprocess.PIPE,  shell=True)
 	proc.wait()
 	stdout, stderr = proc.communicate()
 	if proc.returncode != 0:
@@ -59,10 +59,14 @@ def call_hotspot(material, pid):
 		#print command
 		proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		proc.wait()
-		proc.communicate()
+		stdout, stderr = proc.communicate()
 		if proc.returncode != 0:
-			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid,'\nCheck that hotspot was compiled'
+			print '\nHotspot.c error\nRemoving temp files containing pid = ',pid
 			subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+			print '=========Hotspot output bellow ========='
+			print 'out msg\n',stdout
+			print 'error msg\n',stderr
+			print '========================================'
 			print '********EXITING HOTSPOT.py********'
 			sys.exit(1)
 
@@ -217,4 +221,4 @@ except IOError:
 
 #clean up
 subprocess.call("rm -f *"+str(pid)+"*", shell=True)
-
+sys.exit(0)
