@@ -377,6 +377,9 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	if len(tmp_layout.get_chip_positions())%3!=0:
 		utils.info(1,"Did not find all 3 cradle chip positions, returning None")
 		return None
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
+		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 
 	return candidate_list
@@ -411,6 +414,9 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 	if new_chips<num_chips_to_add:
 		return None
 		#utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
+		return None
 	candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
 	return candidate_list
 
@@ -422,7 +428,7 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 	num_attempts = 0
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
-		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_cradle()
+		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):
 
 			candidate_list = add_cradle(layout)
 
