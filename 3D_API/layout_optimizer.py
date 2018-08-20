@@ -194,7 +194,7 @@ def optimize_layout_linear_random_greedy():
 def evaluate_candidate(args):
 	[layout, candidate] = args
 	utils.info(1, "  - Evaluating candidate " + str(candidate))
-	print 'layout recieved ',layout
+	#print 'layout recieved ',layout
 	#print '\ncandidates ', candidate
 	dummy_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	#print 'layout chips ', dummy_layout.get_chip_positions(),'\n'
@@ -762,7 +762,7 @@ def send_stop_signals(worker_list, comm):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
 		comm.send(stop_worker, dest=k + 1)
-		print 'stopping worker rank ',k+1
+		#print 'stopping worker rank ',k+1
 
 
 """Random greedy layout optimization with MPI"""
@@ -825,7 +825,7 @@ def optimize_layout_random_greedy_mpi():
 
 			if None in candidate_random_trials:
 				candidate_random_trials = filter(None,candidate_random_trials)
-				print 'EMPTY candidate slot'
+				#print 'EMPTY candidate slot'
 				utils.info(3,"filtering None out of candidate_random_trials list")
 
 			if len(candidate_random_trials) == 0:
@@ -854,17 +854,17 @@ def optimize_layout_random_greedy_mpi():
 						#print 'sent'
 						i += 1
 					else:
-						print 'HERE3'
+						#print 'HERE3'
 						end = 1  # when no more candidates and workers arent working, but alive
 				else:
-					print 'results is ', results
+					#print 'results is ', results
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
 					#if data_from_worker[0][1] is None:
 						#print 'Hotspot returned None, CONTINUING'
 						#continue
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
-					print 'rec'
+					#print 'rec'
 
 			#print 'out results is ',results
 			#print 'HERE4'
@@ -886,9 +886,9 @@ def optimize_layout_random_greedy_mpi():
 				except:
 					send_stop_signals(worker_list, comm)
 					utils.abort("Final add doesnt work")
-			print 'picked, next set of chips\n layout numchips = ',layout.get_num_chips()
+			#print 'picked, next set of chips\n layout numchips = ',layout.get_num_chips()
 
-		print 'Found all chips'
+		#print 'Found all chips'
 
 		# Do the final evaluation (which was already be done, but whatever)
 		# result = find_maximum_power_budget(layout)
@@ -928,7 +928,7 @@ def optimize_layout_random_greedy_mpi():
 			# data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
 				#print '\n\n!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
-				print 'exiting worker'
+				#print 'exiting worker'
 				sys.exit(0)
 				ask_for_work = False
 				#comm.Disconnect()
