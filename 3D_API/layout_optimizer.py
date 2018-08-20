@@ -426,6 +426,7 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
 	utils.info(3,"generating multi candidates")
 	num_attempts = 0
+	print 'Here'
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
 		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):
@@ -815,8 +816,10 @@ def optimize_layout_random_greedy_mpi():
 
 		results = []
 		picked_index = 0
-		while (layout.get_num_chips() != utils.argv.num_chips):
-
+		#print 'mx nei can attp ', max_num_neighbor_candidate_attempts
+		attempt = 0
+		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
+			attempt += 1
 			###############################################
 			### Create Candidates
 			##########################################
@@ -876,6 +879,11 @@ def optimize_layout_random_greedy_mpi():
 			#print 'HERE4'
 			#print 'HERE5'
 			# print "RESULTS = ", results
+			"""
+			if None in results:
+				send_stop_signals(worker_list, comm)
+				utils.abort("Results contained None value")
+			"""
 
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			picked_candidate, picked_index = pick_candidates(results, candidate_random_trials)

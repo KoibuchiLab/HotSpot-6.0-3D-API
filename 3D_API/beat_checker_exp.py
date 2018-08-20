@@ -24,6 +24,9 @@ class checker (object):
 		self.__overlap = overlap
 		self.__metrics = self.checker_metric_db[str(numchip)+'_'+str(overlap)]
 
+	def get_diameter(self):
+		return self.__metrics['diameter']
+
 	def beat_checker(self,compare_list):
 		#print "HERE!!!"
 		#print compare_list
@@ -114,7 +117,7 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7
+	workers = 17
 	numchips = [13]
 	#candidates = workers*2
 	candidate_trials = 10000
@@ -127,7 +130,7 @@ def main():
 	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "beat_checker"
+	file_name = "calc4_beat_checker"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -188,9 +191,11 @@ def main():
 								candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(check.get_diameter())+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+
 								#win = True #for debugging only
-								#print command
+
+								print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
