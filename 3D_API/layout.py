@@ -562,15 +562,27 @@ class Layout(object):
 		""" 
 
 		"""
+		ax.set_aspect(1)
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim = +90
+		ax.azim = +0
 		#ax.elev = 90
-		ax.elev = +90
+		ax.elev = +0
 
-		ax.set_axis_off() #turns axis off
-		#ax.set_xlabel('$X$',fontsize=20)
-		#ax.set_ylabel('$Y$',fontsize=20)
-		#ax.set_zlabel('$Z$',fontsize=20)
+		#ax.set_axis_off() #turns axis off
+		ax.set_xlabel('$X$',fontsize=20)
+		ax.set_ylabel('$Y$',fontsize=20)
+		ax.set_zlabel('$Z$',fontsize=20)
+
+		j = 0
+		for i in range(180,-180,-1):
+				ax.azim = 0+j
+				ax.elev = 0+i
+				j+=1
+				filename = "animate/13chip_axis/13chip_axis"+str(j)
+				fig.savefig(filename, bbox_inches='tight')
+		"""
+		"""
+
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')
