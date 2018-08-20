@@ -72,7 +72,7 @@ def main():
 	workers = 17 
 	numchips = [13,9,6]
 	#candidates = workers*2
-	candidate_trials = 1000
+	candidate_trials = 10000
 	overlaps = [.2, .1]
 	#overlaps = [.1, .2]
 	add_by = ['1']#,'3','cradle']
@@ -81,7 +81,7 @@ def main():
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "actural_koi_heuristic_step_exp"
+	file_name = "26koi_heuristic_step_exp"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -104,13 +104,13 @@ def main():
 
 		for pick in pickby:
 			for overlap in overlaps:
-				for num in range(14,42):
+				for num in range(26,42):
 					for add in add_by:
 						if num == add:
 							continue
 						trial_results = []
 						trial_ex_time = []
-						candidates = 14# workers*2
+						candidates = workers*2
 						avg_ex_time = -1
 						"""
 						for can in can_range:
@@ -123,7 +123,7 @@ def main():
 								#candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 								#command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 								#print command
