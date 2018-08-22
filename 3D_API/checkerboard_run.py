@@ -75,14 +75,14 @@ def main():
 	candidate_trials = 100000
 	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
-	add_by = ['1','cradle','2','3']
-	#add_by = [ '3', '2', '1','cradle']
+	#add_by = ['1','3','cradle']
+	add_by = [ '3', '2', '1','cradle']
 	pickby = ['power']
 	#can_range = [-2,-1,0,1,2]
 	can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "21chip_heu"
+	file_name = "dirt_21chip"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
