@@ -69,8 +69,8 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7 
-	numchips = [13,9,6]
+	workers = 17 
+	numchips = [21]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2, .1]
@@ -81,10 +81,10 @@ def main():
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "dirt_checker_step_exp"
-	raw_result_file = "results_LL/"+file_name+"_raw_results.txt"
-	avg_result_file = "results_LL/"+file_name+"_avg_results.txt"
-	raw_output_file = "results_LL/"+file_name+"_output.txt"
+	file_name = "koi_21_checker_"
+	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
+	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
+	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
@@ -104,13 +104,13 @@ def main():
 
 		for pick in pickby:
 			for overlap in overlaps:
-				for num in range(4,14):
+				for num in range(21,22):
 					for add in add_by:
 						if num == add:
 							continue
 						trial_results = []
 						trial_ex_time = []
-						candidates = workers*2
+						candidates = 14# workers*2
 						avg_ex_time = -1
 						"""
 						for can in can_range:
@@ -124,7 +124,7 @@ def main():
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
 								#command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
-								command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 								#print command
 								#sys.stderr.write("Error: test command\n")

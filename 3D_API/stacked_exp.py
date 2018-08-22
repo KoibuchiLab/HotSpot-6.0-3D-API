@@ -70,7 +70,7 @@ def get_avg_string(trial_results, trial_ex_time):
 
 def main():
 	workers = 7 
-	numchips = [13,9,6]
+	numchips = [9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2, .1]
@@ -81,10 +81,10 @@ def main():
 	can_range = [-2,-1,0,1,2]
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "dirt_checker_step_exp"
-	raw_result_file = "results_LL/"+file_name+"_raw_results.txt"
-	avg_result_file = "results_LL/"+file_name+"_avg_results.txt"
-	raw_output_file = "results_LL/"+file_name+"_output.txt"
+	file_name = "stacked"
+	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
+	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
+	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
@@ -93,7 +93,7 @@ def main():
 		f.close()
 
 		g = open(avg_result_file, "w+")
-		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\n"
+		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttemperature\tpicked_by\toverlap\tnumchips\tcandidates\n"
 		g.write(header_g)
 		g.close()
 
@@ -104,7 +104,7 @@ def main():
 
 		for pick in pickby:
 			for overlap in overlaps:
-				for num in range(4,14):
+				for num in numchips:
 					for add in add_by:
 						if num == add:
 							continue
@@ -118,15 +118,16 @@ def main():
 								continue
 						"""
 						for dumb in range(1,2):
-							for trial in range(1,2):
+							for trial in range(1,11):
 								#print '+++ candidate is ',original_can,' +++'
 								#candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
 								#command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
-								command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								#command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme stacked  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								#print command
+								print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
