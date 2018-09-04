@@ -39,13 +39,13 @@ class checker (object):
 		check_aspl = float(self.__metrics['aspl'])
 		check_freq = float(self.__metrics['freq'])
 
-		if comp_edge < check_edge:
+		if comp_edge <= check_edge:
 			print 'edges: heur = ',comp_edge,': check = ',check_edge
 			return False
-		if comp_diameter > check_diameter:
+		if comp_diameter >= check_diameter:
 			print 'diameter: heur = ',comp_diameter,': check = ',check_diameter
 			return False
-		if comp_aspl > check_aspl:
+		if comp_aspl >= check_aspl:
 			print 'aspl: heur = ',comp_aspl,': check = ',check_aspl
 			return False
 		if comp_freq < check_freq:
@@ -124,13 +124,13 @@ def main():
 	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ 'cradle','1','2','3']
+	add_by = ['1','2','3','cradle']
 	pickby = ['power']
 	can_range = [0]
 	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "calc4_beat_checker"
+	file_name = "calc4_beat_checker2"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -161,7 +161,7 @@ def main():
 							#continue
 						trial_results = []
 						trial_ex_time = []
-						candidates = workers*2-1
+						candidates = workers*2
 						original_can = candidates
 						avg_ex_time = -1
 						for can in can_range:
@@ -191,7 +191,7 @@ def main():
 								candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(check.get_diameter())+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(check.get_diameter())+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 								#win = True #for debugging only
 

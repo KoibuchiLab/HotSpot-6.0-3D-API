@@ -426,7 +426,7 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
 	utils.info(3,"generating multi candidates")
 	num_attempts = 0
-	print 'Here'
+	#print 'Here'
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
 		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):
