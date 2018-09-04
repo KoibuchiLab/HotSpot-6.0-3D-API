@@ -69,22 +69,22 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7
+	workers = 17
 	numchips = [9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
 	overlaps = [.2, .1]
 	#overlaps = [.1, .2]
-	#add_by = ['1']#,'3','cradle']
-	add_by = [ '3', '2', '1',] 
+	add_by = ['1']#,'3','cradle']
+	#add_by = [ '3', '2', '1',] 
 	alpha = ['0','.25','.5','.75','1']
-	pickby = ['network','temp','power']
+	pickby = ['temp']
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "alpha_threshold_exp"
-	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
-	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
-	raw_output_file = "LL/results_LL/"+file_name+"_raw_output.txt"
+	file_name = "power_alpha_temp"
+	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
+	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
+	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
