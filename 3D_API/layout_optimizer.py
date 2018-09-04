@@ -537,29 +537,54 @@ def pick_candidates(results, candidate_random_trials):
 				if utils.argv.pick_criteria is not None:
 					if alpha_threshold is not None:
 						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
-							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 							if diameter<picked_candidate_diameter:
 								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
 								new_pick = True
 							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
 								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
 								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
 						elif 'power' in picked_by:
 							#utils.abort("pick on power")
 							if (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
+							elif (picked_candidate_power == power) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
 							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
 						elif 'temp' in picked_by:
-							#utils.abort("pick on temp")
 							if (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 								new_pick = True
+							elif (picked_candidate_temperature == temperature) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
 							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
 					else:
 						if 'network' in picked_by:
 
@@ -578,27 +603,6 @@ def pick_candidates(results, candidate_random_trials):
 							elif (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 								new_pick = True
-							"""
-							if (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
-								new_pick = True
-							elif (diameter < picked_candidate_diameter) and (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
-								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
-								new_pick = True
-							elif (power > picked_candidate_power):
-								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
-								new_pick = True
-							elif (temperature < picked_candidate_temperature):
-								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
-								new_pick = True
-							"""
-
 						elif 'power' in picked_by:
 							#utils.abort("pick on power")
 							if (power > picked_candidate_power):
@@ -615,7 +619,7 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
 						elif 'temp' in picked_by:
 							#utils.abort("pick on temp")
 							if (temperature < picked_candidate_temperature):
@@ -632,7 +636,7 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
 
 				else:
 					if (power > picked_candidate_power):
