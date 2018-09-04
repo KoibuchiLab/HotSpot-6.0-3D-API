@@ -36,13 +36,13 @@ class checker (object):
 		check_aspl = float(self.__metrics['aspl'])
 		check_freq = float(self.__metrics['freq'])
 
-		if comp_edge < check_edge:
+		if comp_edge <= check_edge:
 			print 'edges: heur = ',comp_edge,': check = ',check_edge
 			return False
-		if comp_diameter > check_diameter:
+		if comp_diameter >= check_diameter:
 			print 'diameter: heur = ',comp_diameter,': check = ',check_diameter
 			return False
-		if comp_aspl > check_aspl:
+		if comp_aspl >= check_aspl:
 			print 'aspl: heur = ',comp_aspl,': check = ',check_aspl
 			return False
 		if comp_freq < check_freq:
@@ -114,7 +114,7 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7
+	workers = 18
 	numchips = [13]
 	#candidates = workers*2
 	candidate_trials = 10000
@@ -127,7 +127,7 @@ def main():
 	#can_range = [0]
 
 	export_path = " -e LL/results_LLfigures/"
-	file_name = "beat_checker"
+	file_name = "calc3_beat_checker"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
