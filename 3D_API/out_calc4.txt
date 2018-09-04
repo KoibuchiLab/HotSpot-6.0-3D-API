@@ -1,0 +1,1443 @@
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 10:19:01.570528
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  1  execution time is  4133.86332703 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 11:27:55.436923
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  2  execution time is  4222.44581914 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 12:38:17.885558
+adding by  1
+edges: heur =  15.0 : check =  16.0
+Trial  3  execution time is  4019.52500701 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 13:45:17.413483
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  4  execution time is  4445.82290912 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 14:59:23.239269
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  5  execution time is  4813.49633908 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 16:19:36.738303
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  6  execution time is  4970.63337398 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 17:42:27.374383
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  7  execution time is  4035.10888505 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 18:49:42.485955
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  8  execution time is  4099.24525404 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 19:58:01.733837
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  9  execution time is  3987.39037204 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 21:04:29.127027
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  10  execution time is  4301.049685 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 22:16:10.179410
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  11  execution time is  4145.77626109 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-21 23:25:15.958424
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  12  execution time is  4496.99289203 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 00:40:12.954141
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  13  execution time is  4100.4936831 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 01:48:33.450610
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  14  execution time is  4422.44306302 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 03:02:15.896459
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  15  execution time is  4357.39927697 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 04:14:53.298811
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  16  execution time is  3957.489573 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 05:20:50.790959
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  17  execution time is  4027.89398789 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 06:27:58.687542
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  18  execution time is  5476.7060101 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 07:59:15.396046
+adding by  1
+edges: heur =  15.0 : check =  16.0
+Trial  19  execution time is  4165.42425513 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 09:08:40.823091
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  20  execution time is  4386.08765388 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 10:21:46.913703
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  21  execution time is  4372.87939191 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 11:34:39.795797
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  22  execution time is  4095.81117487 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 12:42:55.609554
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  23  execution time is  4314.97292686 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 13:54:50.585088
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  24  execution time is  4398.21170497 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 15:08:08.799886
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  25  execution time is  4411.78087497 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 16:21:40.683773
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  26  execution time is  4292.51707911 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 17:33:13.203677
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  27  execution time is  4428.46825004 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 18:47:01.674781
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  28  execution time is  4245.69282198 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 19:57:47.370302
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  29  execution time is  4039.49395108 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 21:05:06.867136
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  30  execution time is  4294.05094194 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 22:16:40.920599
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  31  execution time is  4248.29113293 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-22 23:27:29.214564
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  32  execution time is  4837.8525939 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 00:48:07.069892
+adding by  1
+edges: heur =  15.0 : check =  16.0
+Trial  33  execution time is  4088.837116 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 01:56:15.909752
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  34  execution time is  4182.22718692 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 03:05:58.139774
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  35  execution time is  6119.89950609 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 04:47:58.041698
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  36  execution time is  4122.47814488 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 05:56:40.522592
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  37  execution time is  4314.7423718 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 07:08:35.267969
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  38  execution time is  3723.57181096 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 08:10:38.842621
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  39  execution time is  4032.07944202 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 09:17:50.924641
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  40  execution time is  4411.81882906 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 10:31:22.746139
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  41  execution time is  4252.73977804 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 11:42:15.488631
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  42  execution time is  3832.13729191 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 12:46:07.628078
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  43  execution time is  5262.46639895 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 14:13:50.097262
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  44  execution time is  4125.83560801 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 15:22:35.935934
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  45  execution time is  4672.05594397 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 16:40:27.994557
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  46  execution time is  4288.75711989 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 17:51:56.754522
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  47  execution time is  4151.21055198 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 19:01:07.968089
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  48  execution time is  4389.07962084 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 20:14:17.050457
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  49  execution time is  4382.52340698 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 21:27:19.577113
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  50  execution time is  4384.85532999 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 22:40:24.435018
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  51  execution time is  4375.011482 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-23 23:53:19.449312
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  52  execution time is  5861.48720193 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 01:31:00.939137
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  53  execution time is  3893.50481105 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 02:35:54.446954
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  54  execution time is  4448.06664205 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 03:50:02.516459
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  55  execution time is  4209.33686805 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 05:00:11.856340
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  56  execution time is  4109.33962703 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 06:08:41.198947
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  57  execution time is  4396.65529609 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 07:21:57.857288
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  58  execution time is  4244.03595495 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 08:32:41.896571
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  59  execution time is  4170.57976198 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 09:42:12.479279
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  60  execution time is  4437.98975801 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 10:56:10.472694
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  61  execution time is  4019.5319519 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 12:03:10.007238
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  62  execution time is  4442.80208087 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 13:17:12.812013
+adding by  1
+edges: heur =  15.0 : check =  16.0
+Trial  63  execution time is  4376.66448808 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 14:30:09.479189
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  64  execution time is  4111.72845411 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 15:38:41.210030
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  65  execution time is  4953.4876411 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 17:01:14.700464
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  66  execution time is  4014.04314303 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 18:08:08.746013
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  67  execution time is  6078.46466684 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 19:49:27.213652
+adding by  1
+edges: heur =  15.0 : check =  16.0
+Trial  68  execution time is  4277.35038495 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 21:00:44.566907
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  69  execution time is  4450.67014503 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 22:14:55.239986
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  70  execution time is  5217.93069601 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-24 23:41:53.173447
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  71  execution time is  3718.15713906 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 00:43:51.333428
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  72  execution time is  4279.38337278 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 01:55:10.719514
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  73  execution time is  4845.4116981 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 03:15:56.133930
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  74  execution time is  3968.40687704 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 04:22:04.543731
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  75  execution time is  4087.74496913 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 05:30:12.291519
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  76  execution time is  4210.17280197 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 06:40:22.467357
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  77  execution time is  4034.05581188 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 07:47:36.525857
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  78  execution time is  4328.64546514 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 08:59:45.174058
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  79  execution time is  5002.64762115 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 10:23:07.824619
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  80  execution time is  4236.64743495 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 11:33:44.474532
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  81  execution time is  4060.60442591 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 12:41:25.082118
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  82  execution time is  4156.30966401 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 13:50:41.394638
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  83  execution time is  3950.35976887 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 14:56:31.757223
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  84  execution time is  4123.191571 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 16:05:14.951438
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  85  execution time is  4319.76011896 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 17:17:14.714190
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  86  execution time is  5097.27726412 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 18:42:11.994192
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  87  execution time is  4341.50978804 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 19:54:33.506490
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  88  execution time is  4057.59663296 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 21:02:11.105993
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  89  execution time is  4264.19814086 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 22:13:15.306633
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  90  execution time is  3995.44433999 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-25 23:19:50.753702
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  91  execution time is  4283.65994692 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 00:31:14.416211
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  92  execution time is  3664.48410392 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 01:32:18.903002
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  93  execution time is  4189.80431414 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 02:42:08.709941
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  94  execution time is  3954.09641409 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 03:48:02.809235
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  95  execution time is  4215.10989118 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 04:58:17.922030
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  96  execution time is  4376.85691881 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 06:11:14.781660
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  97  execution time is  4327.87017107 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 07:23:22.655179
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  98  execution time is  4343.24503899 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 08:35:45.902926
+adding by  1
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  99  execution time is  4130.27340317 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:1  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 09:44:36.179099
+adding by  1
+edges: heur =  0.0 : check =  16.0
+Trial  100  execution time is  4974.62162423 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 11:07:30.803487
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  1  execution time is  2383.95912695 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 11:47:14.765172
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  2  execution time is  3050.62595797 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 12:38:05.393774
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  3  execution time is  2595.00187182 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 13:21:20.398705
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  4  execution time is  2224.06980085 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 13:58:24.471270
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  5  execution time is  2204.95216584 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 14:35:09.426710
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  6  execution time is  2501.71773505 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 15:16:51.147165
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  7  execution time is  2498.60564995 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 15:58:29.755712
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  8  execution time is  2372.96193218 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 16:38:02.720308
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  9  execution time is  2493.23480797 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 17:19:35.958052
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  10  execution time is  2498.26078296 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 18:01:14.221869
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  11  execution time is  2395.88925004 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 18:41:10.113864
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  12  execution time is  2567.82522988 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 19:23:57.941699
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  13  execution time is  2677.33317804 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 20:08:35.277484
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  14  execution time is  2397.55855608 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 20:48:32.838897
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  15  execution time is  2683.04738903 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 21:33:15.889127
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  16  execution time is  2220.97266507 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 22:10:16.864567
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  17  execution time is  2704.86748314 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 22:55:21.734632
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  18  execution time is  2514.28949809 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-26 23:37:16.027465
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  19  execution time is  2460.49735308 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 00:18:16.527405
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  20  execution time is  2626.22957301 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 01:02:02.759828
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  21  execution time is  2651.05020094 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 01:46:13.812713
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  22  execution time is  2623.17568517 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 02:29:56.991531
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  23  execution time is  2246.21634889 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 03:07:23.210528
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  24  execution time is  2294.819947 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 03:45:38.033297
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  25  execution time is  2338.38142586 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 04:24:36.417365
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  26  execution time is  2501.02286315 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 05:06:17.443063
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  27  execution time is  2486.86273503 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 05:47:44.308546
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  28  execution time is  2850.05430007 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 06:35:14.365341
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  29  execution time is  2561.58836198 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 07:17:55.956374
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  30  execution time is  2649.26863599 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 08:02:05.227979
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  31  execution time is  2050.6944561 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 08:36:15.925077
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  32  execution time is  2961.56628084 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 09:25:37.494093
+adding by  2
+edges: heur =  14.0 : check =  16.0
+Trial  33  execution time is  2223.27939606 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 10:02:40.776430
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  34  execution time is  2149.627666 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 10:38:30.406892
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  35  execution time is  2791.86470294 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 11:25:02.274166
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  36  execution time is  2311.14746094 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 12:03:33.424479
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  37  execution time is  2715.9357841 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 12:48:49.363024
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  38  execution time is  2740.6733489 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 13:34:30.038905
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  39  execution time is  2473.05412912 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 14:15:43.095610
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  40  execution time is  2089.75487113 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 14:50:32.852991
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  41  execution time is  2230.53555799 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 15:27:43.392030
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  42  execution time is  2365.38245678 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 16:07:08.777475
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  43  execution time is  2427.96916699 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 16:47:36.749100
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  44  execution time is  2413.55053997 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 17:27:50.302145
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  45  execution time is  2542.67804408 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 18:10:12.982701
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  46  execution time is  2585.7002809 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 18:53:18.685699
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  47  execution time is  2303.31092978 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 19:31:42.000012
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  48  execution time is  2306.06987405 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 20:10:08.072460
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  49  execution time is  2413.12630582 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 20:50:21.201649
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  50  execution time is  2640.72552109 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 21:34:21.930092
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  51  execution time is  2254.84367108 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 22:11:56.776579
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  52  execution time is  2478.04562807 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 22:53:14.824963
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  53  execution time is  2266.19483304 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-27 23:31:01.022382
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  54  execution time is  2731.0272131 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 00:16:32.052041
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  55  execution time is  2520.41241002 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 00:58:32.467007
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  56  execution time is  2716.07864809 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 01:43:48.548446
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  57  execution time is  2783.18506002 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 02:30:11.736215
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  58  execution time is  2477.88116407 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 03:11:29.620003
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  59  execution time is  2526.80039787 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 03:53:36.423088
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  60  execution time is  2209.92762089 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 04:30:26.353968
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  61  execution time is  2076.16952896 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 05:05:02.526388
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  62  execution time is  2387.89130902 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 05:44:50.420505
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  63  execution time is  2727.192276 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 06:30:17.615673
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  64  execution time is  2079.44420505 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 07:04:57.062676
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  65  execution time is  2113.60220599 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 07:40:10.667566
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  66  execution time is  2152.37122178 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 08:16:03.041368
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  67  execution time is  2265.42456412 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 08:53:48.468618
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  68  execution time is  2422.9617939 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 09:34:11.432880
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  69  execution time is  2198.43893695 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 10:10:49.874564
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  70  execution time is  2363.57589102 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 10:50:13.453108
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  71  execution time is  2314.66199493 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 11:28:48.117856
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  72  execution time is  2259.44802999 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 12:06:27.568542
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  73  execution time is  2558.10631704 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 12:49:05.677431
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  74  execution time is  2230.29955196 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 13:26:15.979723
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  75  execution time is  2539.10080481 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 14:08:35.083575
+adding by  2
+edges: heur =  15.0 : check =  16.0
+Trial  76  execution time is  2202.47207904 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 14:45:17.558631
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  77  execution time is  2490.2144289 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 15:26:47.776509
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  78  execution time is  2320.42704105 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 16:05:28.206325
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  79  execution time is  2700.82002902 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 16:50:29.029009
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  80  execution time is  2566.99370003 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 17:33:16.025278
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  81  execution time is  2901.30164409 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 18:21:37.329836
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  82  execution time is  3008.06360316 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 19:11:45.396748
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  83  execution time is  2580.0280602 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 19:54:45.427609
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  84  execution time is  1870.70315218 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 20:25:56.133432
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  85  execution time is  2215.00028491 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 21:02:51.136599
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  86  execution time is  2980.23562908 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 21:52:31.375026
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  87  execution time is  2780.99244499 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 22:38:52.370232
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  88  execution time is  2503.59151077 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-28 23:20:35.964623
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  89  execution time is  2586.68933511 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 00:03:42.656401
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  90  execution time is  2695.91839981 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 00:48:38.577756
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  91  execution time is  2610.90399194 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 01:32:09.484522
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  92  execution time is  2749.03204608 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 02:17:58.519517
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  93  execution time is  3066.49174595 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 03:09:05.013707
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  94  execution time is  2587.10886693 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 03:52:12.125065
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  95  execution time is  2327.97100687 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 04:31:00.098776
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  96  execution time is  2569.23758197 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 05:13:49.339013
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  97  execution time is  2532.72616887 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 05:56:02.068312
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  98  execution time is  2142.96694708 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 06:31:45.037993
+adding by  2
+edges: heur =  0.0 : check =  16.0
+Trial  99  execution time is  2382.3712759 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:2  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 07:11:27.412356
+adding by  2
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  100  execution time is  2074.59459114 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 07:46:02.009965
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  1  execution time is  2228.07175517 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 08:23:10.084452
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  2  execution time is  2043.91759896 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 08:57:14.004653
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  3  execution time is  2363.47142982 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 09:36:37.478725
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  4  execution time is  2092.822263 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 10:11:30.303596
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  5  execution time is  1985.85653901 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 10:44:36.162833
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  6  execution time is  2183.21210718 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 11:20:59.377865
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  7  execution time is  2015.08694911 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 11:54:34.468948
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  8  execution time is  2514.19795203 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 12:36:28.669489
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  9  execution time is  2423.33349299 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 13:16:52.005636
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  10  execution time is  2429.87271094 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 13:57:21.880974
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  11  execution time is  2448.03851008 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 14:38:09.922240
+adding by  3
+edges: heur =  15.0 : check =  16.0
+Trial  12  execution time is  2552.197613 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 15:20:42.122762
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  13  execution time is  2295.24668503 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 15:58:57.372265
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  14  execution time is  2542.84113383 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 16:41:20.216242
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  15  execution time is  2223.21409988 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 17:18:23.432885
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  16  execution time is  2517.98941612 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 18:00:21.424929
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  17  execution time is  2190.22967601 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 18:36:51.657250
+adding by  3
+edges: heur =  15.0 : check =  16.0
+Trial  18  execution time is  2101.45029807 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 19:11:53.110369
+adding by  3
+edges: heur =  15.0 : check =  16.0
+Trial  19  execution time is  2217.60067916 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 19:48:50.713696
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  20  execution time is  2417.17675686 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 20:29:07.893053
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  21  execution time is  1148.61798596 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 20:48:16.513844
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  22  execution time is  2108.5901351 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 21:23:25.106539
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  23  execution time is  2150.30794811 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 21:59:15.417013
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  24  execution time is  2130.07595801 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 22:34:45.495634
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  25  execution time is  2143.46131206 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 23:10:28.959618
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  26  execution time is  2835.42364407 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-29 23:57:44.385977
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  27  execution time is  2384.70969296 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 00:37:29.098313
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  28  execution time is  2033.9464469 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 01:11:23.047645
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  29  execution time is  2608.53001499 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 01:54:51.580235
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  30  execution time is  2501.1939199 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 02:36:32.776956
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  31  execution time is  2105.37028694 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 03:11:38.149928
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  32  execution time is  2035.26752996 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 03:45:33.420814
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  33  execution time is  2458.26765895 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 04:26:31.691153
+adding by  3
+edges: heur =  15.0 : check =  16.0
+Trial  34  execution time is  2079.0671711 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 05:01:10.760921
+adding by  3
+edges: heur =  15.0 : check =  16.0
+Trial  35  execution time is  2171.42175102 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 05:37:22.185197
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  36  execution time is  1567.11352015 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 06:03:29.302011
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  37  execution time is  2373.605829 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 06:43:02.910599
+adding by  3
+edges: heur =  0.0 : check =  16.0
+Trial  38  execution time is  2602.23610306 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 07:26:25.149600
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  39  execution time is  2631.36907816 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 08:10:16.521449
+adding by  3
+aspl: heur =  2.46153846154 : check =  2.46
+Trial  40  execution time is  2330.41745901 
+Trying again
+mpirun -np 17 ./optimize_layout.py --numchips 13 --medium air --chip base3 --diameter 4 --layout_scheme random_greedy:34:5000:3  --numlevels 13 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap 0.2 --max_allowed_temperature 50  --verbose 0 -P power --mpi
+started at  2018-08-30 08:49:06.941481
+adding by  3
