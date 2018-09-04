@@ -1,3 +1,0 @@
-trial	chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature	picked_by	overlap	numchips	candidates
-1	cradle	43900.2640212	0	0	0	0	0	0	0	power	0.2	21	34
-2	cradle	5595.25873613	0	0	0	0	0	0	0	power	0.2	21	34
