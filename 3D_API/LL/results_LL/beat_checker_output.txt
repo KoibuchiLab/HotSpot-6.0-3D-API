@@ -1,5 +1,6 @@
 raw output
 
+<<<<<<< HEAD
 
 trial 1	 add by cradle	 ex time 1919.85617089	picked by power	overlap 0.2
 ----------- OPTIMIZATION RESULTS -----------------
@@ -3311,4 +3312,3 @@ Power budget =  545.9886
 Power distribution = [41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991, 41.9991]
 Frequency distribution = [3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0, 3200.0]
 Temperature = 44.36
-

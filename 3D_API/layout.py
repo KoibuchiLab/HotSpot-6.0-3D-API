@@ -573,6 +573,7 @@ class Layout(object):
 		ax.set_ylabel('$Y$',fontsize=20)
 		ax.set_zlabel('$Z$',fontsize=20)
 
+		"""
 		j = 0
 		for i in range(180,-180,-1):
 				ax.azim = 0+j
@@ -580,7 +581,6 @@ class Layout(object):
 				j+=1
 				filename = "animate/13chip_axis/13chip_axis"+str(j)
 				fig.savefig(filename, bbox_inches='tight')
-		"""
 		"""
 
 

@@ -377,6 +377,9 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	if len(tmp_layout.get_chip_positions())%3!=0:
 		utils.info(1,"Did not find all 3 cradle chip positions, returning None")
 		return None
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
+		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 
 	return candidate_list
@@ -411,6 +414,9 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 	if new_chips<num_chips_to_add:
 		return None
 		#utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
+		return None
 	candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
 	return candidate_list
 
@@ -420,9 +426,10 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
 	utils.info(3,"generating multi candidates")
 	num_attempts = 0
+	print 'Here'
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
-		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_cradle()
+		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):
 
 			candidate_list = add_cradle(layout)
 
@@ -809,8 +816,10 @@ def optimize_layout_random_greedy_mpi():
 
 		results = []
 		picked_index = 0
-		while (layout.get_num_chips() != utils.argv.num_chips):
-
+		#print 'mx nei can attp ', max_num_neighbor_candidate_attempts
+		attempt = 0
+		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
+			attempt += 1
 			###############################################
 			### Create Candidates
 			##########################################
@@ -870,6 +879,11 @@ def optimize_layout_random_greedy_mpi():
 			#print 'HERE4'
 			#print 'HERE5'
 			# print "RESULTS = ", results
+			"""
+			if None in results:
+				send_stop_signals(worker_list, comm)
+				utils.abort("Results contained None value")
+			"""
 
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			picked_candidate, picked_index = pick_candidates(results, candidate_random_trials)
