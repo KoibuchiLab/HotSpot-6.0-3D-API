@@ -466,7 +466,7 @@ class Layout(object):
 		max_level = -1
 		chip_num = 0
 		for i, position in enumerate(self.__chip_positions):
-			#print 'chip level is ', position[0]
+			#print 'chip level is ', position[1]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
@@ -567,6 +567,7 @@ class Layout(object):
 		ax.azim = +0
 		#ax.elev = 90
 		ax.elev = +0
+		ax.view_init(0,0)
 
 		#ax.set_axis_off() #turns axis off
 		ax.set_xlabel('$X$',fontsize=20)
@@ -575,11 +576,12 @@ class Layout(object):
 
 		"""
 		j = 0
-		for i in range(180,-180,-1):
-				ax.azim = 0+j
-				ax.elev = 0+i
+		for i in range(-180,181,1):
+				#ax.azim = 0+j
+				#ax.elev = 0+i
 				j+=1
-				filename = "animate/13chip_axis/13chip_axis"+str(j)
+				ax.view_init(i,(i))
+				filename = "animate/trial_"+str(j)
 				fig.savefig(filename, bbox_inches='tight')
 		"""
 
