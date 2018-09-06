@@ -123,7 +123,7 @@ def main():
 
 								#command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								print command
+								#print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
