@@ -537,7 +537,7 @@ def pick_candidates(results, candidate_random_trials):
 				if utils.argv.pick_criteria is not None:
 					if alpha_threshold is not None:
 						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
-							
+
 							if (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
