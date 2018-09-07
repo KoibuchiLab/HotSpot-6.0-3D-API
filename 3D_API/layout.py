@@ -486,16 +486,22 @@ class Layout(object):
 				r = .7
 				g = .7
 				b = .7
+			"""
+
 			if position[0] == 2:
-				r = .3
-				g = .3
-				b = .3
+				r = .25
+				g = .25
+				b = .25
 
 			if position[0] == 3:
 				r = .5
 				g = .5
 				b = .5
-			"""
+
+			if position[0] == 4:
+				r = .75
+				g = .75
+				b = .75
 
 			"""
 			### Colors for Debugging ###
@@ -559,15 +565,15 @@ class Layout(object):
 				max_level = position[0]
 			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color)
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
-		""" 
+		"""
 
 		"""
 		ax.set_aspect(1)
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim = +0
+		ax.azim = 45
 		#ax.elev = 90
-		ax.elev = +0
-		ax.view_init(0,0)
+		ax.elev = 18
+		#ax.view_init(-45,18)
 
 		#ax.set_axis_off() #turns axis off
 		ax.set_xlabel('$X$',fontsize=20)
