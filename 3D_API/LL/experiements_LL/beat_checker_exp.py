@@ -7,6 +7,54 @@ import subprocess
 import re
 import datetime
 
+class checker (object):
+
+	#print "INIT"
+	checker_metric_db = {
+		'13_0.2':{'edges':16,'diameter':4,'aspl':2.46,'freq':2400},
+		'13_0.1':{'edges':16,'diameter':4,'aspl':2.46,'freq':2800},
+		'9_0.2':{'edges':12,'diameter':4,'aspl':2.00,'freq':3200},
+		'9_0.1':{'edges':12,'diameter':4,'aspl':2.00,'freq':3200},
+		'6_0.2':{'edges':6,'diameter':3,'aspl':1.73,'freq':3600},
+		'6_0.1':{'edges':6,'diameter':3,'aspl':1.73,'freq':3600}
+		}
+
+	def __init__(self, numchip, overlap):
+		self.__numchip = numchip
+		self.__overlap = overlap
+		self.__metrics = self.checker_metric_db[str(numchip)+'_'+str(overlap)]
+
+	def get_diameter(self):
+		return self.__metrics['diameter']
+
+	def beat_checker(self,compare_list):
+		#print "HERE!!!"
+		#print compare_list
+		comp_edge = compare_list[0]
+		comp_diameter = compare_list[2]
+		comp_aspl = compare_list[3]
+		comp_freq = compare_list[5]
+		check_edge = float(self.__metrics['edges'])
+		check_diameter = float(self.__metrics['diameter'])
+		check_aspl = float(self.__metrics['aspl'])
+		check_freq = float(self.__metrics['freq'])
+
+		if comp_edge <= check_edge:
+			print 'edges: heur = ',comp_edge,': check = ',check_edge
+			return False
+		if comp_diameter >= check_diameter:
+			print 'diameter: heur = ',comp_diameter,': check = ',check_diameter
+			return False
+		if comp_aspl >= check_aspl:
+			print 'aspl: heur = ',comp_aspl,': check = ',check_aspl
+			return False
+		if comp_freq < check_freq:
+			print 'freq: heur = ',comp_freq,': check = ',check_freq
+			return False
+
+		return True
+
+
 def parse_output(out,exit_code):
 	#return_string = str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)+"\t"+str(-1)
 	return_string = str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)+"\t"+str(0)
@@ -69,21 +117,22 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 17 
-	numchips = [13,9,6]
+	workers = 17
+	numchips = [13]
 	#candidates = workers*2
-	candidate_trials = 1000
-	overlaps = [.2, .1]
+	candidate_trials = 10000
+	overlaps = [.2,.1]
 	#overlaps = [.1, .2]
-	add_by = ['1']#,'3','cradle']
-	#add_by = [ '3', '2', '1', 'cradle']
+	#add_by = ['1','3','cradle']
+	add_by = ['1','2','3','cradle']
 	pickby = ['power']
-	can_range = [-2,-1,0,1,2]
+	can_range = [0]
+	#can_range = [0]
 
-	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "koi_checker_step_exp"
-	raw_result_file = "LL/results_LL/"+file_name+"_raw_results.txt"
-	avg_result_file = "LL/results_LL/"+file_name+"_avg_results.txt"
+	export_path = " -e LL/results_LLfigures/"
+	file_name = "calc4_beat_checker2"
+	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
+	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
 	try:
@@ -92,10 +141,12 @@ def main():
 		f.write(header)
 		f.close()
 
+		"""
 		g = open(avg_result_file, "w+")
 		header_g = "chips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\n"
 		g.write(header_g)
 		g.close()
+		"""
 
 		h = open(raw_output_file, "w+")
 		header_h = "raw output\n\n"
@@ -104,32 +155,51 @@ def main():
 
 		for pick in pickby:
 			for overlap in overlaps:
-				for num in range(4,42):
+				for num in numchips:
 					for add in add_by:
-						if num == add:
-							continue
+						#if num == add:
+							#continue
 						trial_results = []
 						trial_ex_time = []
-						candidates = 14# workers*2
+						candidates = workers*2
+						original_can = candidates
 						avg_ex_time = -1
-						"""
 						for can in can_range:
-							if avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
+							"""
+							if num  == 6 and avg_ex_time > 300:  #TODO: time in sec, dont hard code this
+								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
 								continue
-						"""
-						for dumb in range(1,2):
-							for trial in range(1,2):
-								#print '+++ candidate is ',original_can,' +++'
-								#candidates = original_can + can
+							if num == 9 and avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
+								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
+								continue
+							"""
+
+							"""
+							create checker class
+							"""
+							check = checker(num,overlap)
+							win = False
+							trial = 0
+
+							while win is False and trial<100:
+
+								trial +=1
+
+							#for trial in range(1,11):
+								#print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
+								#candidates = 14
+								candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
-								#command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
-								command = "./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme checkerboard  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 500  --verbose 0 -P "+str(pick)#+" --mpi"+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(check.get_diameter())+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
-								#print command
+								#win = True #for debugging only
+
+								print command
 								#sys.stderr.write("Error: test command\n")
 								#sys.exit(1)
 								print 'started at ',datetime.datetime.now()
+								print 'adding by ',add
 								start = time.time()
 								#devnull = open('/dev/null', 'w')
 								proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE) #TODO: set a time limit and kill if over
@@ -146,14 +216,16 @@ def main():
 								h.close()
 								out_str, out_val = parse_output(out,proc.returncode)
 
-								if out_val[2] > 0:
-									trial_results.append(out_val)
-									trial_ex_time.append(ex_time)
-								raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
-								f = open(raw_result_file, "a+")
-								f.write(raw_result)
-								f.close()
-								print '>>>  Trial ',trial, ' execution time is ',ex_time,' numchips = ',num,' overlap = ',overlap,' add by =  ',add
+								if check.beat_checker(out_val) is True:
+									raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
+									f = open(raw_result_file, "a+")
+									f.write(raw_result)
+									f.close()
+									print '!!!!!!!!!!!!! FOUND WINNER !!!!!!!!!!!'
+									win = True
+								print 'Trial ',trial, ' execution time is ',ex_time,'\nTrying again'
+
+							"""
 							avg_string = get_avg_string(trial_results,trial_ex_time)
 							avg_result = str(add)+"\t"+avg_string+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
 							g = open(avg_result_file, "a+")
@@ -161,11 +233,13 @@ def main():
 							g.close()
 							split_avg_string = re.split(r'\t',avg_string)
 							avg_ex_time = float(split_avg_string[0])
+							print '\n>>>>>>> avg ex time is ',avg_ex_time,' <<<<<<<<<<<<\n'
+							"""
 #						footer = "base3\nlayout_size = "+str(num)+"\ncandidates "+str(candidates)+"\n\n"
 #						g = open(avg_result_file, "a+")
 #						g.write(footer)
 #						g.close()
-						print 'Done numchps ',num,' and add ', add
+						#print 'Done numchps ',num,' and add ', add
 
 	except IOError:
 		print "IOError!!!"

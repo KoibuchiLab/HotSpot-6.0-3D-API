@@ -466,7 +466,7 @@ class Layout(object):
 		max_level = -1
 		chip_num = 0
 		for i, position in enumerate(self.__chip_positions):
-			#print 'chip level is ', position[0]
+			#print 'chip level is ', position[1]
 			xyz = [position[1], position[2], position[0] * level_height]
 			r = random.uniform(0.1, 0.9)
 			g = random.uniform(0.1, 0.9)
@@ -486,16 +486,22 @@ class Layout(object):
 				r = .7
 				g = .7
 				b = .7
+			"""
+
 			if position[0] == 2:
-				r = .3
-				g = .3
-				b = .3
+				r = .25
+				g = .25
+				b = .25
 
 			if position[0] == 3:
 				r = .5
 				g = .5
 				b = .5
-			"""
+
+			if position[0] == 4:
+				r = .75
+				g = .75
+				b = .75
 
 			"""
 			### Colors for Debugging ###
@@ -559,18 +565,32 @@ class Layout(object):
 				max_level = position[0]
 			# plot_cuboid(ax, xyz, self.__chip.x_dimension - (self.__chip.x_dimension*(1-sqrt(self.__overlap))), self.__chip.y_dimension - (self.__chip.y_dimension*(1-sqrt(self.__overlap))), induction_zone, color)
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
-		""" 
+		"""
 
 		"""
+		ax.set_aspect(1)
 		ax.set_zlim(0, (max_level * 2) * level_height)
-		ax.azim = +90
+		ax.azim = 45
 		#ax.elev = 90
-		ax.elev = +90
+		ax.elev = 18
+		#ax.view_init(-45,18)
 
-		ax.set_axis_off() #turns axis off
-		#ax.set_xlabel('$X$',fontsize=20)
-		#ax.set_ylabel('$Y$',fontsize=20)
-		#ax.set_zlabel('$Z$',fontsize=20)
+		#ax.set_axis_off() #turns axis off
+		ax.set_xlabel('$X$',fontsize=20)
+		ax.set_ylabel('$Y$',fontsize=20)
+		ax.set_zlabel('$Z$',fontsize=20)
+
+		"""
+		j = 0
+		for i in range(-180,181,1):
+				#ax.azim = 0+j
+				#ax.elev = 0+i
+				j+=1
+				ax.view_init(i,(i))
+				filename = "animate/trial_"+str(j)
+				fig.savefig(filename, bbox_inches='tight')
+		"""
+
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')
@@ -715,7 +735,7 @@ class Layout(object):
 		# Call hotspot
 		if utils.argv.test:
 			# command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
-			return 58
+			return random.randint(49,52)
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:
@@ -723,6 +743,7 @@ class Layout(object):
 			command_line = "./hotspot.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		utils.info(3, "--> " + command_line)
 		# layout.draw_in_3D("./broken2.pdf", False)
+		"""
 		try:
 			devnull = open('/dev/null', 'w')
 			proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=devnull)
@@ -730,6 +751,20 @@ class Layout(object):
 			utils.abort("Could not invoke hotspot.py correctly: " + str(e))
 
 		string_output = proc.stdout.read().rstrip()
+		"""
+		proc = subprocess.Popen(command_line, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+		proc.wait()
+		string_output, error_output = proc.communicate() 
+
+		if int(proc.returncode)>0:
+			print 'output is \n',string_output
+			print 'hospot error code not zero'
+			#print 'error output is \n',error_output
+			utils.info(2,"Hotspot retured with error, TEMP val returning None")
+			return None
+
+		string_output = string_output.rstrip()
+
 		#		print 'STRING OUTPUT ',string_output
 		try:
 			# tokens = string_output.split(" ")
@@ -738,7 +773,6 @@ class Layout(object):
 		except:
 			utils.abort("Cannot convert HotSpot output ('" + string_output + "') to float")
 
-		utils.info(3, "Hostpot returned temperature: " + str(temperature))
 
 		# Remove files
 		try:
@@ -749,6 +783,7 @@ class Layout(object):
 		except Exception, e:
 			sys.stderr.write("Warning: Cannot remove some tmp files...\n")
 
+		utils.info(3, "Hostpot returned temperature: " + str(temperature))
 		return temperature
 
 	""" A horrible function that creates the PTRACE files for each chip with a bunch of hardcoded
