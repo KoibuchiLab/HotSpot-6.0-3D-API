@@ -1,0 +1,3 @@
+chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature	picked_by	overlap	numchips	candidates	alpha
+1	687.489710903	10.0	3.6	4.8	2.32222222222	53.77638	3520.0	45.642	temp	0.1	9	34	1
+1	243.130225134	5.4	3.1	3.5	1.95333333333	56.7207	3600.0	42.791	temp	0.1	6	34	1

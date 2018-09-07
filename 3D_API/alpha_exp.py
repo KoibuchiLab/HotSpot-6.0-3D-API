@@ -73,15 +73,16 @@ def main():
 	numchips = [9,6]
 	#candidates = workers*2
 	candidate_trials = 1000
-	overlaps = [.2, .1]
+	overlaps = [.1]
 	#overlaps = [.1, .2]
 	add_by = ['1']#,'3','cradle']
 	#add_by = [ '3', '2', '1',] 
-	alpha = ['0','.25','.5','.75','1']
+	#alpha = ['0','.25','.5','.75','1']
+	alpha = ['1']
 	pickby = ['temp']
 
 	export_path = " -e results_LL/multiaddexp/figures/"
-	file_name = "power_alpha_temp"
+	file_name = "trial2_power_alpha_temp"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
