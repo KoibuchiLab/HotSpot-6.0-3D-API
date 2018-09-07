@@ -537,7 +537,7 @@ def pick_candidates(results, candidate_random_trials):
 				if utils.argv.pick_criteria is not None:
 					if alpha_threshold is not None:
 						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
-
+							#print 'ADAPTIVE POWER'
 							if (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
@@ -588,6 +588,7 @@ def pick_candidates(results, candidate_random_trials):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
 								new_pick = True
 						elif 'temp' in picked_by:
+							#print 'TEMP ONLY'
 							if (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 								new_pick = True
@@ -623,6 +624,7 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 						elif 'power' in picked_by:
 							#utils.abort("pick on power")
+							#print 'JUST POWER'
 							if (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
@@ -657,6 +659,7 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 
 				else:
+					#print 'ummm!!!'
 					if (power > picked_candidate_power):
 						utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 						new_pick = True
