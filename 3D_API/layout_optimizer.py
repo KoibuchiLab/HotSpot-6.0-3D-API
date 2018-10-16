@@ -77,7 +77,7 @@ def plot_layout():
 	f.close()
 	import ast
 	positions = ast.literal_eval(positions)
-	layout = LayoutBuilder.plot_custom_layout(positions)
+	layout = LayoutBuilder.plot_custom_layout(positions,inputfile)
 
 	result = find_maximum_power_budget(layout)
 

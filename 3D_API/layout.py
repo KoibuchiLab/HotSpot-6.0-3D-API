@@ -575,21 +575,26 @@ class Layout(object):
 		ax.elev = 18
 		#ax.view_init(-45,18)
 
+		file = '6chip_2_overlap'
 		#ax.set_axis_off() #turns axis off
 		ax.set_xlabel('$X$',fontsize=20)
 		ax.set_ylabel('$Y$',fontsize=20)
 		ax.set_zlabel('$Z$',fontsize=20)
+		ax.text2D(0.05, 0.05, file, transform=ax.transAxes, fontsize=28)
 
-		"""
 		j = 0
-		for i in range(-180,181,1):
+		for i in range(-179,180,1):
 				#ax.azim = 0+j
 				#ax.elev = 0+i
 				j+=1
 				ax.view_init(i,(i))
-				filename = "animate/trial_"+str(j)
+				#filename = "~/Desktop/animate/"+file+"/"+file+"_trial_"+str(j)
+				filename = "../../../Desktop/animate/"+file+"/"+file+"_trial_"+str(j)
 				fig.savefig(filename, bbox_inches='tight')
+
 		"""
+		"""
+		figure_filename = None
 
 
 		if (figure_filename):
@@ -1476,9 +1481,10 @@ class LayoutBuilder(object):
 		return Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap)
 
 	@staticmethod
-	def plot_custom_layout(positions):
+	def plot_custom_layout(positions, filename):
+		print filename
 		layout = Layout(utils.argv.chip, positions, utils.argv.medium, utils.argv.overlap,[])
-		layout.draw_in_3D(None, True)
+		layout.draw_in_3D(filename, True)
 		return layout
 	"""
 	@staticmethod
