@@ -165,7 +165,7 @@ VISUAL PROGRESS OUTPUT:
 
 	parser.add_argument('--layout_scheme', '-L', action='store',
                             dest='layout_scheme', metavar='<layout scheme>',
-                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","cradle","bridge","double_helix"')
+                            required=True, help='options: "rectilinear_straight", "rectilinear_diagonal",\n"checkerboard", "linear_random_greedy", "stacked",\n"random_greedy","cradle","bridge","double_helix","ga"')
 
 	parser.add_argument('--numlevels', '-l', action='store', type=int,
                             dest='num_levels', metavar='<# of levels>',
@@ -295,7 +295,7 @@ if __name__ == '__main__':
 	if (argv.num_chips < 1):
 		utils.abort("The number of chips (--numchips, -n) should be >0")
 
-	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard") or (argv.layout_scheme == "cradle") or (argv.layout_scheme == "bridge"):
+	if (argv.layout_scheme == "stacked") or (argv.layout_scheme == "rectilinear_straight") or (argv.layout_scheme == "rectilinear_diagonal") or (argv.layout_scheme == "linear_random_greedy") or (argv.layout_scheme == "checkerboard") or (argv.layout_scheme == "cradle") or (argv.layout_scheme == "bridge")or (argv.layout_scheme == "ga"):
 		argv.diameter = argv.num_chips
 
 	if (argv.diameter < 1):

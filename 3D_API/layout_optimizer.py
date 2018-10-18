@@ -55,6 +55,10 @@ def optimize_layout():
 		solution = plot_layout()
 	elif (layout_scheme == "linear_random_greedy"):
 		solution = optimize_layout_linear_random_greedy()
+	elif (layout_scheme == "ga"):
+		from genetic_algorithm import GeneticAlgorithm
+		solution = GeneticAlgorithm().simple_ga()
+		utils.abort('implementing ga')
 	elif (layout_scheme == "random_greedy"):
 		if (utils.argv.mpi):
 			solution = optimize_layout_random_greedy_mpi()

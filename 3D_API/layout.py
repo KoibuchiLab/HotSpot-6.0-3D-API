@@ -256,7 +256,6 @@ class Layout(object):
 	"""
 	
 	def add_new_chip(self, new_chip_position):
-
 		# Just a check in case the user decided to add something without
 		# first checking that it was possible
 		#self.draw_in_3D(None,True)
@@ -575,13 +574,14 @@ class Layout(object):
 		ax.elev = 18
 		#ax.view_init(-45,18)
 
-		file = '6chip_2_overlap'
+		#file = '6chip_2_overlap'
 		#ax.set_axis_off() #turns axis off
 		ax.set_xlabel('$X$',fontsize=20)
 		ax.set_ylabel('$Y$',fontsize=20)
 		ax.set_zlabel('$Z$',fontsize=20)
 		ax.text2D(0.05, 0.05, file, transform=ax.transAxes, fontsize=28)
 
+		"""
 		j = 0
 		for i in range(-179,180,1):
 				#ax.azim = 0+j
@@ -592,7 +592,6 @@ class Layout(object):
 				filename = "../../../Desktop/animate/"+file+"/"+file+"_trial_"+str(j)
 				fig.savefig(filename, bbox_inches='tight')
 
-		"""
 		"""
 		figure_filename = None
 
@@ -740,7 +739,8 @@ class Layout(object):
 		# Call hotspot
 		if utils.argv.test:
 			# command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
-			return random.randint(49,52)
+			return int(49)
+			#return random.randint(49,52)
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:
