@@ -109,13 +109,14 @@ class Individual(object):
 
 class GeneticAlgorithm(object):
 
-	def __init__(self, population_size=20, num_generation=100,survival=.2):
+	def __init__(self, population_size=20, num_generation=100,survival=.2, mutation_rate = .3):
 		LayoutOptimizer()
 		LayoutBuilder()
 		PowerOptimizer()
 		self.__population_size = population_size
 		self.__generations = num_generation
 		self.__survival = survival
+		self.__mutation_rate = mutation_rate
 		self.__individuals = self.init_population()
 		#print len(self.__individuals)
 
@@ -166,29 +167,100 @@ class GeneticAlgorithm(object):
 		for i in self.__individuals:
 			print i.get_fitness()
 		"""
-		rand_ind = self.__individuals[random.randint(int(len(self.__individuals)*self.__survival),len(self.__individuals)-1)]
 		tmp_list = self.__individuals[:int(len(self.__individuals)*self.__survival)]
-		tmp_list.append(rand_ind)
+		if int(len(self.__individuals)*self.__survival)%2 !=0:
+			rand_ind = self.__individuals[random.randint(int(len(self.__individuals)*self.__survival),len(self.__individuals)-1)]
+			tmp_list.append(rand_ind)
+
 		return tmp_list
 
 	def crossover(self):
+
+		"""
+		for individual in self.__individuals:
+			print individual.get_positions()
+		"""
+
+		#parent_pool = self.__individuals
+		max_parent_index = len(self.__individuals)-1
 		while len(self.__individuals) < self.__population_size:
-			parent_pool = self.__individuals
-			parent1 = random.choice(parent_pool)
-			parent2 = random.choice(parent_pool)
+			#parent1 = random.choice(parent_pool).get_positions()
+			#parent2 = random.choice(parent_pool).get_positions()
+			parent1 = self.__individuals[random.randint(0,max_parent_index)].get_positions()
+			parent2 = self.__individuals[random.randint(0,max_parent_index)].get_positions()
+
+			side_split =utils.pick_random_element([0,1])
+			#count = 0
+			#for x in xrange(10000):
+			child1, child2 = [], []
+			side_split = 1
+			if side_split == 1:
+				x_center = parent1[0][1]
+
+				for chip in parent1:
+					if chip[1]>x_center:
+						child2.append(chip)
+					else:
+						child1.append(chip)
+				for chip in parent2:
+					if chip[1]>x_center:
+						child1.append(chip)
+					else:
+						child2.append(chip)
+			else:
+				y_center = parent1[0][2]
+				for chip in parent1:
+					if chip[1]>y_center:
+						child2.append(chip)
+					else:
+						child1.append(chip)
+				for chip in parent2:
+					if chip[1]>y_center:
+						child1.append(chip)
+					else:
+						child2.append(chip)
+			try:
+				tmp1 = Layout(utils.argv.chip, child1, utils.argv.medium, utils.argv.overlap,[])
+				tmp2 = Layout(utils.argv.chip, child2, utils.argv.medium, utils.argv.overlap,[])
+			except:
+				continue
+			self.__individuals.append(tmp1)
+			self.__individuals.append(tmp2)
+
+			"""
+			#count+=1
+			#print count
+			tmp1.draw_in_3D(None,True)
+			tmp2.draw_in_3D(None,True)
 			split = random.randint(0,utils.argv.num_chips-1)
-			p1_lvl = parent1.get_positions()[split][0]
-			p2_lvl = parent2.get_positions()[split][0]
+			#p1_lvl = parent1.get_positions()[split][0]
+			#p2_lvl = parent2.get_positions()[split][0]
+			chip_list  = parent1[:split]+parent2[split:]
+			for i in parent2[split:]:
+
+				tmp1.add_new_chip(i)
+			tmp1 = Layout(utils.argv.chip, parent1[:split]+parent2[split:], utils.argv.medium, utils.argv.overlap,[])
 			while (p1_lvl != p2_lvl) and split < len(parent2.get_positions())-1:
 				split+=1
 				p2_lvl = parent2.get_positions()[split][0]
 				print p2_lvl
-				utils.abort("testing")
+			"""
 		print 'crossover'
 
 
 	def mutation(self):
+		for individual in self.__individuals:
+			if random.uniform(0.0,1.0)<= self.__mutation_rate:
+				mutant_chip = random.randint(1,utils.argv.num_chips-1)
+				layout = individual.get_layout()
+				layout.remove_chip(mutant_chip)
+				new_chip_neighbor = random.randint(0,len(self.__individuals)-1)
+				new_chip = layout.get_random_feasible_neighbor_position(new_chip_neighbor)
+				print new_chip
+				layout.add_new_chip(layout.get_random_feasible_neighbor_position())
+				utils.abort("testing")
 		print 'mutiation'
+
 
 	def show_list_fitness(self):
 		tmp = []

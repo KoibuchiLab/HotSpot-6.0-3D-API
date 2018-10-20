@@ -346,6 +346,8 @@ class Layout(object):
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
 
+		self.connect_all_chips(self.__chip_positions,[])
+
 		# Check that the graph is still connected (by doing a copy)
 		self.__G.remove_node(index);
 		if not nx.is_connected(self.__G):
