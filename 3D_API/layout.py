@@ -121,6 +121,8 @@ class Layout(object):
 	def get_topology(self):
 		return self.__G.edges()
 
+	def get_graph(self):
+		return self.__G
 
 	""" Get the layout's ASPL
 	"""
@@ -349,7 +351,7 @@ class Layout(object):
 		# Check that the graph is still connected (by doing a copy)
 		self.__G.remove_node(index);
 		if not nx.is_connected(self.__G):
-			print "disconnected"
+			#print "disconnected"
 			raise Exception("Graph would become disconnected");
 
 		# Rebuild the graph from scratch!
