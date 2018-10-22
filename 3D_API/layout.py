@@ -262,7 +262,6 @@ class Layout(object):
 		if not self.can_new_chip_fit(new_chip_position): #checks if chips collide
 			#print 'new chip position is ' ,new_chip_position, 'num chips is ',len(self.get_chip_positions())
 			#self.draw_in_3D(None,True)
-			#utils.abort("")
 			utils.abort("Cannot add chip, does not fit") ###TODO: do we abort here?
 			#print "warning"
 		# adds inductors
@@ -333,7 +332,6 @@ class Layout(object):
 	"""
 	#@jit
 	def remove_chip(self, index):
-
 		# Remove the inductors for that chip
 		chip_position = self.__chip_positions[index]
 		for inductor in list(self.__inductor_properties):
@@ -346,11 +344,12 @@ class Layout(object):
 		# Remove the chip in the position list
 		self.__chip_positions.pop(index)
 
-		self.connect_all_chips(self.__chip_positions,[])
+		#self.connect_all_chips(self.__chip_positions,[])
 
 		# Check that the graph is still connected (by doing a copy)
 		self.__G.remove_node(index);
 		if not nx.is_connected(self.__G):
+			print "disconnected"
 			raise Exception("Graph would become disconnected");
 
 		# Rebuild the graph from scratch!

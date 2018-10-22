@@ -3,6 +3,7 @@
 import networkx as nx
 import os
 import random
+import math
 import subprocess
 import sys
 from math import sqrt
@@ -20,9 +21,9 @@ from power_optimizer import *
 import utils
 
 class Individual(object):
-	def __init__(self):
+	def __init__(self,Layout=None):
 
-		self.__layout = self.init_individual()
+		self.__layout = self.init_individual(Layout)
 		self.__fitness = -1
 		self.__diameter = self.__layout.get_diameter()
 		self.__ASPL = self.__layout.get_ASPL()
@@ -82,22 +83,25 @@ class Individual(object):
 	def set_density(self,density):
 		self.__density = density
 
-	def init_individual(self):
+	def init_individual(self, Layout):
 		### create classes for individuals and store classes in list below###
 		#list_of_individuals = []
 		#while len(list_of_individuals) < self.__population_size:
-		layout = LayoutBuilder.compute_cradle_layout(3)
-		while layout.get_num_chips()<utils.argv.num_chips:
-			random_chip = utils.pick_random_element(range(0, layout.get_num_chips()))
-			try:
-				layout.add_new_chip(layout.get_random_feasible_neighbor_position(random_chip))
-				#print 'layout size =',layout.get_num_chips()
-			except:
-				utils.info(1,"Adding in ga init_individual failed")
-				continue
-		if layout.get_num_chips() < utils.argv.num_chips:
-			print 'layout = ',layout.get_num_chips(),' num chips suppose to be ',utils.argv.num_chips
-			utils.abort("in ga init individuals")
+		if Layout == None:
+			layout = LayoutBuilder.compute_cradle_layout(3)
+			while layout.get_num_chips()<utils.argv.num_chips:
+				random_chip = utils.pick_random_element(range(0, layout.get_num_chips()))
+				try:
+					layout.add_new_chip(layout.get_random_feasible_neighbor_position(random_chip))
+					#print 'layout size =',layout.get_num_chips()
+				except:
+					utils.info(1,"Adding in ga init_individual failed")
+					continue
+			if layout.get_num_chips() < utils.argv.num_chips:
+				print 'layout = ',layout.get_num_chips(),' num chips suppose to be ',utils.argv.num_chips
+				utils.abort("in ga init individuals")
+		else:
+			layout = Layout
 		#layout.draw_in_3D(None, True)
 		#individual = inidividual(layout)
 		#print 'layout is \n',layout.get_chip_positions()
@@ -129,7 +133,10 @@ class GeneticAlgorithm(object):
 		return inidividuals
 
 	def simple_ga(self):
+		count = 0
 		for generation in xrange(self.__generations):
+			count += 1
+			#print count
 			self.fitness()
 			#self.show_list_fitness()
 			#print 'indi list len pre is ',len(self.__individuals)
@@ -139,7 +146,7 @@ class GeneticAlgorithm(object):
 			#print 'individuals is ', self.__individuals
 			self.crossover()
 			self.mutation()
-			utils.abort("simple ga")
+		utils.abort("simple ga")
 		return [layout, power, temp]
 
 
@@ -175,6 +182,7 @@ class GeneticAlgorithm(object):
 		return tmp_list
 
 	def crossover(self):
+		print 'crossover'
 
 		"""
 		for individual in self.__individuals:
@@ -183,84 +191,132 @@ class GeneticAlgorithm(object):
 
 		#parent_pool = self.__individuals
 		max_parent_index = len(self.__individuals)-1
-		while len(self.__individuals) < self.__population_size:
+		attempts = 0
+		while len(self.__individuals) < self.__population_size and attempts<100:
+			attempts += 1
 			#parent1 = random.choice(parent_pool).get_positions()
 			#parent2 = random.choice(parent_pool).get_positions()
 			parent1 = self.__individuals[random.randint(0,max_parent_index)].get_positions()
 			parent2 = self.__individuals[random.randint(0,max_parent_index)].get_positions()
+			if len(parent1) != len(parent2):
+				print 'parent1 len = ',len(parent1),' parent2 len = ',len(parent2)
+				print ''
+				utils.abort("GA crossover, serious error, parents should be the same length")
+			child = []
+			parent1 = sorted(parent1, key=lambda chip: chip[1])
+			parent2 = sorted(parent2, key=lambda chip: chip[1])
 
-			side_split =utils.pick_random_element([0,1])
-			#count = 0
-			#for x in xrange(10000):
-			child1, child2 = [], []
-			side_split = 1
-			if side_split == 1:
-				x_center = parent1[0][1]
+			"""
+			get center of mass of two layouts
+			- check values and see if they are equal
+			 - if not find index where values are equal
+			- parent with the higher index value makes the first part of child
+			- parent with smaller value makes the last part of child
+			"""
+			orient = random.randint(1,2)
+			utils.info(3,"GA crossover, orientation =  "+str( orient))
 
-				for chip in parent1:
-					if chip[1]>x_center:
-						child2.append(chip)
-					else:
-						child1.append(chip)
-				for chip in parent2:
-					if chip[1]>x_center:
-						child1.append(chip)
-					else:
-						child2.append(chip)
-			else:
-				y_center = parent1[0][2]
-				for chip in parent1:
-					if chip[1]>y_center:
-						child2.append(chip)
-					else:
-						child1.append(chip)
-				for chip in parent2:
-					if chip[1]>y_center:
-						child1.append(chip)
-					else:
-						child2.append(chip)
-			try:
-				tmp1 = Layout(utils.argv.chip, child1, utils.argv.medium, utils.argv.overlap,[])
-				tmp2 = Layout(utils.argv.chip, child2, utils.argv.medium, utils.argv.overlap,[])
-			except:
+			middle = int(len(parent1)*.5)
+			center1 = parent1[middle][orient]
+			center2 = parent2[middle][orient]
+			new_mid = middle
+			new_parent = True
+			#print 'centers are ',center1, center2
+			if center1 != center2:
+			#	print 'in if centers are ',center1, center2
+				utils.info(3,"ga crossover: rebalancing")
+				for i, chip in enumerate(parent2):
+					if chip[orient] != center1:
+						continue
+					new_mid = i
+					center2 = chip[orient]
+					new_parent=False
+					#catch not in parent2
+			if new_parent:
+				utils.info(3,"ga crossover: new parent needed")
 				continue
-			self.__individuals.append(tmp1)
-			self.__individuals.append(tmp2)
+			new_mid+=1
+			if middle > new_mid:
+			#	print 'parent 1 = ',len(parent1[:middle]),'parent 2 = ',len(parent2[new_mid:])
+			#	print 'parent 1 = ',(parent1[middle]),'parent 2 = ',(parent2[new_mid])
+				child = parent1[:middle]+parent2[new_mid:]
+			elif middle < new_mid:
+			#	print '!!!!!!!!!!!!else if'
+			#	print 'parent 1 = ',len(parent1[:middle]),'parent 2 = ',len(parent2[new_mid:])
+			#	print 'parent 1 = ',(parent1[middle]),'parent 2 = ',(parent2[new_mid])
+				child = parent2[:new_mid]+parent1[middle:]
 
-			"""
-			#count+=1
-			#print count
-			tmp1.draw_in_3D(None,True)
-			tmp2.draw_in_3D(None,True)
-			split = random.randint(0,utils.argv.num_chips-1)
-			#p1_lvl = parent1.get_positions()[split][0]
-			#p2_lvl = parent2.get_positions()[split][0]
-			chip_list  = parent1[:split]+parent2[split:]
-			for i in parent2[split:]:
+			#print 'child len ', len(child)
+			child = child[:len(parent1)]
+			#print 'child len is now ', len(child)
 
-				tmp1.add_new_chip(i)
-			tmp1 = Layout(utils.argv.chip, parent1[:split]+parent2[split:], utils.argv.medium, utils.argv.overlap,[])
-			while (p1_lvl != p2_lvl) and split < len(parent2.get_positions())-1:
-				split+=1
-				p2_lvl = parent2.get_positions()[split][0]
-				print p2_lvl
-			"""
-		print 'crossover'
-
+			if len(parent1) != len(child) or len(parent2) != len(child):
+				#utils.abort("GA crossover, children are smaller than parents")
+				continue
+			try:
+				tmp1 = Layout(utils.argv.chip, child, utils.argv.medium, utils.argv.overlap,[])
+				#tmp2 = Layout(utils.argv.chip, child, utils.argv.medium, utils.argv.overlap,[])
+			except:
+				#utils.abort("add error")
+				continue
+			print 'tmp len ',len(tmp1.get_chip_positions())
+			self.__individuals.append(Individual(tmp1))
+		#tmp1.draw_in_3D(None,True)
+		#utils.abort("HOLD")
+		if attempts == 100:
+			utils.abort("GA crossover, ran out of crossover attemps")
 
 	def mutation(self):
+		print 'mutiation'
+		added = False
+		attemps = 0
+		count = 0
+		new_add = None
+		original_len = -1
+		chip_to_remove = None
 		for individual in self.__individuals:
 			if random.uniform(0.0,1.0)<= self.__mutation_rate:
-				mutant_chip = random.randint(1,utils.argv.num_chips-1)
 				layout = individual.get_layout()
-				layout.remove_chip(mutant_chip)
-				new_chip_neighbor = random.randint(0,len(self.__individuals)-1)
-				new_chip = layout.get_random_feasible_neighbor_position(new_chip_neighbor)
-				print new_chip
-				layout.add_new_chip(layout.get_random_feasible_neighbor_position())
-				utils.abort("testing")
-		print 'mutiation'
-
+				original_len = len(layout.get_chip_positions())
+				while added == False and attemps < 100:
+					#print 'trying to add'
+					try:
+						new_chip_neighbor = random.randint(0,len(self.__individuals)-1)
+						new_add = layout.get_random_feasible_neighbor_position(new_chip_neighbor)
+						layout.add_new_chip(new_add)
+						added=True
+						print "chip added"
+					except:
+						continue
+					attemps += 1
+				while added == True and count <10:
+					count += 1
+					mutant_chip = random.randint(1,utils.argv.num_chips)
+					chip_to_remove = mutant_chip
+					print 'mutant chip is ', mutant_chip
+					if count < 10:
+						try:
+							layout.remove_chip(mutant_chip)
+							added=False
+							#print "chip removed"
+							#layout.add_new_chip(mutant_chip)
+							#individual.get_layout().remove_chip(mutant_chip)
+						except:
+							continue
+					else:
+						try:
+							layout.remove_chip(new_add)
+							added=False
+							#print "chip removed"
+							#layout.add_new_chip(mutant_chip)
+							#individual.get_layout().remove_chip(mutant_chip)
+						except:
+							continue
+				if original_len != len(layout.get_chip_positions()):
+					utils.abort("GA mutation, mutation error, lengths diff")
+				# find bridge
+				#new_chip = layout.get_random_feasible_neighbor_position(new_chip_neighbor)
+		#print self.__individuals
 
 	def show_list_fitness(self):
 		tmp = []
