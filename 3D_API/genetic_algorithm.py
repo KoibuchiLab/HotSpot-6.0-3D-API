@@ -113,7 +113,7 @@ class Individual(object):
 
 class GeneticAlgorithm(object):
 
-	def __init__(self, population_size=50, num_generation=500,survival=.25, mutation_rate = .4):
+	def __init__(self, population_size=20, num_generation=1000,survival=.25, mutation_rate = .1):
 		LayoutOptimizer()
 		LayoutBuilder()
 		PowerOptimizer()
@@ -122,6 +122,8 @@ class GeneticAlgorithm(object):
 		self.__survival = survival
 		self.__mutation_rate = mutation_rate
 		self.__individuals = self.init_population(self.__population_size)
+		self.__mutation_count = 0
+		self.__crossover_fails = 0
 		#print len(self.__individuals)
 
 	def init_population(self,size):
@@ -133,14 +135,39 @@ class GeneticAlgorithm(object):
 		return inidividuals
 
 	def simple_ga(self):
+
+		#toolbar_width = 40
+		# setup toolbar
+		#sys.stdout.write("[%s]" % (" " * toolbar_width))
+		#sys.stdout.flush()
+		#sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
+
+		from progressbar import ProgressBar, Counter, Timer
+		pbar = ProgressBar()
+		widgets = ['Processed: ', Counter(), ' generations (', Timer(), ')']
+		pbar = ProgressBar(widgets=widgets)
+
 		count = 0
-		for generation in xrange(self.__generations):
+		gen = []
+		max_fitness = []
+		min_fitness = []
+		avg_fitness = []
+
+		#for generation in xrange(self.__generations):
+		#for generation in pbar(range(self.__generations)):
+		for generation in pbar((i for i  in range(self.__generations))):
 			count += 1
-			print count
-			self.fitness()
+			#print count
+			gen.append(count)
+			fit_list = self.fitness()
+			max_fitness.append(min(fit_list))
 			#self.show_list_fitness()
+			min_fitness.append(max(fit_list))
+			#self.show_list_fitness()
+			avg_fitness.append(sum(fit_list)//len(fit_list))#self.show_list_fitness()
 			#print 'indi list len pre is ',len(self.__individuals)
 			self.__individuals = self.selection()
+			#max_fitness.append(self.__individuals[0].get_fitness())
 			#self.show_list_fitness()
 			#print 'indi list len POST is ',len(self.__individuals)
 			#print 'individuals is ', self.__individuals
@@ -149,17 +176,36 @@ class GeneticAlgorithm(object):
 			#self.show_ind_lengths()
 			self.mutation()
 			#self.show_ind_lengths()
+
+			#sys.stdout.write("-")
+			#sys.stdout.flush()
+		#sys.stdout.write("\n")
+
 		self.__individuals = self.selection()
 		top = self.__individuals[0]
 		layout = top.get_layout()
 		power = top.get_power()
 		temp = top.get_temperature()
-		#utils.abort("simple ga")
-		return [layout, power, temp]
 
+		import matplotlib.pyplot as plt
+		import pylab
+		plt.plot(gen, max_fitness, label = 'Max Fitness')
+		plt.plot(gen, min_fitness, label = 'Min Fitness')
+		plt.plot(gen, avg_fitness, label = 'avg Fitness')
+		pylab.legend(loc='lower right')
+		plt.xlabel('Generation')
+		plt.ylabel('Fitness Score')
+		plt.title("layout")
+		plt.show()
+	#utils.abort("simple ga")
+		print 'crossover fails = ',self.__crossover_fails
+		print 'mutations = ',self.__mutation_count
+
+		return [layout, power, temp]
 
 	def fitness(self):
 		#print 'fitness'
+		fitness = []
 		for individual in self.__individuals:
 			result = find_maximum_power_budget(individual.get_layout())
 			power = result[0]
@@ -171,9 +217,11 @@ class GeneticAlgorithm(object):
 			edges = individual.get_edges()
 			individual.set_power(power)
 			individual.set_temperature(temp)
-			individual.set_fitness((ASPL+diameter+temp-(power[0])-(edges)))
+			fit_val = (ASPL+diameter+temp-(power[0])-(edges))
+			individual.set_fitness(fit_val)
+			fitness.append(fit_val)
 			#print individual.get_fitness()
-		return
+		return fitness
 
 	def selection(self):
 		#print 'selection'
@@ -205,7 +253,7 @@ class GeneticAlgorithm(object):
 		#print "individuals = ",len(self.__individuals)
 		attempts = 0
 		found_all = False
-		while len(self.__individuals) < self.__population_size and attempts<0:
+		while len(self.__individuals) < self.__population_size and attempts<10000:
 			attempts += 1
 			#parent1 = random.choice(parent_pool).get_positions()
 			#parent2 = random.choice(parent_pool).get_positions()
@@ -298,6 +346,7 @@ class GeneticAlgorithm(object):
 			#print "now individuals = ",len(self.__individuals)
 		#tmp1.draw_in_3D(None,True)
 		if len(self.__individuals) != self.__population_size:
+			self.__crossover_fails += 1
 			#print "current pop size = ",len(self.__individuals)
 			remaining = self.__population_size-len(self.__individuals)
 			#print "remaining is ",remaining
@@ -358,6 +407,7 @@ class GeneticAlgorithm(object):
 					continue
 					#utils.abort("GA mutation, mutation error, lengths diff")
 				layout = tmp
+				self.__mutation_count += 1
 				# find bridge
 				#new_chip = layout.get_random_feasible_neighbor_position(new_chip_neighbor)
 		#print self.__individuals
