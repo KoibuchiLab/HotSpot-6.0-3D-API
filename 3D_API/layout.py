@@ -743,7 +743,7 @@ class Layout(object):
 			#return random.randint(49,52)
 			if utils.argv.overlap == 0.2:
 				return 49
-			return 51
+			return 49
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:

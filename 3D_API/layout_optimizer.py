@@ -66,6 +66,7 @@ def optimize_layout():
 
 	return solution
 
+"""
 def optimize_overlap():
 	overlap_options = [.05, .10, .15, .20, .25]
 	best_overlap = None
@@ -94,6 +95,7 @@ def optimize_overlap():
 			return_temperature = temperature
 			lower_bound = guess_index
 	return[layout, power_distribution, return_temperature]
+"""
 
 """plot layouts"""
 def plot_layout():
@@ -822,6 +824,7 @@ def send_stop_signals(worker_list, comm):
 	for k in range(0, len(worker_list)):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
+		print 'stopping'
 		comm.send(stop_worker, dest=k + 1)
 		#print 'stopping worker rank ',k+1
 
@@ -843,6 +846,14 @@ def optimize_layout_random_greedy_mpi():
 		utils.abort("Need to invoke with 'mpirun-np #' where # is int processes greater than 1")
 	if rank == 0:
 		layout = LayoutBuilder.compute_cradle_layout(3)
+
+		""""
+		if utils.argv.num_chips == 3:
+			power_distribution, temperature = find_maximum_power_budget(layout)
+			dummy_list = [None]*(size-1)
+			send_stop_signals(dummy_list, comm)
+		return [layout, power_distribution, temperature]
+		"""
 
 		num_neighbor_candidates = 20  # Default value
 		max_num_neighbor_candidate_attempts = 1000  # default value
@@ -897,9 +908,6 @@ def optimize_layout_random_greedy_mpi():
 		guess_index = -1
 		utils.argv.overlap = .25
 
-		while (lower_bound != upper_bound) and done is False:
-			if (guess_index == (upper_bound + lower_bound)/2):
-				break
 		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
 			attempt += 1
 			###############################################
