@@ -282,7 +282,12 @@ def make_power_distribution_feasible(layout, power_distribution, initial_tempera
 
 def find_maximum_power_budget(layout):
 
-	# No search because the user specified a fixed power budget?
+	if utils.argv.powerdistopt == "max":
+		utils.info(1,"powerdistopt is MAX")
+		temperature = Layout.compute_layout_temperature(layout, [layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips())
+		return [[layout.get_chip().get_power_levels()[-1]] * layout.get_num_chips(), temperature]
+
+# No search because the user specified a fixed power budget?
 	if (utils.argv.power_budget):
 		[temperature, power_distribution] = optimize_power_distribution(layout, utils.argv.power_budget, utils.argv.powerdistopt, utils.argv.power_distribution_optimization_num_trials, utils.argv.power_distribution_optimization_num_iterations)
 		[power_distribution, temperature] = make_power_distribution_feasible(layout, power_distribution, temperature)

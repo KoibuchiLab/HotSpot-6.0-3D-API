@@ -354,6 +354,8 @@ if __name__ == '__main__':
 
 	print "----------- OPTIMIZATION RESULTS -----------------"
 	print "Chip = ", layout.get_chip().name
+	print "Num Chips = ",layout.get_num_chips()
+	print "Overlap = ",utils.argv.overlap
 	print "Chip frequencies and power levels = ", [(f, float("%.4f" % power)) for (f, power) in layout.get_chip().get_frequencies_and_power_levels()]
 	print "Layout =", layout.get_chip_positions()
 	print "Topology = ", layout.get_topology()

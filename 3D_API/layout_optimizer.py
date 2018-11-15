@@ -2,7 +2,6 @@
 
 import sys
 import random
-from mpi4py import MPI
 import copy
 
 import utils
@@ -41,8 +40,8 @@ def optimize_layout():
 		solution = optimize_layout_rectilinear("straight")
 	elif (layout_scheme == "rectilinear_diagonal"):
 		solution = optimize_layout_rectilinear("diagonal")
-	#elif (layout_scheme == "carbon"):
-	#	solution = optimize_layout_carbon()
+	elif (layout_scheme == "optimize_overlap"):
+		solution = optimize_overlap()
 	elif (layout_scheme == "checkerboard"):
 		solution = optimize_layout_checkerboard()
 	elif (layout_scheme == "cradle"):
@@ -67,6 +66,34 @@ def optimize_layout():
 
 	return solution
 
+def optimize_overlap():
+	overlap_options = [.05, .10, .15, .20, .25]
+	best_overlap = None
+	return_temperature = None
+	lower_bound = 0
+	upper_bound = len(overlap_options)-1
+	guess_index = -1
+	utils.argv.overlap = .25
+	layout, power_distribution, temperature = None, None, None
+	#print 'starting overlap is ',utils.argv.overlap
+	while (lower_bound != upper_bound):
+		if (guess_index == (upper_bound + lower_bound)/2):
+			break
+		guess_index = (upper_bound + lower_bound) / 2
+		print "Trying guess ", guess_index
+		utils.argv.overlap = overlap_options[guess_index]
+		print 'global overlap is = ',utils.argv.overlap
+		#sys.exit(0)
+		layout, power_distribution, temperature = optimize_layout_random_greedy_mpi()
+
+		#temperature = Layout.compute_layout_temperature(layout, [power_levels[guess_index]] * layout.get_num_chips())
+		print "temperature = ", temperature
+		if (temperature > utils.argv.max_allowed_temperature):
+			upper_bound = guess_index
+		else:
+			return_temperature = temperature
+			lower_bound = guess_index
+	return[layout, power_distribution, return_temperature]
 
 """plot layouts"""
 def plot_layout():
@@ -606,16 +633,18 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 					else:
 						if 'network' in picked_by:
-
 							if diameter<picked_candidate_diameter:
 								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
 								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
-								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+							elif (diameter == picked_candidate_diameter) and  (num_edges > picked_candidate_num_edges):
 								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
 								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (num_edges == picked_candidate_num_edges) and(ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							#elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+							#	utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+							#	new_pick = True
 							elif (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
@@ -805,7 +834,7 @@ def optimize_layout_random_greedy_mpi():
 	###TODO: add check for --mpi flag
 	###TODO: maybe run exp overlap vs ex time
 	##########################################
-
+	from mpi4py import MPI
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
@@ -837,12 +866,40 @@ def optimize_layout_random_greedy_mpi():
 			except:
 				add_scheme = utils.argv.layout_scheme.split(":")[3]
 				num_chips_to_add = 3
-				#utils.abort("add scheme is "+str(add_scheme))
 
+		overlap_search = False
+		if (len(utils.argv.layout_scheme.split(":")) == 5):
+			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
+			max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
+			try:
+				num_chips_to_add = int(utils.argv.layout_scheme.split(":")[3])
+				add_scheme = "multi"
+			except:
+				add_scheme = utils.argv.layout_scheme.split(":")[3]
+				num_chips_to_add = 3
+				#utils.abort("add scheme is "+str(add_scheme))
+			overlap_search = True
+		#print 'overlap search is ',overlap_search
 		results = []
 		picked_index = 0
 		#print 'mx nei can attp ', max_num_neighbor_candidate_attempts
 		attempt = 0
+
+		#########################
+		### Overlap search parameters
+		#########################
+		done = False
+		overlap_options = [.05, .10, .15, .20, .25]
+		best_overlap = None
+		return_temperature = None
+		lower_bound = 0
+		upper_bound = len(overlap_options)-1
+		guess_index = -1
+		utils.argv.overlap = .25
+
+		while (lower_bound != upper_bound) and done is False:
+			if (guess_index == (upper_bound + lower_bound)/2):
+				break
 		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
 			attempt += 1
 			###############################################
@@ -901,8 +958,6 @@ def optimize_layout_random_greedy_mpi():
 					#print 'rec'
 
 			#print 'out results is ',results
-			#print 'HERE4'
-			#print 'HERE5'
 			# print "RESULTS = ", results
 			"""
 			if None in results:

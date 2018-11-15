@@ -296,8 +296,8 @@ class Layout(object):
 			self.__inductor_properties.append(new_inductor_property)
 			utils.info(3, "Connecting chip by adding inductor")
 			num_inductor +=1
-			if num_inductor>1:
-				utils.info(3,"\nBRIDGE!!!\n")
+			#if num_inductor>1:
+				#utils.info(3,"\nBRIDGE!!!\n")
 				#self.draw_in_3D(None, True)
 		if original_inductor_count < len(self.__inductor_properties):
 			return True
@@ -740,7 +740,10 @@ class Layout(object):
 		# Call hotspot
 		if utils.argv.test:
 			# command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
-			return random.randint(49,52)
+			#return random.randint(49,52)
+			if utils.argv.overlap == 0.2:
+				return 49
+			return 51
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:
