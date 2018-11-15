@@ -2,7 +2,6 @@
 
 import sys
 import random
-from mpi4py import MPI
 import copy
 
 import utils
@@ -41,8 +40,8 @@ def optimize_layout():
 		solution = optimize_layout_rectilinear("straight")
 	elif (layout_scheme == "rectilinear_diagonal"):
 		solution = optimize_layout_rectilinear("diagonal")
-	#elif (layout_scheme == "carbon"):
-	#	solution = optimize_layout_carbon()
+	elif (layout_scheme == "optimize_overlap"):
+		solution = optimize_overlap()
 	elif (layout_scheme == "checkerboard"):
 		solution = optimize_layout_checkerboard()
 	elif (layout_scheme == "cradle"):
@@ -67,6 +66,36 @@ def optimize_layout():
 
 	return solution
 
+"""
+def optimize_overlap():
+	overlap_options = [.05, .10, .15, .20, .25]
+	best_overlap = None
+	return_temperature = None
+	lower_bound = 0
+	upper_bound = len(overlap_options)-1
+	guess_index = -1
+	utils.argv.overlap = .25
+	layout, power_distribution, temperature = None, None, None
+	#print 'starting overlap is ',utils.argv.overlap
+	while (lower_bound != upper_bound):
+		if (guess_index == (upper_bound + lower_bound)/2):
+			break
+		guess_index = (upper_bound + lower_bound) / 2
+		print "Trying guess ", guess_index
+		utils.argv.overlap = overlap_options[guess_index]
+		print 'global overlap is = ',utils.argv.overlap
+		#sys.exit(0)
+		layout, power_distribution, temperature = optimize_layout_random_greedy_mpi()
+
+		#temperature = Layout.compute_layout_temperature(layout, [power_levels[guess_index]] * layout.get_num_chips())
+		print "temperature = ", temperature
+		if (temperature > utils.argv.max_allowed_temperature):
+			upper_bound = guess_index
+		else:
+			return_temperature = temperature
+			lower_bound = guess_index
+	return[layout, power_distribution, return_temperature]
+"""
 
 """plot layouts"""
 def plot_layout():
@@ -77,7 +106,7 @@ def plot_layout():
 	f.close()
 	import ast
 	positions = ast.literal_eval(positions)
-	layout = LayoutBuilder.plot_custom_layout(positions)
+	layout = LayoutBuilder.plot_custom_layout(positions,inputfile)
 
 	result = find_maximum_power_budget(layout)
 
@@ -250,50 +279,31 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 	chipy_dim = utils.argv.chip.y_dimension
 	any_shape = False
 	overlap_shape = utils.argv.constrained_overlap_geometry
-	#print 'global overlap ',utils.argv.constrained_overlap_geometry
-	#if not('strip' in utils.argv.constrained_overlap_geometry) or not('square' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
 	if (overlap_shape is None) or ('any' in overlap_shape): ###TODO: ok to set globally?
-	#if (utils.argv.constrained_overlap_geometry is None) or ('any' in utils.argv.constrained_overlap_geometry): ###TODO: ok to set globally?
 		overlap_shape = random.choice(['square','strip'])
-		#print "HERE!!!"
-		#utils.argv.constrained_overlap_geometry = random.choice(['square','strip'])
-		#any_shape = True
-		#overlape_shape = random.choice(['square','strip'])
 		utils.info(1,"shape parameter not specified, randomly chose shape parameter = "+str(utils.argv.constrained_overlap_geometry))
-	#overlape_shape = utils.argv.constrained_overlap_geometry
-	#tmp_layout = copy.copy(layout)
 	tmp_layout = Layout(layout.get_chip(), layout.get_chip_positions(), layout.get_medium(), layout.get_overlap(), layout.get_inductor_properties())
 	random_chip = utils.pick_random_element(range(0, tmp_layout.get_num_chips()))
-	#random_chip = 1
 	result = tmp_layout.get_random_feasible_neighbor_position(random_chip)
-	#print 'overlap shape is ', overlap_shape
 	if result == None:
-		#utils.argv.constrained_overlap_geometry = 'any'
 		utils.info(1, "Could not find a place to add the first cradle chip")
 		return None
-		#continue
 	try:
 		tmp_layout.add_new_chip(result)
-		#print "add cradle 1"
 	except:
 		return None
-		#print 'PROBLEM chip 1'
 
 	if 'strip' in overlap_shape:
 		if result[0]<2:
 			utils.info(1, "chip 2 of cradle will be below level 1")
-			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
-				#continue
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			utils.info(1,"Adding cradle exceeds diameter constraint")
-			#utils.argv.constrained_overlap_geometry = 'any'
 			return None
-			#continue #adding a cradle will exceed diameter constraint
 		cradle_chip1 = tmp_layout.get_chip_positions()[-1]
 		cradle_chip2 = tmp_layout.get_random_feasible_neighbor_position(len(tmp_layout.get_chip_positions())-1)
 		if cradle_chip2 is None:
-			print "This is a problem, strip"
+			#print "This is a problem, strip"
 			return None
 		cradle_chip2[0] = cradle_chip1[0]-1
 		if cradle_chip1[1] == cradle_chip2[1]: # add vertically
@@ -316,10 +326,8 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 				chip3_y = cradle_chip2[2]
 
 		cradle_chip3 = [chip3_level, chip3_x, chip3_y]
-		#print "STRIP"
 		second_cradle_chip = cradle_chip2
 		third_cradle_chip = cradle_chip3
-		#candidate_list = tmp_layout.get_chip_positions()[-3:]
 
 	elif 'square' in overlap_shape:
 		#print "\n\n\n\nNO\n\n\n\n\n"
@@ -327,19 +335,14 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 		if tmp_layout.get_diameter() + 2 > utils.argv.diameter:
 			if tmp_layout.get_diameter() + 1 > utils.argv.diameter:
 				utils.info(1, "Adding cradle by the middle chip still exceeds diameter constraint")
-				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
-				#continu1
 			attached_at = 2
 		inductor = tmp_layout.get_inductor_properties()[-1]
 		if attached_at == 2: #adding at middle of cradle, cradle chip 2
 			if tmp_layout.get_num_levels() + 1 > utils.argv.num_levels:
 				utils.info(1,"Adding cradle by middle exceeds level constraint")
-				#utils.argv.constrained_overlap_geometry = 'any'
 				return None
-				#continue
 			cradle_chip2 = tmp_layout.get_chip_positions()[-1]
-			#print 'num chips in layout is ', len(tmp_layout.get_chip_positions())
 			chip1_level = chip3_level = cradle_chip2[0]+1
 			if (cradle_chip2[1]==inductor[1] and cradle_chip2[2]==inductor[2]) or (cradle_chip2[1]!=inductor[1] and cradle_chip2[2]!=inductor[2]): #add top left, bottom right
 				chip1_x = cradle_chip2[1]-chipx_dim*(1-sqrt(overlap))
@@ -353,9 +356,6 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 				chip3_y = cradle_chip2[2]-chipy_dim*(1-sqrt(overlap))
 			cradle_chip1 = [chip1_level, chip1_x, chip1_y]
 			cradle_chip3 = [chip3_level, chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(cradle_chip1)
-			#tmp_layout.add_new_chip(cradle_chip3)
-			#print "MIDDLE"
 			second_cradle_chip = cradle_chip1
 			third_cradle_chip = cradle_chip3
 
@@ -392,28 +392,22 @@ def add_cradle(layout): ###TODO: could probably hard code num_chips_to_add to 3
 					chip3_x = cradle_chip2[1] + chipx_dim*(1-sqrt(overlap))
 					chip3_y = cradle_chip2[2] + chipy_dim*(1-sqrt(overlap))
 			cradle_chip3 = [cradle_chip1[0], chip3_x, chip3_y]
-			#tmp_layout.add_new_chip(cradle_chip2)
-			#tmp_layout.add_new_chip(cradle_chip3)
 			second_cradle_chip = cradle_chip2
 			third_cradle_chip = cradle_chip3
-			#print "SIDE"
-	#if (tmp_layout.can_new_chip_fit(third_cradle_chip)):
-	#	print "third chip cant fit\nreturn"
-	#	return
 	if not tmp_layout.can_new_chip_fit(second_cradle_chip):
-		#print 'cant add second chip'
-		utils.info(0,"Second Chip Cant Fit")
+		utils.info(1,"Second Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(second_cradle_chip)
 	if not tmp_layout.can_new_chip_fit(third_cradle_chip):
-		#print 'cant add third chip'
-		utils.info(0,"Third Chip Cant Fit")
+		utils.info(1,"Third Chip Cant Fit")
 		return None
 	tmp_layout.add_new_chip(third_cradle_chip)
 
 	if len(tmp_layout.get_chip_positions())%3!=0:
-		#tmp_layout.draw_in_3D(None, True)
-		utils.info(0,"Did not find all 3 cradle chip positions, returning None")
+		utils.info(1,"Did not find all 3 cradle chip positions, returning None")
+		return None
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
 		return None
 	candidate_list = tmp_layout.get_chip_positions()[-3:]
 
@@ -447,7 +441,11 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 				continue
 
 	if new_chips<num_chips_to_add:
-		utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+		return None
+		#utils.abort("Could not find any more feasible neighbors after "+str(add_attempts)+" attempts")
+	if tmp_layout.get_diameter()>utils.argv.diameter:
+		utils.info(1,"exceeds diameter constraint")
+		return None
 	candidate_list = tmp_layout.get_chip_positions()[-num_chips_to_add:]
 	return candidate_list
 
@@ -457,9 +455,10 @@ def add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add
 def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_candidates, max_num_neighbor_candidate_attempts, num_chips_to_add, add_scheme):
 	utils.info(3,"generating multi candidates")
 	num_attempts = 0
+	#print 'Here'
 	while ((len(candidate_random_trials) < num_neighbor_candidates) and (num_attempts < max_num_neighbor_candidate_attempts)):
 		num_attempts += 1
-		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):  ###TODO: if remaining chips to add not a multiple of 3 call add_multi_chip() instead of add_cradle()
+		if (add_scheme is not None) and ('cradle' in add_scheme) and (utils.argv.num_chips%3 == 0):
 
 			candidate_list = add_cradle(layout)
 
@@ -471,15 +470,10 @@ def generate_multi_candidates(layout, candidate_random_trials, num_neighbor_cand
 			candidate_list = add_multi_chip(layout, max_num_neighbor_candidate_attempts, num_chips_to_add)
 			if candidate_list == None:
 				continue
-		#layout.draw_in_3D(None,True)
-		#for candidtates in candidate_list:
-			#print 'there are that many chips --> ',len(layout.get_chip_positions())
-		#	if layout.get_chip_positions()[-1] == candidtates:
-		#		print "\n\n\n\n\n\n\nWTF\n\n\n\n\n"
 		candidate_random_trials.append(candidate_list)
 
 	if len(candidate_random_trials) != num_neighbor_candidates:
-			utils.info(0, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
+			utils.info(3, "Ran out of trials\nOnly "+str(len(candidate_random_trials))+" of "+str(num_neighbor_candidates)+" were found")
 	return candidate_random_trials
 
 """Original pick_candidate"""
@@ -572,32 +566,23 @@ def pick_candidates(results, candidate_random_trials):
 				if utils.argv.pick_criteria is not None:
 					if alpha_threshold is not None:
 						if (picked_candidate_temperature < temp_limit*alpha_threshold) and (temperature<temp_limit*alpha_threshold):
-							utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
-							if diameter<picked_candidate_diameter:
-								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
-								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-								new_pick = True
-						elif 'power' in picked_by:
-							#utils.abort("pick on power")
+							#print 'ADAPTIVE POWER'
 							if (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 								new_pick = True
+							elif (picked_candidate_power == power) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
 							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
-						elif 'temp' in picked_by:
-							#utils.abort("pick on temp")
-							if (temperature < picked_candidate_temperature):
-								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 								new_pick = True
-							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
-								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
-					else:
-						if 'network' in picked_by:
-
+							"""
 							if diameter<picked_candidate_diameter:
 								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
 								new_pick = True
@@ -614,26 +599,6 @@ def pick_candidates(results, candidate_random_trials):
 								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
 								new_pick = True
 							"""
-							if (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
-								new_pick = True
-							elif (diameter < picked_candidate_diameter) and (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
-								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
-								new_pick = True
-							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
-								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
-								new_pick = True
-							elif (power > picked_candidate_power):
-								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
-								new_pick = True
-							elif (temperature < picked_candidate_temperature):
-								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
-								new_pick = True
-							"""
-
 						elif 'power' in picked_by:
 							#utils.abort("pick on power")
 							if (power > picked_candidate_power):
@@ -650,7 +615,62 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
+						elif 'temp' in picked_by:
+							#print 'TEMP ONLY'
+							if (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
+							elif (picked_candidate_temperature == temperature) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_pick = True
+					else:
+						if 'network' in picked_by:
+							if diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (num_edges == picked_candidate_num_edges) and(ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							#elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+							#	utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+							#	new_pick = True
+							elif (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER TEMPURATURE **")
+								new_pick = True
+						elif 'power' in picked_by:
+							#utils.abort("pick on power")
+							#print 'JUST POWER'
+							if (power > picked_candidate_power):
+								utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
+								new_pick = True
+							elif (picked_candidate_power == power) and diameter<picked_candidate_diameter:
+								utils.info(2, "    ** PICKED DUE TO BETTER DIAMETER **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL < picked_candidate_ASPL):
+								utils.info(2, "    ** PICKED DUE TO BETTER ASPL **")
+								new_pick = True
+							elif (diameter == picked_candidate_diameter) and (ASPL == picked_candidate_ASPL) and  (num_edges > picked_candidate_num_edges):
+								utils.info(2, "    ** PICKED DUE TO BETTER EDGES **")
+								new_pick = True
+							elif (picked_candidate_power == power) and (temperature < picked_candidate_temperature):
+								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
+								new_pick = True
 						elif 'temp' in picked_by:
 							#utils.abort("pick on temp")
 							if (temperature < picked_candidate_temperature):
@@ -667,9 +687,10 @@ def pick_candidates(results, candidate_random_trials):
 								new_pick = True
 							elif (picked_candidate_temperature == temperature) and (power > picked_candidate_power):
 								utils.info(2, "    ** PICKED DUE TO BETTER Tempurature **")
-								new_picked = True
+								new_pick = True
 
 				else:
+					#print 'ummm!!!'
 					if (power > picked_candidate_power):
 						utils.info(2, "    ** PICKED DUE TO BETTER POWER **")
 						new_pick = True
@@ -804,6 +825,7 @@ def send_stop_signals(worker_list, comm):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
 		comm.send(stop_worker, dest=k + 1)
+		#print 'stopping worker rank ',k+1
 
 
 """Random greedy layout optimization with MPI"""
@@ -814,7 +836,7 @@ def optimize_layout_random_greedy_mpi():
 	###TODO: add check for --mpi flag
 	###TODO: maybe run exp overlap vs ex time
 	##########################################
-
+	from mpi4py import MPI
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
 	size = comm.Get_size()
@@ -823,6 +845,14 @@ def optimize_layout_random_greedy_mpi():
 		utils.abort("Need to invoke with 'mpirun-np #' where # is int processes greater than 1")
 	if rank == 0:
 		layout = LayoutBuilder.compute_cradle_layout(3)
+
+		""""
+		if utils.argv.num_chips == 3:
+			power_distribution, temperature = find_maximum_power_budget(layout)
+			dummy_list = [None]*(size-1)
+			send_stop_signals(dummy_list, comm)
+		return [layout, power_distribution, temperature]
+		"""
 
 		num_neighbor_candidates = 20  # Default value
 		max_num_neighbor_candidate_attempts = 1000  # default value
@@ -846,12 +876,39 @@ def optimize_layout_random_greedy_mpi():
 			except:
 				add_scheme = utils.argv.layout_scheme.split(":")[3]
 				num_chips_to_add = 3
-				#utils.abort("add scheme is "+str(add_scheme))
 
+		overlap_search = False
+		if (len(utils.argv.layout_scheme.split(":")) == 5):
+			num_neighbor_candidates = int(utils.argv.layout_scheme.split(":")[1])
+			max_num_neighbor_candidate_attempts = int(utils.argv.layout_scheme.split(":")[2])
+			try:
+				num_chips_to_add = int(utils.argv.layout_scheme.split(":")[3])
+				add_scheme = "multi"
+			except:
+				add_scheme = utils.argv.layout_scheme.split(":")[3]
+				num_chips_to_add = 3
+				#utils.abort("add scheme is "+str(add_scheme))
+			overlap_search = True
+		#print 'overlap search is ',overlap_search
 		results = []
 		picked_index = 0
-		while (layout.get_num_chips() != utils.argv.num_chips):
+		#print 'mx nei can attp ', max_num_neighbor_candidate_attempts
+		attempt = 0
 
+		#########################
+		### Overlap search parameters
+		#########################
+		done = False
+		overlap_options = [.05, .10, .15, .20, .25]
+		best_overlap = None
+		return_temperature = None
+		lower_bound = 0
+		upper_bound = len(overlap_options)-1
+		guess_index = -1
+		utils.argv.overlap = .25
+
+		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
+			attempt += 1
 			###############################################
 			### Create Candidates
 			##########################################
@@ -864,15 +921,17 @@ def optimize_layout_random_greedy_mpi():
 				utils.info(2, "Warning num_chips_to_add too great\nCandidates will be generated in "+str(num_chips_to_add)+"'s")
 			candidate_random_trials = generate_multi_candidates(layout, [], num_neighbor_candidates, max_num_neighbor_candidate_attempts,num_chips_to_add,add_scheme)
 
-			###############################################
-			### Evaluate all Candidates
-			###############################################
+			if None in candidate_random_trials:
+				candidate_random_trials = filter(None,candidate_random_trials)
+				#print 'EMPTY candidate slot'
+				utils.info(3,"filtering None out of candidate_random_trials list")
+
+			if len(candidate_random_trials) == 0:
+				send_stop_signals(worker_list,comm)
+				utils.abort("Candidate list is empty")
 
 			###############################################
-			### TODO
-			### - implement add cradles
-			###		- find feasible cradle function, in layout
-			### - look into merging this function with sequential version
+			### Evaluate all Candidates
 			###############################################
 
 			worker_list = [False] * (size - 1)
@@ -881,23 +940,37 @@ def optimize_layout_random_greedy_mpi():
 			i = 0
 			while None in results:
 				if False in worker_list and end < 1:
+					#print 'HERE2'
 					if i < len(candidate_random_trials):
+						#print 'worker list =',worker_list
 						worker = worker_list.index(False)
+						#print 'worker index is ',worker
 						worker_list[worker] = True
+						#print 'presend worker list =',worker_list
 						data_to_worker = [layout, candidate_random_trials[i], i, worker, end]
-						# data_to_worker[layout, candidate, index in results list, index in worker list, worker stop variable]
-						# print 'SENT layout is ', layout
 						comm.send(data_to_worker, dest=worker + 1)
+						#print 'sent'
 						i += 1
 					else:
-						end = 1  # when no more candidates and workers arent working, and alive
+						#print 'HERE3'
+						end = 1  # when no more candidates and workers arent working, but alive
 				else:
+					#print 'results is ', results
 					data_from_worker = comm.recv(source=MPI.ANY_SOURCE)
-					# data_from_worker[[[power_distribution, temperature]], index in results list, index in worker list]
+					#if data_from_worker[0][1] is None:
+						#print 'Hotspot returned None, CONTINUING'
+						#continue
 					results[data_from_worker[1]] = data_from_worker[0]
 					worker_list[data_from_worker[2]] = False
+					#print 'rec'
 
+			#print 'out results is ',results
 			# print "RESULTS = ", results
+			"""
+			if None in results:
+				send_stop_signals(worker_list, comm)
+				utils.abort("Results contained None value")
+			"""
 
 			# picked_candidate = pick_candidates(layout, results,candidate_random_trials)
 			picked_candidate, picked_index = pick_candidates(results, candidate_random_trials)
@@ -914,41 +987,52 @@ def optimize_layout_random_greedy_mpi():
 				except:
 					send_stop_signals(worker_list, comm)
 					utils.abort("Final add doesnt work")
+			#print 'picked, next set of chips\n layout numchips = ',layout.get_num_chips()
+
+		#print 'Found all chips'
 
 		# Do the final evaluation (which was already be done, but whatever)
 		# result = find_maximum_power_budget(layout)
 		# saved_result = results[picked_index]
 		# print '\n\result is ',result,'\nsaved_result is ',saved_result
 
+		if results:
+			result = results[picked_index]
+			if (result == None):
+				return_val = None
+			else:
+				[power_distribution, temperature] = result[-1]
+				return_val =  [layout, power_distribution, temperature]
+		"""		
 		if not results:
 			send_stop_signals(worker_list, comm)
+			print "HERE STOPPING"
 			return None
 		result = results[picked_index]
 		if (result == None):
 			send_stop_signals(worker_list, comm)
+			print "HERE STOPPING"
 			return None
-
-		[power_distribution, temperature] = result[-1]
-		# print 'Random greedy layout optimization returning ',[layout, power_distribution, temperature]
-
-		# send stop signal to all worker ranks
+		"""	# send stop signal to all worker ranks
 		send_stop_signals(worker_list, comm)
 		# for k in range(0, len(worker_list)):
 		#	stop_worker = [0, 0, 0, 0, 1]
 		# comm.send(stop_worker,dest = k+1)
 		#comm.Disconnect()
 
-		return [layout, power_distribution, temperature]
+		return return_val
 
 	else:
-		while True:
+		ask_for_work = True
+		while ask_for_work is True:
 			data_from_master = comm.recv(source=0)
 			# data_from_master[layout, candidate,index of restult, index of worker,stop worker variable]
 			if data_from_master[4] > 0:
 				#print '\n\n!!!!!!worker rank ', rank,' exiting layout is ', data_from_master[0]
-
-				#comm.Disconnect()
+				#print 'exiting worker'
 				sys.exit(0)
+				ask_for_work = False
+				#comm.Disconnect()
 			# print '>>>>>>>>EXIT val is',data_from_master[4], ' for rank ', rank
 			# layout = data_from_master[0]
 			# candidate = data_from_master[1]
@@ -961,6 +1045,8 @@ def optimize_layout_random_greedy_mpi():
 			data_to_master = [powerdisNtemp, data_from_master[2], data_from_master[3]]
 			# data_to_master[[power_distribution, temperature], candidate,index of restult, index of worker,stop worker variable]
 			comm.send(data_to_master, dest=0)
+		utils.info(2, "Worker Terminated, Exiting")
+		sys.exit(0)
 
 
 """Checkboard layout optimization"""
