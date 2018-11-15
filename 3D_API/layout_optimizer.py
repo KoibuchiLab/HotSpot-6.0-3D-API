@@ -824,7 +824,6 @@ def send_stop_signals(worker_list, comm):
 	for k in range(0, len(worker_list)):
 		stop_worker = [0, 0, 0, 0, 1]
 		utils.info(2, "Sending stop signal to worker rank " + str(k))
-		print 'stopping'
 		comm.send(stop_worker, dest=k + 1)
 		#print 'stopping worker rank ',k+1
 

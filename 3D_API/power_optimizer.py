@@ -365,7 +365,6 @@ def find_maximum_power_budget_discrete_uniform(layout):
 
 	#print "PICKED index ", guess_index
 	best_power_level = power_levels[guess_index]
-
 	#		for level in power_levels:
 	#temperature = Layout.compute_layout_temperature(layout, [level] * layout.get_num_chips())
 	#utils.info(2, "With power level " + str(level) + " for all chips: temperature = " + str(temperature));

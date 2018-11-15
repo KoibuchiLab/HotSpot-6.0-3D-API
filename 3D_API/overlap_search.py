@@ -69,27 +69,30 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 7
+	workers = 17
 	numchips = [13,5]
-	#candidates = workers*2
+	candidates = workers*2
 	candidate_trials = 1000
-	overlaps = [.2,.1]
+	overlaps = [.25, .20, .15, .10, .05]
+	start_overlap = overlaps[-1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add_by = [ '1','cradle']
-	pickby = ['power']
+	add = 'cradle'
+	pickby = 'network'
 	#can_range = [-2,-1,0,1,2]
 	can_range = [0]
+	chip_type = ['base3','base2']
+	max_temp = 80
 
-	export_path = " -e LL/results_LLfigures/"
-	file_name = "build_5_13_chip"
+	export_path = " -e LL/results_LLres/"
+	file_name = "find_overlap"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
 	#start = end = -1
 	try:
 		f = open(raw_result_file, "w+")
-		header = "trial\tchips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\n"
+		header = "trial\tchips_added_at_a_time\texecution_time\tedges\tlevels\tdiameter\tASPL\tpower\tfrequency\ttempurature\tpicked_by\toverlap\tnumchips\tcandidates\ttype\n"
 		f.write(header)
 		f.close()
 
@@ -103,130 +106,68 @@ def main():
 		h.write(header_h)
 		h.close()
 
-		for pick in pickby:
-			for overlap in overlaps:
-				for num in numchips:
-					for add in add_by:
-						#if num == add:
-							#continue
-						trial_results = []
-						trial_ex_time = []
-						candidates = workers*2
-						if num == 5:
-							candidates = candidates*2
-						#candiates must be > 4 for candidate range -2 to +2
-						if num == 6 and overlap == .1:
-							if '3' in add:
-								continue
-								candidates = 38
-								#candidates = 23
-							elif '2' in add:
-								continue
-								candidates = 19
-								#candidates = 17
-							elif '1' in add:
-								continue
-								candidates = 12
-							elif 'cradle' in add:
-								candidates = 47 
-								#candidates = 25
-						elif num == 6 and overlap ==.2:
-							if '3' in add:
-								continue
-								candidates = 32
-							elif '2' in add:
-								continue
-								candidates = 15
-							elif '1' in add:
-								continue
-								candidates = 11
-							elif 'cradle' in add:
-								#candidates = 20
-								candidates = 47
-	
-						if num == 9 and overlap == .1:
-							if '3' in add:
-								candidates = 43
-								#candidates = 23
-							elif '2' in add:
-								#candidates = 22
-								candidates = 28
-							elif '1' in add:
-								candidates = 17
-							elif 'cradle' in add:
-								candidates = 63
-								#candidates = 25
-						elif num == 9 and overlap ==.2:
-							if '3' in add:
-								candidates = 24
-							elif '2' in add:
-								continue
-								candidates = 14
-							elif '1' in add:
-								continue
-								candidates = 9
-							elif 'cradle' in add:
-								#candidates = 20
-								candidates = 34
-						#candidates = 14
-						original_can = candidates
-						avg_ex_time = -1
-						for can in can_range:
-							if num  == 6 and avg_ex_time > 300:  #TODO: time in sec, dont hard code this
-								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
-								continue
-							if num == 9 and avg_ex_time > 1200:  #TODO: time in sec, dont hard code this
-								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
-								continue
-							for trial in range(1,11):
-								print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
-								#candidates = 14
-								candidates = original_can + can
-								print '=== candidate plus range=',can,' is ',candidates,' ==='
-								#add trials in after we run successfully
-								command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+		overlap_good = False
+		for trial in xrange(1,11):
+			for type in chip_type:
+				for num in xrange(15,3,-1):
 
-								#print command
-								#sys.stderr.write("Error: test command\n")
-								#sys.exit(1)
-								print 'started at ',datetime.datetime.now()
-								start = time.time()
-								#devnull = open('/dev/null', 'w')
-								proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE) #TODO: set a time limit and kill if over
-								proc.wait()
-								end = time.time()
-								#out = proc.stdout.read()
-								#print 'returned from subprocess'
-								out, err = proc.communicate()
-								#print 'parsing'
-								ex_time = float(end-start)
+					guess_temperature = None
+					lower_bound = 0 #TODO:top level find max power budget checks max and min, set lower boutnd =1? and upper boutnd len(power_levels)-1-1
+					upper_bound = len(overlaps)-1 ###TODO: check that - 2 works, changed from - 1
+					guess_index = -1
+					save_out_vals = [None]
 
-								h = open(raw_output_file, "a+")
-								h.write("\ntrial "+str(trial)+"\t add by "+str(add)+"\t ex time "+str(ex_time)+"\tpicked by "+str(pick)+"\toverlap "+str(overlap)+"\n"+out+"\n")
-								h.close()
-								out_str, out_val = parse_output(out,proc.returncode)
+					### check if min overlap is feasible
+					command = "mpirun -np "+str(workers+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip "+type+" --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt max --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(start_overlap)+" --max_allowed_temperature "+str(max_temp)+" --verbose 0 -P "+str(pickby)+" --mpi "#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+					print command
+					proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE) #TODO: set a time limit and kill if over
+					proc.wait()
+					out, err = proc.communicate()
+					out_str, out_val = parse_output(out,proc.returncode)
+					save_out_vals = out_val
 
-								if out_val[2] > 0:
-									trial_results.append(out_val)
-									trial_ex_time.append(ex_time)
-								raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
-								f = open(raw_result_file, "a+")
-								f.write(raw_result)
-								f.close()
-								print '  Trial ',trial, ' execution time is ',ex_time
-							avg_string = get_avg_string(trial_results,trial_ex_time)
-							avg_result = str(add)+"\t"+avg_string+"\t"+str(pick)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
-							g = open(avg_result_file, "a+")
-							g.write(avg_result)
-							g.close()
-							split_avg_string = re.split(r'\t',avg_string)
-							avg_ex_time = float(split_avg_string[0])
-							print '\n>>>>>>> avg ex time is ',avg_ex_time,' <<<<<<<<<<<<\n'
-#						footer = "base3\nlayout_size = "+str(num)+"\ncandidates "+str(candidates)+"\n\n"
-#						g = open(avg_result_file, "a+")
-#						g.write(footer)
-#						g.close()
-						print 'Done numchps ',num,' and add ', add
+					if out_val[-1] == 0:
+						### if min overlap not feasible, cont
+						print "Lowest overlap not feasible for numchips = ",num
+						continue
+					else:
+						### binary search over the remaining possible overlaps, [1:]
+						while (lower_bound != upper_bound):
+						#print "l=", lower_bound, "u=", upper_bound
+							if (guess_index == (upper_bound + lower_bound) / 2):
+								break
+							guess_index = (upper_bound + lower_bound) / 2
+							overlap = overlaps[guess_index]
+							command = "mpirun -np "+str(workers+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip "+ type+" --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt max --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature "+str(max_temp)+" --verbose 0 -P "+str(pickby)+" --mpi "#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+							start = time.time()
+							proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+							proc.wait()
+							out, err = proc.communicate()
+							out_str, out_val = parse_output(out,proc.returncode)
+							end = time.time()
+							ex_time = float(end-start)
+							print 'ex time = ',str(ex_time),' for num = ',str(num),' overlap = ',str(overlap),' chip =',type
+							h = open(raw_output_file, "a+")
+							h.write("\ntrial "+str(trial)+"\t add by "+str(add)+"\t ex time "+str(ex_time)+"\tpicked by "+str(pickby)+"\toverlap "+str(overlap)+"\t chip type"+type+"\n"+out+"\n")
+							h.close()
+							#print 'guess = ',str(guess_index)
+							if (proc.returncode > 0 ) or (out_val[-1] > max_temp):
+								#upper_bound = guess_index
+								lower_bound = guess_index
+								#print 'here'
+							else:
+								save_out_vals = out_val
+								#lower_bound = guess_index
+								upper_bound = guess_index
+
+					#print 'tem is ',str(save_out_vals[-1])
+					#sys.stderr.write("Error: test command\n")
+					#sys.exit(1)
+
+					raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pickby)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
+					f = open(raw_result_file, "a+")
+					f.write(raw_result)
+					f.close()
 
 	except IOError:
 		print "IOError!!!"

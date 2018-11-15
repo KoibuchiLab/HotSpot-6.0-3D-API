@@ -345,7 +345,7 @@ if __name__ == '__main__':
 
 	solution = optimize_layout()
 
-	if (solution == None):
+	if (solution == None) or (solution[-1]>utils.argv.max_allowed_temperature):
 	    print "************* OPTIMIZATION FAILED ***********"
 	    sys.exit(1)
 
