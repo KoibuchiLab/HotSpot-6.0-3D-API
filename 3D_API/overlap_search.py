@@ -36,6 +36,8 @@ def parse_output(out,exit_code):
 		freq = out[out.index("Frequency")+3]
 		temp = out[out.index("Temperature")+2]
 
+	if temp == None:
+		temp = 0
 	return_string = str(edge)+"\t"+str(level)+"\t"+str(diameter)+"\t"+str(aspl)+"\t"+str(power)+"\t"+str(freq)+"\t"+str(temp)
 	return_value = [float(edge),float(level),float(diameter),float(aspl),float(power),float(freq),float(temp)]
 	return [return_string,return_value]
@@ -69,7 +71,7 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 17
+	workers = 7
 	numchips = [13,5]
 	candidates = workers*2
 	candidate_trials = 1000
@@ -139,6 +141,7 @@ def main():
 							guess_index = (upper_bound + lower_bound) / 2
 							overlap = overlaps[guess_index]
 							command = "mpirun -np "+str(workers+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip "+ type+" --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels 7 --powerdistopt max --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature "+str(max_temp)+" --verbose 0 -P "+str(pickby)+" --mpi "#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+							print command
 							start = time.time()
 							proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
 							proc.wait()
@@ -164,7 +167,7 @@ def main():
 					#sys.stderr.write("Error: test command\n")
 					#sys.exit(1)
 
-					raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pickby)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\n"
+					raw_result = str(trial)+"\t"+str(add)+"\t"+str(ex_time)+"\t"+out_str+"\t"+str(pickby)+"\t"+str(overlap)+"\t"+str(num)+"\t"+str(candidates)+"\t"+type+"\n"
 					f = open(raw_result_file, "a+")
 					f.write(raw_result)
 					f.close()
