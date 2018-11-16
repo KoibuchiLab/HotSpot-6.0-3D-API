@@ -905,7 +905,7 @@ def optimize_layout_random_greedy_mpi():
 		lower_bound = 0
 		upper_bound = len(overlap_options)-1
 		guess_index = -1
-		utils.argv.overlap = .25
+		#utils.argv.overlap = .25
 
 		while (layout.get_num_chips() != utils.argv.num_chips) and attempt<max_num_neighbor_candidate_attempts:
 			attempt += 1

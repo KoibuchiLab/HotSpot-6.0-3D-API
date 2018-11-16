@@ -1,1 +1,3 @@
 trial	chips_added_at_a_time	execution_time	edges	levels	diameter	ASPL	power	frequency	tempurature	picked_by	overlap	numchips	candidates	type
+1	cradle	353.197708845	15	3	10	4.01904761905	56.7207	3600.0	59.44	network	0.25	15	34	base3
+1	cradle	598.723649025	14	5	6	2.94505494505	56.7207	3600.0	56.21	network	0.25	14	34	base3
