@@ -550,6 +550,8 @@ class Layout(object):
 			plot_cuboid(ax, xyz, self.__chip.x_dimension, self.__chip.y_dimension, chip_height, color)
 
 		# Layout.compute_two_rectangle_overlap_area()
+		"""
+		#Uncomment this section to see inductors
 		for position in self.__inductor_properties:
 			xyz = [position[1], position[2], position[0] * level_height + .01]
 			# print 'inductor level is ', position[0],' xyz = ', xyz
@@ -567,38 +569,38 @@ class Layout(object):
 			plot_cuboid(ax, xyz, position[3], position[4], level_height - chip_height, color)
 		"""
 
-		"""
 		ax.set_aspect(1)
 		ax.set_zlim(0, (max_level * 2) * level_height)
+		#ax.azim = 45
 		ax.azim = 45
-		#ax.elev = 90
-		ax.elev = 18
+		ax.elev = 35
+		#ax.elev = 18
 		#ax.view_init(-45,18)
 
-		file = '6chip_2_overlap'
-		#ax.set_axis_off() #turns axis off
+		file = '8chip_base3_25overlap2'
+		ax.set_axis_off() #turns axis off
 		ax.set_xlabel('$X$',fontsize=20)
 		ax.set_ylabel('$Y$',fontsize=20)
 		ax.set_zlabel('$Z$',fontsize=20)
-		ax.text2D(0.05, 0.05, file, transform=ax.transAxes, fontsize=28)
+		#ax.text2D(0.05, 0.05, file, transform=ax.transAxes, fontsize=28)
 
 		"""
 		j = 0
-		for i in range(-179,180,1):
+		for i in range(-179,180,10):
 				#ax.azim = 0+j
 				#ax.elev = 0+i
 				j+=1
-				ax.view_init(i,(i))
+				ax.view_init(90+i,(i))
 				#filename = "~/Desktop/animate/"+file+"/"+file+"_trial_"+str(j)
-				filename = "../../../Desktop/animate/"+file+"/"+file+"_trial_"+str(j)
+				filename = "../../../Desktop/animate/"+file+"/"+file+"_view_angle_"+str(j)
 				fig.savefig(filename, bbox_inches='tight')
 
-		"""
 		figure_filename = None
 
 
 		if (figure_filename):
 			fig.savefig(figure_filename, bbox_inches='tight')
+		"""
 
 		if show_plot:
 			plot.show()
@@ -741,12 +743,15 @@ class Layout(object):
 		if utils.argv.test:
 			# command_line = "./fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 			#return random.randint(49,52)
+			return 49.5
+			"""
 			if utils.argv.overlap == .05:
 				return 50
 			elif utils.argv.overlap == .1:
 				return 60
 			else:
 				return 500
+			"""
 			#command_line = "python fake_hotspot_LL.py " + input_file_name + " " + layout.get_medium() + " --no_images"
 		# print "calling FAKE hotspot"
 		else:
