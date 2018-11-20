@@ -117,6 +117,22 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
+<<<<<<< HEAD:3D_API/find_cand_multi_chip_add_experiement.py
+	workers = 7
+	numchips = [21]
+	#candidates = workers*2
+	candidate_trials = 100000
+	overlaps = [.2,.1]
+	#overlaps = [.1, .2]
+	add_by = ['1','cradle','2','3']
+	#add_by = [ '3', '2', '1','cradle']
+	pickby = ['power']
+	#can_range = [-2,-1,0,1,2]
+	can_range = [0]
+
+	export_path = " -e LL/results_LLfigures/"
+	file_name = "21chip_heu"
+=======
 	workers = 17
 	numchips = [13]
 	#candidates = workers*2
@@ -131,6 +147,7 @@ def main():
 
 	export_path = " -e LL/results_LLfigures/"
 	file_name = "calc3_beat_checker2"
+>>>>>>> 94a20e234fb7691a4eb69865aa798507b3a0c01c:3D_API/beat_checker_exp.py
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
@@ -173,6 +190,10 @@ def main():
 								print '!!!avg_exe time too long, skipping candidate num = ', can,' for numchips = ',num
 								continue
 							"""
+<<<<<<< HEAD:3D_API/find_cand_multi_chip_add_experiement.py
+							for trial in range(1,11):
+								print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
+=======
 
 							"""
 							create checker class
@@ -187,13 +208,18 @@ def main():
 
 							#for trial in range(1,11):
 								#print '+++ candidate=',original_can,' num chip=',num,' overlap=',overlap,' add by=',add,' +++'
+>>>>>>> 94a20e234fb7691a4eb69865aa798507b3a0c01c:3D_API/beat_checker_exp.py
 								#candidates = 14
 								candidates = original_can + can
 								#print '=== candidate plus range=',can,' is ',candidates,' ==='
 								#add trials in after we run successfully
+<<<<<<< HEAD:3D_API/find_cand_multi_chip_add_experiement.py
+								command = "mpirun -np "+str(7+1)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(num)+" --layout_scheme random_greedy:"+str(candidates)+":50000:"+str(add)+"  --numlevels 7 --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
+=======
 								command = "mpirun -np "+str(workers)+" ./optimize_layout.py --numchips "+str(num)+" --medium air --chip base3 --diameter "+str(check.get_diameter())+" --layout_scheme random_greedy:"+str(candidates)+":5000:"+str(add)+"  --numlevels "+str(num)+" --powerdistopt uniform_discrete --powerdistopt_num_iterations 1 --powerdistopt_num_trials 1  --overlap "+str(overlap)+" --max_allowed_temperature 50  --verbose 0 -P "+str(pick)+" --mpi"#+export_path+str(num)+"_chip_add_by_"+str(add)+"_trial_"+str(trial)+".pdf"
 
 								#win = True #for debugging only
+>>>>>>> 94a20e234fb7691a4eb69865aa798507b3a0c01c:3D_API/beat_checker_exp.py
 
 								#print command
 								#sys.stderr.write("Error: test command\n")

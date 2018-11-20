@@ -35,6 +35,7 @@ def parse_output(out,exit_code):
 		power = out[out.index("distribution")+2]
 		freq = out[out.index("Frequency")+3]
 		temp = out[out.index("Temperature")+2]
+
 	if temp == None:
 		temp = 0
 	return_string = str(edge)+"\t"+str(level)+"\t"+str(diameter)+"\t"+str(aspl)+"\t"+str(power)+"\t"+str(freq)+"\t"+str(temp)
@@ -70,7 +71,7 @@ def get_avg_string(trial_results, trial_ex_time):
 	return return_string
 
 def main():
-	workers = 17
+	workers = 7
 	numchips = [13,5]
 	candidates = workers*2
 	candidate_trials = 1000
@@ -78,7 +79,7 @@ def main():
 	start_overlap = overlaps[-1]
 	#overlaps = [.1, .2]
 	#add_by = ['1','3','cradle']
-	add = '1'
+	add = 'cradle'
 	pickby = 'network'
 	#can_range = [-2,-1,0,1,2]
 	can_range = [0]
@@ -86,7 +87,7 @@ def main():
 	max_temp = 80
 
 	export_path = " -e LL/results_LLres/"
-	file_name = "calc4_find_overlap"
+	file_name = "dirt_find_overlap"
 	raw_result_file = "LL/results_LL/"+file_name+"_raw.txt"
 	avg_result_file = "LL/results_LL/"+file_name+"_avg.txt"
 	raw_output_file = "LL/results_LL/"+file_name+"_output.txt"
