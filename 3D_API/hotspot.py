@@ -187,15 +187,15 @@ try:
 				layer_grid_steady.close()
 			tmp_grid_steady.close()
 		if (not no_images):
-			subprocess.call("../orignal_thermal_map.pl test"+ str(i+1)+".flp layer" +str(i+1) + ".grid.steady > figure/layer" + str(i+1) + ".svg", shell=True)
-			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".pdf", shell=True)
-			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ ".svg figure/layer" +str(i+1) +".png", shell=True)
+			subprocess.call("../orignal_thermal_map.pl test"+ str(i+1)+"_"+str(pid)+".flp layer" +str(i+1) + "_"+str(pid)+".grid.steady > figure/layer" + str(i+1) +"_"+ str(pid)+ ".svg", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ "_"+ str(pid)+".svg figure/layer" +str(i+1)+"_"+str(pid) +".pdf", shell=True)
+			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ "_"+ str(pid)+".svg figure/layer" +str(i+1)+"_"+str(pid) +".png", shell=True)
 
 	results_file.close()
 	if(detailed):
 		subprocess.call("sort -n -k11 -u detailed.tmp -o detailed.tmp", shell=True)
 		for i in xrange(0, len(layer)):
-			subprocess.call("python detailed.py detailed.tmp "+ str(i+1), shell=True)
+			subprocess.call("python detailed.py detailed.tmp "+ str(i+1) +" "+ str(pid), shell=True)
 
 	temp = open("tmp_"+str(pid)+".results").readline()
 	if (float(min(results_list)))<0:

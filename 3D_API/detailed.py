@@ -14,12 +14,13 @@ chip_lines = f.readlines()
 f.close
 
 rank = sys.argv[2]
+pid = sys.argv[3]
 
 line2 = chip_lines[int(rank)-1]
 data2 = line2[:-1].split(' ')
 layer_num = int(data2[1])
 
-f = open("layer"+str(layer_num)+".grid.steady")
+f = open("layer"+str(layer_num)+"_"+str(pid)+".grid.steady")
 temp_lines = f.readlines()
 f.close
 
