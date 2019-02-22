@@ -1,0 +1,13 @@
+eval1.py
+->
+first, specify the number of rows by editting the file "eval1.data"
+second, edit material, flp, freq in the file "eval1.py"
+final, excute "python eval1.py"
+after that, we can get result by excuting "python cat.py"
+
+eval2.py
+->
+first, edit "data[][]" matrix in the file "eval2.py"
+second, excute "python eval2.py"
+final, you can find results in the directory "local"
+
