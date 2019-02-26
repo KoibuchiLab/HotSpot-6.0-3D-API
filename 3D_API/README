@@ -1,7 +1,9 @@
 //
-// Totoki (totoki@am.ics.keio.ac.jp) 2017.8.22 (tiny update by koibuchi@nii.ac.jp)
+// Totoki (totoki@am.ics.keio.ac.jp) 2019.2.25 (tiny update by koibuchi@nii.ac.jp)
 // Augmented/Restructured by Henri (henric@hawaii.edu)
 //
+// The contents of section 1~3 are written by Totoki (This detailed descriptions can be read in IEICE journal in XXX)
+// The contents of section 4 are written by Henri
 
 ***************************************************
 ** Compiling/Running hotspot                     **
@@ -57,6 +59,10 @@ Each floorplan of processor chips is stored at ./FLOORPLAN/{e5-2667v4.flp,phi725
 
 3. Running 
 ----------
+Execution environment:
+gcc -> G++ 4,5,6
+python -> python-2.6, python2-7(python-3.X is NOT supported)
+----------
 
 Usage: python hotspot.py  <input file (.data)> [water | air | oil ]
 
@@ -64,7 +70,7 @@ For instance, running
 
 python ./hotspot.py test.data water --no_images
 
-should print out something like: "maximum temp: 36.51"
+should print out something like: "36.51"
 
 Result files:
 	./tmp.results -> a highest temperature of modules on each chip
@@ -77,6 +83,9 @@ If you would like to get max temperature on each chips, you can use --detaild op
 $ python ./hotspot.py test.data water --detailed 
 
 
+
+
+4. Optimization
 ***************************************************
 ** Running optimize_layout.py                   **
 ***************************************************
