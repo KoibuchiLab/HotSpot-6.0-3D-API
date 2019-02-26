@@ -305,27 +305,27 @@ class floorplan(object):
 
 	def write_rotate_90(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
-		string_to_write
+		string_to_write = ""
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(chip_x, '.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_y,'.8f'))+"\n" )
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_y,'.8f'))+"\n" )
 		return string_to_write
 
 	def write_rotate_180(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
-		array_to_write = []
+		string_to_write = ""
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(chip_xlen,'.8f'))+" "+str(format(chip_xlen-float(lines[3])+float(lines[1])+chip_x,'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_y,'.8f'))+'\n' )
-		return array_to_write
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_x,'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_y,'.8f'))+'\n' )
+		return string_to_write
 
 	def write_rotate_270(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
 	#String chip_name, int chip_layer, int count, float chip_x, float chip_y, float chip_xlen, float chip_ylen
-		array_to_write = []
+		string_to_write = ""
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			array_to_write.append(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_x,'.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
-		return array_to_write
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_x,'.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
+		return string_to_write
