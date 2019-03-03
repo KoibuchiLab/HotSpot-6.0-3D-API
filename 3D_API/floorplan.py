@@ -309,7 +309,11 @@ class floorplan(object):
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_y,'.8f'))+"\n" )
+			y = chip_xlen-float(lines[3])-float(lines[1])+chip_y
+			if y < 0.0 and y > -0.000001:
+				y = 0.0
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(y, '.8f'))+"\n" )
+#			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[4])+chip_x,'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_y,'.8f'))+"\n" )
 		return string_to_write
 
 	def write_rotate_180(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
@@ -318,7 +322,14 @@ class floorplan(object):
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_x,'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_y,'.8f'))+'\n' )
+			x = chip_xlen-float(lines[3])-float(lines[1])+chip_x
+			if x < 0.0 and x > -0.000001:
+				x = 0.0
+			y = chip_ylen-float(lines[4])-float(lines[2])+chip_y
+			if y < 0.0 and y > -0.000001:
+				y = 0.0
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(x ,'.8f'))+" "+str(format(y ,'.8f'))+'\n' )
+#			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(chip_xlen-float(lines[3])-float(lines[1])+chip_x,'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_y,'.8f'))+'\n' )
 		return string_to_write
 
 	def write_rotate_270(self, chip_name, chip_layer, count, chip_x, chip_y, chip_xlen, chip_ylen):
@@ -327,5 +338,9 @@ class floorplan(object):
 		floorplan = self.get_floorplan(chip_name)
 		for lines in floorplan:
 			lines = lines.split()
-			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_x,'.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
+			x = chip_ylen-float(lines[4])-float(lines[2])+chip_x
+			if x < 0.0 and x > -0.000001:
+				x = 0.0
+			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(x, '.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
+#			string_to_write+=(str(chip_layer)+'_'+str(count)+lines[0]+" "+str(format(float(lines[2]),'.8f'))+" "+str(format(float(lines[1]),'.8f'))+" "+str(format(chip_ylen-float(lines[4])-float(lines[2])+chip_x,'.8f'))+" "+str(format(float(lines[3])+chip_y,'.8f'))+'\n' )
 		return string_to_write
