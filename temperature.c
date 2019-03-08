@@ -64,6 +64,7 @@ thermal_config_t default_thermal_config(void)
 	config.t_solder = 0.00094;
 	config.s_pcb = 0.1;
 	config.t_pcb = 0.002;
+	config.k_pcb = 0.35; //toto added
 
 	/* others	*/
 	config.ambient = 45 + 273.15;		/* in kelvin	*/
@@ -261,6 +262,9 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
 	if ((idx = get_str_index(table, size, "grid_map_mode")) >= 0)
 		if(sscanf(table[idx].value, "%s", config->grid_map_mode) != 1)
 			fatal("invalid format for configuration  parameter grid_map_mode\n");
+	if ((idx = get_str_index(table, size, "k_pcb")) >= 0)
+		if(sscanf(table[idx].value, "%lf", &config->k_pcb) != 1)
+			fatal("invalid format for configuration  parameter k_pcb\n");   // toto added
 
 	if ((config->t_chip <= 0) || (config->s_sink <= 0) || (config->t_sink <= 0) ||
 		(config->s_spreader <= 0) || (config->t_spreader <= 0) ||
@@ -300,7 +304,7 @@ void thermal_config_add_from_strs(thermal_config_t *config, str_pair *table, int
  */
 int thermal_config_to_strs(thermal_config_t *config, str_pair *table, int max_entries)
 {
-	if (max_entries < 49)
+	if (max_entries < 50) //toto changed 49 -> 50
 		fatal("not enough entries in table\n");
 
 	sprintf(table[0].name, "t_chip");
@@ -352,6 +356,7 @@ int thermal_config_to_strs(thermal_config_t *config, str_pair *table, int max_en
 	sprintf(table[46].name, "grid_layer_file");
 	sprintf(table[47].name, "grid_steady_file");
 	sprintf(table[48].name, "grid_map_mode");
+	sprintf(table[49].name, "k_pcb");
 
 	sprintf(table[0].value, "%lg", config->t_chip);
 	sprintf(table[1].value, "%lg", config->k_chip);
@@ -402,8 +407,9 @@ int thermal_config_to_strs(thermal_config_t *config, str_pair *table, int max_en
 	sprintf(table[46].value, "%s", config->grid_layer_file);
 	sprintf(table[47].value, "%s", config->grid_steady_file);
 	sprintf(table[48].value, "%s", config->grid_map_mode);
+	sprintf(table[49].value, "%lg", config->k_pcb);
 
-	return 49;
+	return 50;  //toto changed 49 -> 50
 }
 
 /* package parameter routines	*/
@@ -421,6 +427,7 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	double t_solder = config->t_solder;
 	double s_pcb = config->s_pcb;
 	double t_pcb = config->t_pcb;
+	double k_pcb = config->k_pcb; //toto changed K_PCB -> k_pcb
 	double r_convec_sec = config->r_convec_sec;
 
 	double k_sink = config->k_sink;
@@ -453,20 +460,20 @@ void populate_package_R(package_RC_t *p, thermal_config_t *config, double width,
 	p->r_sub1_y = getr(K_SUB, (s_sub-height)/4.0, (s_sub+3*width)/4.0 * t_sub);
 	p->r_solder1_x = getr(K_SOLDER, (s_solder-width)/4.0, (s_solder+3*height)/4.0 * t_solder);
 	p->r_solder1_y = getr(K_SOLDER, (s_solder-height)/4.0, (s_solder+3*width)/4.0 * t_solder);
-	p->r_pcb1_x = getr(K_PCB, (s_solder-width)/4.0, (s_solder+3*height)/4.0 * t_pcb);
-	p->r_pcb1_y = getr(K_PCB, (s_solder-height)/4.0, (s_solder+3*width)/4.0 * t_pcb);
-	p->r_pcb2_x = getr(K_PCB, (s_solder-width)/4.0, (3*s_solder+height)/4.0 * t_pcb);
-	p->r_pcb2_y = getr(K_PCB, (s_solder-height)/4.0, (3*s_solder+width)/4.0 * t_pcb);
-	p->r_pcb = getr(K_PCB, (s_pcb-s_solder)/4.0, (s_pcb+3*s_solder)/4.0 * t_pcb);
+	p->r_pcb1_x = getr(k_pcb, (s_solder-width)/4.0, (s_solder+3*height)/4.0 * t_pcb);
+	p->r_pcb1_y = getr(k_pcb, (s_solder-height)/4.0, (s_solder+3*width)/4.0 * t_pcb);
+	p->r_pcb2_x = getr(k_pcb, (s_solder-width)/4.0, (3*s_solder+height)/4.0 * t_pcb);
+	p->r_pcb2_y = getr(k_pcb, (s_solder-height)/4.0, (3*s_solder+width)/4.0 * t_pcb);
+	p->r_pcb = getr(k_pcb, (s_pcb-s_solder)/4.0, (s_pcb+3*s_solder)/4.0 * t_pcb);
 
 	/* vertical R's of package substrate, solder balls and PCB */
 	p->r_sub_per_x = getr(K_SUB, t_sub, (s_sub+height) * (s_sub-width) / 4.0);
 	p->r_sub_per_y = getr(K_SUB, t_sub, (s_sub+width) * (s_sub-height) / 4.0);
 	p->r_solder_per_x = getr(K_SOLDER, t_solder, (s_solder+height) * (s_solder-width) / 4.0);
 	p->r_solder_per_y = getr(K_SOLDER, t_solder, (s_solder+width) * (s_solder-height) / 4.0);
-	p->r_pcb_c_per_x = getr(K_PCB, t_pcb, (s_solder+height) * (s_solder-width) / 4.0);
-	p->r_pcb_c_per_y = getr(K_PCB, t_pcb, (s_solder+width) * (s_solder-height) / 4.0);
-	p->r_pcb_per = getr(K_PCB, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
+	p->r_pcb_c_per_x = getr(k_pcb, t_pcb, (s_solder+height) * (s_solder-width) / 4.0);
+	p->r_pcb_c_per_y = getr(k_pcb, t_pcb, (s_solder+width) * (s_solder-height) / 4.0);
+	p->r_pcb_per = getr(k_pcb, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
 
 	/* vertical R's to ambient at PCB (divide r_convec_sec proportional to area) */
 	p->r_amb_sec_c_per_x = r_convec_sec * (s_pcb * s_pcb) / ((s_solder+height) * (s_solder-width) / 4.0);

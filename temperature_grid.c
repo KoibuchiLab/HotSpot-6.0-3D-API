@@ -488,7 +488,7 @@ void append_package_layers(grid_model_t *model)
       model->layers[pcbidx].no = pcbidx;
       model->layers[pcbidx].has_lateral = TRUE;
       model->layers[pcbidx].has_power = FALSE;
-      model->layers[pcbidx].k = K_PCB;
+      model->layers[pcbidx].k = model->config.k_pcb; // toto changed K_PCB ->k_pcb
       model->layers[pcbidx].thickness = model->config.t_pcb;
       model->layers[pcbidx].sp = SPEC_HEAT_PCB;
       model->layers[pcbidx].flp = model->layers[silidx].flp;

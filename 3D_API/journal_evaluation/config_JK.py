@@ -24,6 +24,9 @@ base2_y = 0.013
 spreader_x = 0.06
 spreader_y = 0.06
 
+k_pcb = 3.0 #default
+t_pcb = 0.002 #default
+
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)  			
 #AIR_H = 40 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
@@ -42,6 +45,8 @@ counttt = args[3]
 	
 if args[2] == "water":
 	H_TRANS = WATER_H
+	k_pcb = 1.237
+	t_pcb = 0.00215
 elif args[2] == "air":
 	H_TRANS = AIR_H
 elif args[2] == "oil":
@@ -155,6 +160,8 @@ os.system("cat default.config |\
            sed s/__SINK__/"+str(heatsink_size)+"/ |\
            sed s/__THICKNESS__/"+str(heatsink_thickness)+"/ |\
            sed s/__OUTPUT_GRID_SIZE__/"+str(output_grid_size)+"/ |\
+           sed s/__TPCB__/"+str(t_pcb)+"/ |\
+           sed s/__KPCB__/"+str(k_pcb)+"/ |\
            sed s/__CONVEC1__/"+str(convec_first)+"/ |\
            sed s/__CONVEC2__/"+str(convec_second)+"/ > "+str(counttt)+"test.config")
 

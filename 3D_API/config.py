@@ -27,6 +27,9 @@ base2_y = 0.013
 spreader_x = 0.06
 spreader_y = 0.06
 
+k_pcb = 3.0   #default
+t_pcb = 0.002 #default
+
 ## I'm not sure what value is the best estimation
 ## When it is AIR, I use forced convection. But when OIL or WATER, etc., I use natural convection.(velocity would be around 0.0(?) m/s)
 #AIR_H = 40 # W/(m^2 K)  Heat Transffer Coefficient of AIR (velocity is aroud 1.0 m/s)
@@ -42,6 +45,8 @@ def config(sorted_input, material, pid):
 
 	if material == "water":
 		H_TRANS = WATER_H
+		k_pcb = 1.237
+		t_pcb = 0.00215
 	elif material == "air":
 		H_TRANS = AIR_H
 	elif material == "oil":
@@ -141,6 +146,8 @@ def config(sorted_input, material, pid):
 		line = line.replace("__OUTPUT_GRID_SIZE__",str(output_grid_size))
 		line = line.replace("__CONVEC1__",str(convec_first))
 		line = line.replace("__CONVEC2__",str(convec_second))
+		line = line.replace("__KPCB__",str(k_pcb))
+		line = line.replace("__TPCB__",str(t_pcb))
 
 		file.write(line)	#move out of loop
 	file.close()

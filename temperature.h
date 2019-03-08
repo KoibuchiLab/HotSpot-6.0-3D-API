@@ -92,14 +92,14 @@
 #define RHO_UNDERFILL 0.03
 #define	RHO_SUB	0.5
 #define RHO_SOLDER	0.06
-#define RHO_PCB	0.333
+//#define RHO_PCB	0.333 //toto
 #define K_METAL	(1.0/RHO_METAL)	
 #define K_DIELECTRIC (1.0/RHO_DIELECTRIC)
 #define K_C4	(1.0/RHO_C4)
 #define K_UNDERFILL (1.0/RHO_UNDERFILL)
 #define K_SUB	(1.0/RHO_SUB)	
 #define K_SOLDER	(1.0/RHO_SOLDER)	
-#define K_PCB	(1.0/RHO_PCB)
+//#define K_PCB	(1.0/RHO_PCB)
 //FIXME! the following values need to be found
 #define SPEC_HEAT_METAL	3.55e6	/* specfic heat of silicon in J/(m^3K)	*/
 #define SPEC_HEAT_DIELECTRIC	2.2e6  
@@ -178,6 +178,7 @@ typedef struct thermal_config_t_st
 	double t_solder;
 	double s_pcb;
 	double t_pcb;
+	double k_pcb; //toto added
 
 	/* others	*/
 	double ambient;			/* ambient temperature in kelvin	*/
