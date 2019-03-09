@@ -1,3 +1,10 @@
+# edited by totoki
+# last edit date: 2019/03/09
+#
+# HotSpot need information of heatsink, heatspreader, pcb, outside temparature and so on.
+# config.py create XXX.config by reffering what material used.
+# when you add a new chip, you have to add some codes like tulsa_x, tulsa_y.
+
 #!/usr/bin/python
 
 import os
@@ -148,7 +155,6 @@ def config(sorted_input, material, pid):
 		line = line.replace("__CONVEC2__",str(convec_second))
 		line = line.replace("__KPCB__",str(k_pcb))
 		line = line.replace("__TPCB__",str(t_pcb))
-
 		file.write(line)	#move out of loop
 	file.close()
 

@@ -1,3 +1,9 @@
+# editted by totoki
+# last edit date: 2019/03/09
+#
+# HotSpot need lcf file including length between chips, thickness of chips and so on.
+# lcf.py create XXX.lcf.
+
 #!/usr/bin/python
 import os
 import sys

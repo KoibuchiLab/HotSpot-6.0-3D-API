@@ -1,3 +1,14 @@
+# edited by totoki and henri
+# last edit date: 2019/03/09
+#
+#
+# When we evaluate 3D_stacked chip by original HotSpot,
+# we need XXX.flp(floor plan information), XXX.ptrace(power trace information),
+# XXX.config(config information such as heatsink, PCB and so on) and XXX.lcf(stacking information such as length between chips and so on).
+# Hotspot.py creates those files, and excute orignal HotSpot.
+# After that, output max temparature of chips.
+#
+
 #!/usr/bin/python
 import os
 import sys
@@ -188,6 +199,7 @@ try:
 			tmp_grid_steady.close()
 		if (not no_images):
 			subprocess.call("../orignal_thermal_map.pl test"+ str(i+1)+"_"+str(pid)+".flp layer" +str(i+1) + "_"+str(pid)+".grid.steady > figure/layer" + str(i+1) +"_"+ str(pid)+ ".svg", shell=True)
+#			subprocess.call("../grid_thermal_map.pl test"+ str(i+1)+"_"+str(pid)+".flp layer" +str(i+1) + "_"+str(pid)+".grid.steady 128 128 > figure/layer" + str(i+1) +"_"+ str(pid)+ ".svg", shell=True)
 			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ "_"+ str(pid)+".svg figure/layer" +str(i+1)+"_"+str(pid) +".pdf", shell=True)
 			subprocess.call("convert -font Helvetica figure/layer" +str(i+1)+ "_"+ str(pid)+".svg figure/layer" +str(i+1)+"_"+str(pid) +".png", shell=True)
 
@@ -216,5 +228,5 @@ except IOError:
 	sys.exit(1)
 
 #clean up
-subprocess.call("rm -f *"+str(pid)+"*", shell=True)
+#subprocess.call("rm -f *"+str(pid)+"*", shell=True)
 

@@ -1,3 +1,11 @@
+// edited by totoki
+// last edit data: 2019/3/9
+//
+// HotSpot need rectangle information of all blocks.
+// cell.c create XXX.flp referring FLOORPLAN/XXX.flp.
+// when you add a new chip, you have to add FOORPLAN/XXX.flp and add some codes like TULSA_X, TULSA_Y.
+//
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>

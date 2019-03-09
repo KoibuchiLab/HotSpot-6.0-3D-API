@@ -1,3 +1,10 @@
+# editted by totoki
+# last edit date: 2019/03/09
+#
+# this detailed.py would be used when --detailed option
+# detailed.py output maximum temperatures for each chip reffering the coordinate information of each chip.
+#
+
 #!/usr/bin/python
 
 import os

@@ -1,3 +1,11 @@
+# edited by totoki
+# last edit date: 2019/03/09
+#
+# HotSpot need power trace file.
+# ptrace.py create XXX.ptrace including power trace data of every chip by reffering PTRACE/XXX.ptrace. 
+# when you add a new chip, you have to add PTRACE/XXX.ptrace.
+# 
+
 #!/usr/bin/python
 import os
 

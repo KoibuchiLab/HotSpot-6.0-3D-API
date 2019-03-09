@@ -1,3 +1,12 @@
+# editted by totoki
+# last edit date: 2019/03/09
+# 
+# HotSpot need floorplan data to excute.
+# floor.py create XXX.flp file that represents the coodinate information of chips.
+# rotation option is supported by this floor.py.
+# when you add a new chip, you have to add FOORPLAN/XXX.flp and add some codes like tulsa_x, tulsa_y.
+#
+
 #!/usr/bin/python
 import os
 import sys
