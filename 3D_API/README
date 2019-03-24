@@ -1,8 +1,8 @@
 //
-// Totoki (totoki@am.ics.keio.ac.jp) 2019.2.25 (tiny update by koibuchi@nii.ac.jp)
+// Totoki (totoki@am.ics.keio.ac.jp) 2019.3.23 (tiny update by koibuchi@nii.ac.jp)
 // Augmented/Restructured by Henri (henric@hawaii.edu)
 //
-// The contents of section 1~3 are written by Totoki (This detailed descriptions can be read in IEICE journal in XXX)
+// The contents of section 1~3 are written by Totoki (Totoki are going to post the IEICE journal.)
 // The contents of section 4 are written by Henri
 
 ***************************************************
@@ -23,7 +23,6 @@ make							# build (the ./cell executable)
 -------------------------------------------------------------------------
 
 A sample input file is provided in ./test.data
-
 File format (each line):
 chipname, Z(vertical)-axis(Layer: 1,2,...), X-axis(m), Y-axis(m) (left/side of chip coordinate), Frequency(MHz), chip rotation(0,90,180,270 degree)
 tulsa 1 0.00 0.00 1380 0  // corresponding to PTRACE/tulsa-1380.ptrace
@@ -32,30 +31,19 @@ e5-2667v4 1 0.001 0.031 cg2400 0
 tulsa 1 0.03 0.03 185 0
 phi7250 1 0.03 0.00 1300 0 //PTRACE/phi7250-1300.ptrace  (stress command)
 
-We can change max layer num(now default 20) by changing MAX_LAYER_NUM in cell.c
+You can change max layer num(now default 20) by changing MAX_LAYER_NUM in cell.c
 The coordinates should be positive number
 
-If you get the error as following, that means chips are overlapped.
-Then you have to take futher distance(X-axis or Y-axis) in test.data.
-	$python hotspot.py test.data water 
-	warning: overlap of functional blocks?
-	layer: (null)
-	i:53 j:7 i1:50 i255 j1:0 j2:9
+If you would like to rotate chips, you can set by changing the 6th column number from 0 to 90, 180 or 270.
+But you have to be careful for chips not to overrap due to rotation.
 
-If you get the error as floowing, something strange happens.
-First, if you use large scale(over 0.2m), some bug might happen beause of deviation of coordinates, so please use small scale system.
-If not, please send me mail(totoki@am.ics.keio.ac.jp) attaching your test.data, I will check the bug.
-	$python hotspot.py test.data water
-	width model: 0.062840 sum: 0.061840
-	height model: 0.091840 sum: 0.061840
-	error: width and height differ across layers
 
 ## tulsa chip is modeled by McPAT-1.3
 ## phi7250, Xeon e5-2667v4 is physically measured/estimated by Intel RAPL
 
-###############################
-
 Each floorplan of processor chips is stored at ./FLOORPLAN/{e5-2667v4.flp,phi7250.flp,tulsa.flp,base1.flp,base2.flp}
+If you would like to add a new chip, read the file "HOW_TO_ADD_NEW_CHIPS". 
+
 
 3. Running 
 ----------
@@ -64,11 +52,11 @@ gcc -> G++ 4,5,6
 python -> python-2.6, python2-7(python-3.X is NOT supported)
 ----------
 
-Usage: python hotspot.py  <input file (.data)> [water | air | oil ]
+Usage: python hotspot.py  <input file (.data)> [water | air | oil  ]
 
 For instance, running
 
-python ./hotspot.py test.data water --no_images
+python ./hotspot.py test.data water
 
 should print out something like: "36.51"
 
@@ -78,12 +66,43 @@ Result files:
 
 - Note that temperature_grid.c is modified from the HotSpot-6.0 distribution
 
-###
-If you would like to get max temperature on each chips, you can use --detaild option like as following
-$ python ./hotspot.py test.data water --detailed 
+Options:
+	(1) --detailed option 
+	If you would like to get max temperature on each chips, you can use --detaild option like as following
+		$ python ./hotspot.py test.data water --detailed 
+	(2) --no_images option
+	If you don't need temperature output, you can use --no_images option like as following
+		$ python ./hotspot.py test.data water --no_images 
 
 
+-------------------------------------------
+We summarized common errors below.
 
+(Case1) You have to be careful not to add extra line feeds in XXX.data
+If you add extra line feeds in XXX.data, you will get errors as following.
+    Traceback (most recent call last):
+      File "hotspot.py", line 127, in <module>
+         input = input_file.input_file(test_file, pid)
+      File "/home/totoki/HotSpot-6.0-3D-API/3D_API/input_file.py", line 28, in __init__
+        self.set_all()
+      File "/home/totoki/HotSpot-6.0-3D-API/3D_API/input_file.py", line 89, in set_all
+        self.__chip_x += [float(data[2])]
+    IndexError: tuple index out of range
+
+(Case2) If you get the error as following, that means chips are overlapped.
+Then you have to take futher distance(X-axis or Y-axis) in test.data.
+    $python hotspot.py test.data water
+    warning: overlap of functional blocks?
+    layer: (null)
+    i:53 j:7 i1:50 i255 j1:0 j2:9
+
+(Case3) If you get the error as floowing, something strange happens.
+First, if you use large scale(over 0.2m), some bug might happen beause of deviation of coordinates, so please use small scale system.
+If not, please send me mail(totoki@am.ics.keio.ac.jp) attaching your test.data, I will check the bug.
+    $python hotspot.py test.data water
+    width model: 0.062840 sum: 0.061840
+    height model: 0.091840 sum: 0.061840
+    error: width and height differ across layers
 
 4. Optimization
 ***************************************************

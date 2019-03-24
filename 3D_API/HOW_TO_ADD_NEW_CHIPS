@@ -1,0 +1,117 @@
+#
+# editted by totoki
+# last edit: 2019/03/23
+#
+###########################
+
+You can use 6 floorplans(tulsa chip, phi7250 chip, e5-2667v4 chip, base1 chip base2 chip, base3 chip) in XXX.data first.
+But you can add new chips in the following way.
+
+(1) add floorplan data in ./FLOORPLAN directory
+(2) add power trace data ./PTRACE directory
+(3) change some codes in floor.py, config.py and cell.c.
+
+
+-------------------------------------------------------------------
+(1) add floorplan data in ./FLOORPLAN directory
+
+you have to make XXX.flp in ./FLOORPLAN.
+
+(example) tulsa.flp
+//block name, x-block-length(meter), y-block-length(meter), x-coordinate(meter), y-coordinate(meter)
+CORE_0 0.00825244 0.00487644 0.000250074 0.00212563
+CORE_1 0.00825244 0.00487644 0.000250074 0.0148794
+L2_0 0.00825244 0.00220899 0.000250074 0.00700207
+L2_1 0.00825244 0.00220899 0.000250074 0.0126704
+L3 0.0107115 0.0176302 0.00954449 0.00212563
+AIR_0 0.0218398 0.00212563 0 0
+AIR_1 0.0218398 0.00208395 0 0.0197558
+AIR_2 0.000250074 0.0176302 0 0.00212563
+AIR_3 0.00104197 0.0176302 0.00850252 0.00212563
+AIR_4 0.0015838 0.0176302 0.020256 0.00212563
+AIR_5 0.00825244 0.00345936 0.000250074 0.00921106
+
+when all blocks are placed, it must be square.
+Each blocks cannot be overraped.
+---------------------------------------------------------------------
+(2) add power trace data .PTRACE directory
+
+You have to make XXX.ptrace in ./PTACE
+You have to estimate power trace of the chips by other aplications.
+Power traces of phi7250 or Xeon e5-2667v4 is physically measured/estimated by Intel RAPL.
+
+There are some ptrace file about tulsa in ./PRACE as following.
+tulsa-1004.ptrace  tulsa-1787.ptrace  tulsa-2191.ptrace  tulsa-2990.ptrace  tulsa-541.ptrace   
+tulsa-1380.ptrace  tulsa-185.ptrace   tulsa-2578.ptrace  tulsa-3400.ptrace  
+
+Power trace file name should to be in this format, [chip name]-[frequency of the power trace].ptrace.
+
+(example)tulsa-1004.ptrace
+ORE_0 CORE_1 L2_0 L2_1 L3 AIR_0 AIR_1 AIR_2 AIR_3 AIR_4 AIR_5
+13.127434 13.127434 1.568066 1.568066 3.8753 0 0 0 0 0 0
+
+The unit of heat is Watt.
+The names of blocks are necessary to correspond one to one from XXX.ptrace to XXX.flp.
+Note that extra line breaks might cause errors.
+
+---------------------------------------------------------------------
+(3) change some codes in floor.py, config.py and cell.c.
+
+
+I summarized parts of codes necessary to add by using tulsa chip as an exsample.
+Sorry for much changes when adding new chips.
+
+(i)floor.py 
+
+***********************
+16 tulsa_x = 0.02184 #chip length (meter)
+17 tulsa_y = 0.02184
+***********************
+51        if 'tulsa' in str(data[0]):
+52            chip_xlen += [float(tulsa_x)]
+53            chip_ylen += [float(tulsa_y)]
+54            chip_name += ['tulsa']
+***********************
+
+(ii)config.py
+
+***********************
+16 tulsa_x = 0.02184 #chip length (meter)
+17 tulsa_y = 0.02184
+***********************
+83        if 'tulsa' in chip_name:
+84            chip_x += [float (tulsa_x)]
+85            chip_y += [float (tulsa_y)]
+***********************
+
+(iii)cell.c
+
+***********************
+22 #define TULSA_X 0.02184   //chip length (meter)
+23 #define TULSA_Y 0.02184
+***********************
+133         if(strstr(chip_name, "tulsa") != NULL){
+134             if(rotate == 0 || rotate == 180){
+135                 chip_xlen = TULSA_X;
+136                 chip_ylen = TULSA_Y;
+137             }else if(rotate == 90 || rotate == 270){
+138                 chip_xlen = TULSA_Y;
+139                 chip_ylen = TULSA_X;
+140             }else{
+141                 fprintf(stderr, "invalid rotation in input file '%s'", fname);
+142                 exit(1);
+143             }
+***********************
+239         if(strstr(chip_name, "tulsa")!= NULL){
+240             if(rotate == 0 || rotate == 180){
+241                 chip_xlen = TULSA_X;
+242                 chip_ylen = TULSA_Y;
+243             }else if(rotate == 90 || rotate == 270){
+244                 chip_xlen = TULSA_Y;
+245                 chip_ylen = TULSA_X;
+246             }else{
+247                 fprintf(stderr, "invalid rotation in input file '%s'", fname);
+248                 exit(1);
+249             }
+***********************
+
