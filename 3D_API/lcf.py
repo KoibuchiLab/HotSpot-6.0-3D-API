@@ -3,6 +3,27 @@
 #
 # HotSpot need lcf file including length between chips, thickness of chips and so on.
 # lcf.py create XXX.lcf.
+#
+#    * The .lcf file format is the same as the default HotSpot
+#        #File Format:
+#        <Layer Number>
+#        <Lateral heat flow Y/N?>
+#        <Power Dissipation Y/N?>
+#        <Specific heat capacity in J/(m^3K)>
+#        <Resistivity in (m-K)/W>
+#        <Thickness in m>
+#        <floorplan file>
+#
+#        #Example
+#        0
+#        Y
+#        Y
+#        1.75e6
+#        0.01
+#        0.00015
+#        ev6_3D_core_layer.flp
+#
+########################################
 
 #!/usr/bin/python
 import os

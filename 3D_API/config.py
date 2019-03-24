@@ -4,7 +4,9 @@
 # HotSpot need information of heatsink, heatspreader, pcb, outside temparature and so on.
 # config.py create XXX.config by reffering what material used.
 # when you add a new chip, you have to add some codes like tulsa_x, tulsa_y.
-
+# Most of the information uses the value of default.config as it is.
+# So, you can change some configuration by editting default.config or this file.
+#
 #!/usr/bin/python
 
 import os
