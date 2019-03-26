@@ -51,7 +51,8 @@ NOVEC_H = 180##caution! this value is not correct.  # W/(m^2 K) Heat Transffer C
 WATER_PILLOW_H = 5000 # W/(m^2 K) Heat Transffer Coefficient of WATER_PILLOW (using forced convection, velocity = 0.5m/s)
 
 def config(sorted_input, material, pid):
-
+	k_pcb = 3.0
+	t_pcb = 0.002
 	if material == "water":
 		H_TRANS = WATER_H
 		k_pcb = 1.237
